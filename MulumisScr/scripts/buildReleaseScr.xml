@@ -78,7 +78,7 @@
         <include name="README.txt" />
       </fileset>
     </copy>
-    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.release.version}_win32.zip" basedir="${mulumiss.dist}"
+    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.working.version}_win32.zip" basedir="${mulumiss.dist}"
          includes="${mulumiss.screensaver}-win32/**" />
     
     <!-- Create distribution for Unix: -->
@@ -101,7 +101,7 @@
         <include name="README.txt" />
       </fileset>
     </copy>
-    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.release.version}_unix.zip" basedir="${mulumiss.dist}"
+    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.working.version}_unix.zip" basedir="${mulumiss.dist}"
          includes="${mulumiss.screensaver}-unix/**" />
   </target>
   

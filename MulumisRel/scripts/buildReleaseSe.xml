@@ -163,7 +163,7 @@
     </zip>
     <copy todir="${mulumis.dist}">
     	<fileset dir="${mulumis.dest}/classes"
-    	   includes="**/Stars.class"
+    	   includes="**/Stars.class,**/StarField.class"
     	/>
     </copy>
     
