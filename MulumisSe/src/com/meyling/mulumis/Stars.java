@@ -56,6 +56,7 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("stars") != null) {
 	    		field.setNumberOfStars(Integer.parseInt(getParameter("stars")));
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -63,6 +64,7 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("delta") != null) {
     			field.setDelta(parseDouble(getParameter("delta")));
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -70,6 +72,7 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("sensitivity") != null) {
     			field.setSensitivity(parseDouble(getParameter("sensitivity")));
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -77,6 +80,7 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("radius") != null) {
     			field.setRadius(parseDouble(getParameter("radius")));
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -84,6 +88,7 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("zoom") != null) {
     			field.setZoom(parseDouble(getParameter("zoom")));
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -92,14 +97,16 @@ public final class Stars extends Applet implements Runnable {
     		if (getParameter("normale") != null && getParameter("normale").equals("true")) {
     			this.circleNormale = true;
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
     	try {
-    		this.circleNormale = false;
+    		this.linear = false;
     		if (getParameter("linear") != null && getParameter("linear").equals("true")) {
     			this.linear = true;
     		}
+    	} catch (NullPointerException e) {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
