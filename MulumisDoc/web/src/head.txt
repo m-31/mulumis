@@ -48,7 +48,7 @@
 <table cellspacing=2 cellpadding=4>
 <tr>
 <td align="left" valign="top">
-<table cellspacing=2 cellpadding=2 bgcolor="#E6E6E6">
+<table cellspacing=2 cellpadding=4 bgcolor="#E6E6E6">
 @select@
 <tr>
 <td><a href="sitemap.html">site map</a></font></td>
