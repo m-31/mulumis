@@ -3,6 +3,7 @@
 	<name>MulumisScr</name>
 	<comment>Simulum screensaver</comment>
 	<projects>
+		<project>MulumisSe</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
