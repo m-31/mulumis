@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-class: com.meyling.mulumis.ToInfinityAndBeyond
+Created-By: "Michael Meyling"
+Specification-Title: "Simulum"
+Specification-Version: "@MULUMIS_VERSION@"
+Specification-Vendor: "Michael Meyling"
+Implementation-Version: "@MULUMIS_VERSION@"
+Implementation-Vendor: "Michael Meyling"

@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+-->
+</head>
+<body>
+This open source project wants to present mathematical knowledge in a
+formal correct form.
+It includes a proof verifier which checks a mathematical proof written
+in a certain formal language and a HTML converter which produces
+HTML pages that display mathematical knowledge.
+These mathematical knowledge is organized in "MODULE"s which could be
+spread over the whole world wide web.
+<p>
+This program suite is only a working prototype for the main project
+<b>Hilbert II</b>. It concentrates on the basic logic foundation of
+mathematics. The software design of the main implementation will be
+highly different. The following information is only appropriate for
+this prototype.
+<p>
+Look at
+<a href="http://www.qedeq.org/">http://www.qedeq.org/</a> or
+<a href="http://sourceforge.net/projects/pmii/">http://sourceforge.net/projects/pmii/<a>
+to get the latest source code and information.
+<p>
+If you start the test program "com.meyling.principia.Main" it will try
+to copy some of the modules from the internet homepage into a new
+local directory "com/meyling/principia/buffer", then it tries to load
+and check them.
+<p>
+There are some modules with errors to demonstrate a verify failure.
+It also tries to "compress" some module files, to "reduce the
+rule version" and to construct HTML files for some of the modules at
+the same buffer location.
+<p>
+You could also call the programm "com.meyling.principia.CheckModule"
+directly. It will copy the needed modules into the local file buffer and will
+verify the proofs.
+<p>
+With the programm "com.meyling.principia.MakeHtmlModule" you could
+generate some html files from the given module addresses.
+<p>
+By calling "com.meyling.principia.MakeCompressedModule" principia
+modules are striped from unnecessary proof lines.
+<p>
+More important is the class "com.meyling.principa.MakeReducedModule".
+It generates modules that use only basic rules (e.g. rules with
+rule version 1.00.00).
+<p>
+If you just want to test the tiny converter from LaTeX into HTML
+just start "com.meyling.principia.html.Latex2Html" with the file names
+(without ".tex") as arguments. The resulting files are at the same
+directory position but have the ending ".html".
+<p>
+All project files are published under the GPL see the file
+<a href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>
+for further details.
+</body>
+</html>
+

@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!-- $RCSfile$ -->
+<!-- $Revision$ -->
+<!-- author: mime -->
+<!-- project: Simulum -->
+
+<!-- This is the Ant build file for building the release of project Simulum -->
+<project name="Simulum" default="all" basedir="../..">
+
+  <!-- set global properties for this build -->
+  <property name="mulumis.version"      value="0.00.01" />
+  <property name="mulumis.src"          value="${basedir}/MulumisSe/src" />
+  <property name="mulumis.lib"          value="${basedir}/MulumisSe/lib" />
+  <property name="mulumis.dest"         value="${basedir}/../release/se/dest" />
+  <property name="mulumis.dist"         value="${basedir}/../release/se/dist" />
+  <property name="mulumis.rdist"        value="${basedir}/../release/release/se" />
+  <property name="mulumis.temp"         value="${basedir}/../release/se/temp" />
+  <property name="mulumis.doc"          value="${basedir}/MulumisDoc/doc" />
+  <property name="mulumis.docRel"       value="${basedir}/MulumisRel/doc" />
+  <property name="mulumis.inc"          value="${basedir}/MulumisRel/inc" />
+
+  <path id="classpath.common">
+      <pathelement location="${mulumis.lib}/junit.jar"/>
+  </path>
+
+
+  <target name="init">
+    <tstamp>
+      <format property="mulumis.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
+    </tstamp>
+    <mkdir dir="${mulumis.dest}"/>
+    <mkdir dir="${mulumis.dist}"/>
+    <mkdir dir="${mulumis.temp}"/>
+  </target>
+
+
+  <target name="compile" depends="init">
+    <mkdir dir="${mulumis.dest}/classes"/>
+    <javac
+      srcdir="${mulumis.src}"
+      destdir="${mulumis.dest}/classes"
+      debug="on"
+      deprecation="on"
+      classpathref="classpath.common"
+    />
+    <copy todir="${mulumis.dest}/classes">
+      <fileset dir="${mulumis.src}"
+	       includes="com/meyling/mulumis/resources/*"
+       />
+    </copy>
+    
+  </target>
+
+
+  <target name="source" depends="init">
+    <mkdir dir="${mulumis.dest}/src"/>
+    <copy todir="${mulumis.dest}/src" >
+      <fileset dir="${mulumis.src}"
+       />
+    </copy>
+  </target>  
+
+
+  <target name="javadoc" description="javadoc" depends="source">
+    <mkdir dir="${mulumis.dest}/javadoc"/>
+      <javadoc destdir="${mulumis.dest}/javadoc"
+               sourcepath="${mulumis.dest}/src"
+               classpathref="classpath.common"
+               access="package"
+               windowtitle="Simulum"
+               doctitle="Simulum"
+               packageList="${mulumis.inc}/packagelist"
+               overview="${mulumis.docRel}/overview.html"
+               use="true"
+               splitindex="true"
+               author="true"
+               version="true"
+               stylesheetfile="${mulumis.inc}/stylesheet.css" 
+      >
+            <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
+            <link href="http://java.sun.com/xml/jaxp-docs-1.0.1/docs/api/"/>
+            <link href="http://jakarta.apache.org/log4j/docs/api/"/>
+            <link href="http://java.sun.com/products/jdbc/jdbc20.stdext.javadoc/"/>
+            <header><![CDATA[<b>Simulum - JAVA-Packages</b>]]></header>
+            <footer><![CDATA[<i>Simulum - JAVA-Packages</i>]]></footer>
+            <bottom><![CDATA[<table><td style="font-size:8pt"><a href="http://www.gnu.org/copyleft/gpl.html">&copy;left GNU General Public Licence</a><br> All Rights Reserved.</td></table>]]></bottom>
+<!-- for use with proxy: 
+            additionalparam="-J-DproxySet=true -J-DproxyHost=www-cache -J-DproxyPort=3128"
+-->
+    </javadoc>
+  </target>
+
+
+  <target name="jar" depends="compile,source,javadoc">
+
+    <copy todir="${mulumis.temp}">
+      <fileset dir="${mulumis.inc}" includes="**/manifest*.txt">
+      </fileset>
+      <filterset begintoken="@" endtoken="@">
+        <filter token="MULUMIS_VERSION" value="${mulumis.version}" />
+      </filterset>
+    </copy>
+
+    <mkdir dir="${mulumis.dest}/doc"/>
+    <copy todir="${mulumis.dest}/doc">
+      <fileset dir="${mulumis.doc}" 
+      >
+      </fileset>
+    </copy>
+
+    <copy todir="${mulumis.dest}">
+      <fileset dir="${mulumis.doc}" includes="readme.txt"/>
+      <filterset begintoken="@" endtoken="@">
+        <filter token="MULUMIS_VERSION"     value="${mulumis.version}" />
+        <filter token="MULUMIS_VERSION_DIR" value="${mulumis.version.dir}" />
+        <filter token="MULUMIS_TIMESTAMP"   value="${mulumis.timestamp}" />
+      </filterset>
+    </copy>
+    
+    <mkdir dir="${mulumis.dist}"/>
+    <jar
+     jarfile="${mulumis.dist}/mulumis_${mulumis.version}.jar"
+     manifest="${mulumis.temp}/manifest.txt"
+    >
+      <fileset dir="${mulumis.dest}/classes"
+      />
+      <fileset dir="${mulumis.dest}" 
+               includes="gpl.txt"
+      />
+      <fileset dir="${mulumis.dest}" includes="readme.txt"/>
+    </jar>
+	<signjar jar="${mulumis.dist}/mulumis_${mulumis.version}.jar" alias="mulumiskey" storepass="wwmsdzzwf&amp;mrvszdbse" keystore="${mulumis.inc}/mulumis.bin"/>
+
+    <mkdir dir="${mulumis.dist}"/>
+
+    <copy file="${mulumis.dist}/mulumis_${mulumis.version}.jar" tofile="${mulumis.dest}/lib/mulumis.jar"/>
+
+    <mkdir dir="${mulumis.dist}"/>
+    <zip
+      zipfile="${mulumis.dist}/mulumis_${mulumis.version}_src.zip"
+    >
+      <fileset dir="${mulumis.dest}" 
+        excludes="classes,classes/**/*,**/Test*,**/*Test*,**/*.class,**/test,**/test/*,**/*.output" 
+      />
+    </zip>
+    <copy todir="${mulumis.dist}">
+    	<fileset dir="${mulumis.dest}/classes"
+    	   includes="**/Stars.class"
+    	/>
+    </copy>
+    
+  </target>
+
+  <target name="release">
+  	<copy todir="${mulumis.rdist}/${mulumis.version}"> 
+      <fileset dir="${mulumis.dist}"/>
+  	</copy>
+  </target>
+
+  <target name="clean">
+    <delete dir="${mulumis.dest}"/>
+    <delete dir="${mulumis.dist}"/>
+  </target>
+
+
+  <target name="tidy">
+    <delete>
+      <fileset dir="${mulumis.dest}" defaultexcludes="no" includes="**/*~"/>
+    </delete>
+  </target>
+
+
+  <target name="all" depends="clean,compile,source,jar">
+  </target>
+
+</project>
+
+

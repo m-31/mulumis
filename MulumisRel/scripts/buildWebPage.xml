@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!-- $RCSfile$ -->
+<!-- $Revision$ -->
+<!-- author:    Michael Meyling -->
+<!-- project:   Simulum -->
+
+<!-- This is the Ant build file for building the web page -->
+<project name="Web Page for project Simulum" default="generate" basedir="../..">
+
+  <!-- set global properties for this build -->
+  <property name="mulumise.version"      value="0.00.01" />
+  <property name="mulumisr.src"          value="${basedir}/MulumisDoc/web/src/" />
+  <property name="mulumisr.inc"          value="${basedir}/MulumisDoc/web/inc/" />
+  <property name="mulumise.dist"         value="${basedir}/../release/release/se/${mulumise.version}" />
+  <property name="mulumisr.dest"         value="${basedir}/../web/page/" />
+  <property name="mulumisr.genDir"       value="${basedir}/MulumisRel/bin/" />
+  <property name="mulumisr.genMain"      value="com.meyling.mulumis.rel.web.PageGenerator" />
+
+  <path id="mulumisr.genclasspath">
+      <pathelement location="${mulumisr.genDir}"/>
+  </path>
+
+  <target name="init">
+    <tstamp>
+      <format property="mulumisr.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
+    </tstamp>
+  	<delete dir="${mulumisr.dest}"/>
+    <mkdir dir="${mulumisr.dest}"/>
+  </target>
+
+
+  <target name="generate" depends="init">
+    <copy todir="${mulumisr.dest}" >
+      <fileset dir="${mulumisr.inc}"
+	       excludes="CVS"
+       />
+    </copy>
+    <copy todir="${mulumisr.dest}" >
+      <fileset dir="${mulumise.dist}"
+      		includes="**/*.class"
+       />
+    </copy>
+    <copy todir="${mulumisr.dest}/lib" >
+        <fileset dir="${mulumise.dist}"
+        	includes="*.jar,*.zip"
+         />
+    </copy>
+    <java classname="${mulumisr.genMain}" classpathref="mulumisr.genclasspath" 
+       dir="${mulumisr.genDir}" fork="true">
+      <arg value="${mulumisr.src}" />
+      <arg value="${mulumisr.dest}" />
+    </java>
+  </target>  
+
+
+</project>
+
+
