@@ -45,12 +45,55 @@ import java.awt.Graphics;
 public final class Stars extends Applet implements Runnable {
     private Thread runThread;
     private StarField field = new StarField();
+	private boolean circleNormale;
+	private boolean linear;
     
     public Stars() {
     }
 
     public void init() {
     	this.field.init(getSize().width, getSize().height, this);
+    	try {
+    		field.setNumberOfStars(Integer.parseInt(getParameter("stars")));
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		field.setDelta(parseDouble(getParameter("delta")));
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		field.setSensitivity(parseDouble(getParameter("sensitivity")));
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		field.setRadius(parseDouble(getParameter("radius")));
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		field.setZoom(parseDouble(getParameter("zoom")));
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		this.circleNormale = false;
+    		if (getParameter("normale") != null && getParameter("normale").equals("true")) {
+    			this.circleNormale = true;
+    		}
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
+    	try {
+    		this.circleNormale = false;
+    		if (getParameter("linear") != null && getParameter("linear").equals("true")) {
+    			this.linear = true;
+    		}
+    	} catch (Exception e){
+    		e.printStackTrace();
+    	};
     }
 
     public final void paint(Graphics g) {
@@ -59,10 +102,59 @@ public final class Stars extends Applet implements Runnable {
 		}
     }
 
+    private final double parseDouble(final String value) throws NumberFormatException {
+    	final String v = value.trim();
+    	double result = 0;
+    	int position = 0;
+    	boolean isDecimal = false;
+    	double decimal = 1;
+    	if (v.length() == 0) {
+    		throw new NumberFormatException("empty String");
+    	}
+    	if (v.charAt(position) == '-') {
+    		result = -1;
+    		position++;
+    	} else {
+    		if (v.charAt(position) == '+') {
+        		position++;
+    		}
+    	}
+    	while (position < v.length()) {
+    		switch (v.charAt(position)) {
+    		case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				result = 10 * result + (v.charAt(position) - '0');
+				if (isDecimal) {
+					decimal *= 10;
+				}
+				break;
+		    case '.':
+		    	if (isDecimal) {
+		    		throw new NumberFormatException("multiple decimal points in " + v);
+		    	}
+		    	isDecimal = true;
+		    	break;
+			default:
+				throw new NumberFormatException("unexpected character: " + v.charAt(position) + " in " + v);
+    		}
+    		position++;
+    	}
+    	System.out.println(v + " -> " + (result / decimal));
+    	return result / decimal;
+    }
+    
     public final void start() {
         try {
             if (runThread == null) {
-                runThread=new Thread(this);
+                runThread = new Thread(this);
                 runThread.start();
             }
         } catch(Exception e) {
@@ -80,7 +172,14 @@ public final class Stars extends Applet implements Runnable {
     public final void run() {
         try {
             while (runThread != null) {
-                Stars.this.field.calculateMove();
+            	if (Stars.this.linear) {
+            		Stars.this.field.calculateLinearMovement();
+            	} else if (Stars.this.circleNormale) {
+            		Stars.this.field.calculateCircleMovementWithChangingViewingDirection();
+            	} else {
+            		Stars.this.field.calculateCircleMovement();
+            	}
+                Stars.this.field.generateImage();
                 Stars.this.paint(Stars.this.getGraphics());
                 try {
                     Thread.sleep(30);

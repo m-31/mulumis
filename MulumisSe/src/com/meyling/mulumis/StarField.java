@@ -46,8 +46,16 @@ import java.awt.image.MemoryImageSource;
  */
 //class Stars extends JPanel {
 public final class StarField  {
-    private int stars = 40000;
+    private double sensitivity = 6;
+	private int stars = 40000;
     private double delta = 0.001;
+    private double alpha = 0;
+    private double radius = 0.25;
+    private double zoom = 1;
+    private double pos[];
+    private double x[];
+    private double y[];
+    private double z[];
 
     private int width;
     private int height;
@@ -55,8 +63,6 @@ public final class StarField  {
     private int halfHeight;
     private MemoryImageSource mem;
     private Image im;
-
-    private double alpha = 0;
     private byte[] pix;
     private byte[] emptyPix;
     private double[] bright;
@@ -65,11 +71,6 @@ public final class StarField  {
     private Graphics offscreen = null;
     byte[][] paletteTable;
     private double star[][];
-    private double pos[];
-    private double v[];
-    private double x[];
-    private double y[];
-    private double z[];
 
 
     public StarField() {
@@ -83,10 +84,7 @@ public final class StarField  {
         this.halfHeight = height / 2;
         star = new double[stars][3];
         // starting view point position
-        pos = new double[] {0.5, 0.5, 0.5};
-
-        // speed (delta vector)
-        v = new double[] {0.0001, 0.0001, 0.0001};
+        pos = new double[] {0.5 - radius, 0.5 - radius, 0.5 - radius};
 
         x = new double[] {-2/Math.sqrt(6), 1/Math.sqrt(6), 1/Math.sqrt(6)};
         z = new double[] {1/Math.sqrt(3), 1/Math.sqrt(3), 1/Math.sqrt(3)};
@@ -141,15 +139,39 @@ public final class StarField  {
 		}
     }
 
-    public final void calculateMove() {
+    public final void calculateCircleMovement() {
         // new viewpoint
         alpha += delta;
-        pos[0] = Math.sin(alpha) / 4 + 0.5;
-        pos[1] = Math.cos(alpha) / 4 + 0.5;
+		pos[0] = Math.sin(alpha) * radius + 0.5;
+        pos[1] = Math.cos(alpha) * radius + 0.5;
         pos[2] = 0.5;
+    }    
 
-        // new x vector;
+    public final void calculateCircleMovementWithChangingViewingDirection() {
+        // new viewpoint
+        calculateCircleMovement();
+        z = new double[] {-Math.sin(alpha), -Math.cos(alpha), 0};
+        x = new double[] {0, 0, 1};
+        // cross product
+        y = new double[] {z[1]*x[2] - z[2]*x[1], -(z[0]*x[2] - z[2]*x[0]), z[0]*x[1] - z[1]*x[0]};        
+    }    
 
+    public final void calculateLinearMovement() {
+        // new viewpoint
+    	if (this.pos[0] < 2) {
+    		final double d = this.delta * (Math.abs(pos[0]) + 1);
+    		this.pos[0] = pos[0] + d;
+	    	this.pos[1] = pos[1] + d;
+	    	this.pos[2] = pos[2] + d;
+    	} else {
+	        this.pos[0] = 0.5 - this.radius;
+	        this.pos[1] = 0.5 - this.radius;
+	        this.pos[2] = 0.5 - this.radius;
+    	}
+    }    
+
+    
+    public final void generateImage() {    
         // empty brightness everywhere
         System.arraycopy(emptyBright, 0, bright, 0, emptyBright.length);
         // black screen
@@ -158,38 +180,19 @@ public final class StarField  {
         for (int i = 0; i < stars; i++) {
             final double d = minusscalar(star[i], pos, z);
             if (d > 0) {
-                double xr = halfWidth * minusscalar(star[i], pos, x) / d + halfWidth;
+                double xr = zoom * halfWidth * minusscalar(star[i], pos, x) / d + halfWidth;
                 if (xr < 0 ||  xr >= width) {
                     continue;
                 }
-                double yr = halfHeight * minusscalar(star[i], pos, y) / d + halfHeight;
+                double yr = zoom * halfHeight * minusscalar(star[i], pos, y) / d + halfHeight;
                 if (yr < 0 || yr >= height) {
                     continue;
                 }
                 int xir = (int) xr;
                 int yir = (int) yr;
-/* TODO
-                int hell = 255;
-                try {
-                    hell = (int) (1 / distanceSquare(star[i], pos));
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                }
-                if (hell < 0){
-                    hell = 0;
-                }
-                if (hell > 255) {
-                    System.out.println("cut:" + hell);
-                    hell = 255;
-                }
-                final int c = pix[width * yir + xir];
-                if (c < color[hell]) {
-                    pix[width * yir + xir] = color[hell];
-                }
-*/
                 double brightness = 255;
                 try {
-                    brightness = 6 / distanceSquare(star[i], pos);
+                    brightness = sensitivity / distanceSquare(star[i], pos);
                 } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
@@ -356,6 +359,45 @@ public final class StarField  {
 	 */
 	public final void setNumberOfStars(int stars) {
 		this.stars = stars;
+	}
+	/**
+	 * @return Returns the sensitivity.
+	 */
+	public final double getSensitivity() {
+		return sensitivity;
+	}
+	/**
+	 * @param sensitivity The sensitivity to set.
+	 */
+	public final void setSensitivity(double sensitivity) {
+		this.sensitivity = sensitivity;
+	}
+	/**
+	 * @return Returns the radius.
+	 */
+	public final double getRadius() {
+		return radius;
+	}
+	/**
+	 * @param radius The radius to set.
+	 */
+	public final void setRadius(double radius) {
+		this.radius = radius;
+        this.pos[0] = 0.5 - radius;
+        this.pos[1] = 0.5 - radius;
+        this.pos[2] = 0.5 - radius;
+	}
+	/**
+	 * @return Returns the zoom.
+	 */
+	public final double getZoom() {
+		return zoom;
+	}
+	/**
+	 * @param zoom The zoom to set.
+	 */
+	public final void setZoom(double zoom) {
+		this.zoom = zoom;
 	}
 }
 
