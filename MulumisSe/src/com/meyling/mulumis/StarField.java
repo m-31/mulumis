@@ -51,7 +51,7 @@ public final class StarField  {
     private double delta = 0.001;
     private double alpha = 0;
     private double radius = 0.25;
-    private double zoom = 1;
+    private double zoom = 320;
     private double pos[] = new double[] {0.5 - radius, 0.5 - radius, 0.5 - radius};
 
     private double x[] = new double[] {-2/Math.sqrt(6), 1/Math.sqrt(6), 1/Math.sqrt(6)};
@@ -156,19 +156,13 @@ public final class StarField  {
         // new viewpoint
     	if (this.pos[0] < 2) {
     		final double distance = distance(pos, zero);
-        	final double distanceSquare = distanceSquare(pos, zero);
-//    		final double d = this.delta * (Math.pow(2*distance(pos, zero), 4) + 1);
-//    		/ Schrott!!!!!!!!!!!!
-//    		final double d = this.delta * (distanceSquare(pos, zero) + 1);
-        	System.out.println("distance  =" + distance);
-        	System.out.println("distance^2=" + distanceSquare);
+//        	final double distanceSquare = distanceSquare(pos, zero);
         	final double d;
-        	if (3 * delta * (distanceSquare + 1) > distance) {
+//        	if (3 * delta * (distanceSquare + 1) > distance) {
 	    		d = delta * (distance + 1);
-        	} else {
-    		    d = delta * (distanceSquare + 1);
-        	}
-        	System.out.println("d=" + d);
+//        	} else {
+//    		    d = delta * (distanceSquare + 1);
+//        	}
     		pos[0] = pos[0] + d;
 	    	pos[1] = pos[1] + d;
 	    	pos[2] = pos[2] + d;
@@ -177,7 +171,6 @@ public final class StarField  {
 	        pos[1] = 0.5 - radius;
 	        pos[2] = 0.5 - radius;
     	}
-    	System.out.println(pos[0]);
     }    
 
     
@@ -190,11 +183,11 @@ public final class StarField  {
         for (int i = 0; i < stars; i++) {
             final double d = minusscalar(star[i], pos, z);
             if (d > 0) {
-                double xr = zoom * halfWidth * minusscalar(star[i], pos, x) / d + halfWidth;
+                double xr = zoom * minusscalar(star[i], pos, x) / d + halfWidth;
                 if (xr < 0 ||  xr >= width) {
                     continue;
                 }
-                double yr = zoom * halfHeight * minusscalar(star[i], pos, y) / d + halfHeight;
+                double yr = zoom * minusscalar(star[i], pos, y) / d + halfHeight;
                 if (yr < 0 || yr >= height) {
                     continue;
                 }
