@@ -42,9 +42,14 @@
     </copy>
     <copy todir="${mulumisr.dest}/lib" >
         <fileset dir="${mulumise.dist}"
-        	includes="*.jar,*.zip"
+        	includes="mulumis_*.jar"
          />
     </copy>
+  	<move tofile="${mulumisr.dest}/lib/mulumis.jar">
+        <fileset dir="${mulumisr.dest}/lib"
+        	includes="mulumis_*.jar"
+         />
+  	</move>
     <java classname="${mulumisr.genMain}" classpathref="mulumisr.genclasspath" 
        dir="${mulumisr.genDir}" fork="true">
       <arg value="${mulumisr.src}" />
