@@ -29,14 +29,17 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis;
+package com.meyling.mulumis.screensaver;
 
 
-import java.applet.Applet;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
+
+import org.jdesktop.jdic.screensaver.ScreensaverSettings;
+import org.jdesktop.jdic.screensaver.SimpleScreensaver;
 
 /**
  * Simulates star field.
@@ -45,10 +48,10 @@ import java.awt.image.MemoryImageSource;
  * @author      Michael Meyling
  */
 //class Stars extends JPanel {
-public final class Stars extends Applet implements Runnable {
+public final class Stars extends SimpleScreensaver {
     private Thread runThread;
     private int stars = 100000;
-    private double delta = 0.001;
+    private double delta = 0.01;
 
     private int width;
     private int height;
@@ -77,12 +80,12 @@ public final class Stars extends Applet implements Runnable {
     }
 
     public void init() {
-        this.width = getSize().width;
-        this.height = getSize().height;
-
-        this.setSize(width, height);
-        this.halfWidth = width / 2;
-        this.halfHeight = height / 2;
+		ScreensaverSettings settings = getContext().getSettings();
+		final Component c = getContext().getComponent();
+		this.width = c.getWidth();
+		this.height = c.getHeight();
+        this.halfWidth = this.width / 2;
+        this.halfHeight = this.height / 2;
         star = new double[stars][3];
         // starting view point position
         pos = new double[] {0.5, 0.5, 0.5};
@@ -132,23 +135,24 @@ public final class Stars extends Applet implements Runnable {
         mem = new MemoryImageSource(width, height, icm, pix, 0, width);
         mem.setAnimated(true);
         mem.setFullBufferUpdates(true);
-        im = createImage(mem);
+        im = c.createImage(mem);
 
     }
 
     public final void paint(Graphics g) {
 //        super.paint(g);
-		if (g != null) {
-	        mem.newPixels();
-	        g.drawImage(im, 0, 0, null);
-		}
+		paintIt();
+        if (g != null) {
+            mem.newPixels();
+            g.drawImage(im, 0, 0, null);
+        }
     }
 
     public final void paintIt() {
         // new viewpoint
         alpha += delta;
-        pos[0] = Math.sin(alpha) / 4 + 0.5;
-        pos[1] = Math.cos(alpha) / 4 + 0.5;
+        pos[0] = Math.sin(alpha) / 8 + 0.5;
+        pos[1] = Math.cos(alpha) / 8 + 0.5;
         pos[2] = 0.5;
 
         // new x vector;
@@ -171,7 +175,7 @@ public final class Stars extends Applet implements Runnable {
                 }
                 int xir = (int) xr;
                 int yir = (int) yr;
-/* TODO
+/*
                 int hell = 255;
                 try {
                     hell = (int) (1 / distanceSquare(star[i], pos));
@@ -262,7 +266,7 @@ public final class Stars extends Applet implements Runnable {
     public final void start() {
         try {
             if (runThread == null) {
-                runThread=new Thread(this);
+//                runThread=new Thread(this);
                 runThread.start();
             }
         } catch(Exception e) {
@@ -282,7 +286,7 @@ public final class Stars extends Applet implements Runnable {
             while (runThread != null) {
                 Stars.this.paintIt();
 //                    Stars.this.repaint();
-                Stars.this.paint(Stars.this.getGraphics());
+//                Stars.this.paint(Stars.this.getGraphics());
 
                 try {
                     Thread.sleep(10);

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!-- $RCSfile$ -->
+<!-- $Revision$ -->
+<!-- author: mime -->
+<!-- project: Simulum -->
+
+<!-- This is the Ant build file for building the release of project Simulum -->
+<project name="Simulum" default="release" basedir="../..">
+
+  <!-- set global properties for this build -->
+  <property file="${basedir}/MulumisRel/conf/build.properties" />
+  <property name="mulumis.scr.dist"     value="${basedir}/../release/scr/dist" />
+  <property name="mulumis.se.dist"      value="${basedir}/../release/se/dist" />
+  <property name="mulumis.rel.dist"     value="${basedir}/../release/release" />
+  <property name="mulumis.rel.build"    value="${basedir}/../release/se/temp" />
+
+
+  <target name="init">
+    <tstamp>
+      <format property="mulumis.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
+    </tstamp>
+    <mkdir dir="${mulumis.dest}"/>
+    <mkdir dir="${mulumis.dist}"/>
+    <mkdir dir="${mulumis.temp}"/>
+  </target>
+
+  <target name="release" depends="init">
+    <copy todir="${mulumis.rel.dist}/${mulumis.release.version}"> 
+      <fileset dir="${mulumis.se.dist}"/>
+    </copy>
+    <copy todir="${mulumis.rel.dist}/${mulumis.release.version}"> 
+      <fileset dir="${mulumis.scr.dist}"/>
+    </copy>
+  </target>
+
+</project>
+
+

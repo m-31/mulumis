@@ -8,10 +8,10 @@
 <project name="Web Page for project Simulum" default="generate" basedir="../..">
 
   <!-- set global properties for this build -->
-  <property name="mulumise.version"      value="0.00.01" />
+  <property file="${basedir}/MulumisRel/conf/build.properties" />
   <property name="mulumisr.src"          value="${basedir}/MulumisDoc/web/src/" />
   <property name="mulumisr.inc"          value="${basedir}/MulumisDoc/web/inc/" />
-  <property name="mulumise.dist"         value="${basedir}/../release/release/se/${mulumise.version}" />
+  <property name="mulumise.dist"         value="${basedir}/../release/release/${mulumis.release.version}" />
   <property name="mulumisr.dest"         value="${basedir}/../web/page/" />
   <property name="mulumisr.genDir"       value="${basedir}/MulumisRel/bin/" />
   <property name="mulumisr.genMain"      value="com.meyling.mulumis.rel.web.PageGenerator" />
@@ -19,7 +19,7 @@
   <path id="mulumisr.genclasspath">
       <pathelement location="${mulumisr.genDir}"/>
   </path>
-
+	
   <target name="init">
     <tstamp>
       <format property="mulumisr.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
@@ -50,6 +50,10 @@
       <arg value="${mulumisr.src}" />
       <arg value="${mulumisr.dest}" />
     </java>
+
+  	<replace dir="${mulumisr.dest}" token="@MULUMIS_VERSION@" value="${mulumis.release.version}"/>
+  	<replace dir="${mulumisr.dest}" token="@MULUMIS_TIMESTAMP@" value="${mulumis.timestamp}"/>
+
   </target>  
 
 

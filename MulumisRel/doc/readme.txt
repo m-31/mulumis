@@ -1,40 +1,47 @@
 Simulum, Version @MULUMIS_VERSION@
 ================================================
-Copyright 2000-2004 Michael Meyling <mime@qedeq.org>.
+This is a release of the program suite "Simulum". Simulum deals with
+different simulations of star movements and their visualizations.
 
-*Simulum* is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+Copyright (C) 2004 by Michael Meyling
 
-This program is distributed in the hope that it will be useful,
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License under "doc/gpl.txt" for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
-This project deals with different simulations of star movements and 
-their visualizations. 
-To get a nice effect it produces the visual impression of flying 
-through a star field.
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 
-Look at 
- http://www.mulumis.meyling.com/
- http://sourceforge.net/projects/mulumis/
-to get the latest source code and information. 
+The license could be found at: doc/lgpl.txt
+An online version of this licence could be found at:
+   http://www.gnu.org/licenses/lgpl.html
+
+If you didn't download this release from the following link, you should 
+check if you aren't using an obsolete version:
+    http://sourceforge.net/projects/mulumis
+
+The hompage of the simulum project is:
+    http://www.mulumis.meyling.com
 
 
 Technical Details
 =================
 To start this program you need a java runtime version 1.4.2 or higher.
-We assume the following directory structure:
-jre           here is the java runtime version located
-jre/bin       here should be the program "java"
-lib           includes "mulumis.jar"
+The directory structure is as follows:
+doc           documentation
+javadoc       javadoc for this program
+lib           includes the java library "mulumis.jar"
+src           source files
 
 Now you could start the main program by calling
-./bin/java -cp lib/principia.jar com.meyling.mulumis.ToInfinityAndBeyond
-The option "-l 0" sets the logging level to 0, level 1 an 2 will give
-more details about the programs current status and actions.
+java -jar lib/mulumis.jar
 
 
 Author

@@ -8,16 +8,17 @@
 <project name="Simulum" default="all" basedir="../..">
 
   <!-- set global properties for this build -->
-  <property name="mulumis.version"      value="0.00.01" />
+  <property file="${basedir}/MulumisRel/conf/build.properties" />
   <property name="mulumis.src"          value="${basedir}/MulumisSe/src" />
   <property name="mulumis.lib"          value="${basedir}/MulumisSe/lib" />
   <property name="mulumis.dest"         value="${basedir}/../release/se/dest" />
   <property name="mulumis.dist"         value="${basedir}/../release/se/dist" />
   <property name="mulumis.rdist"        value="${basedir}/../release/release/se" />
   <property name="mulumis.temp"         value="${basedir}/../release/se/temp" />
-  <property name="mulumis.doc"          value="${basedir}/MulumisDoc/doc" />
-  <property name="mulumis.docRel"       value="${basedir}/MulumisRel/doc" />
+  <property name="mulumis.doc"          value="${basedir}/MulumisRel/doc" />
   <property name="mulumis.inc"          value="${basedir}/MulumisRel/inc" />
+  <property name="mulumisw.src"         value="${basedir}/MulumisDoc/web/src" />
+  <property name="mulumisw.inc"         value="${basedir}/MulumisDoc/web/inc" />
 
   <path id="classpath.common">
       <pathelement location="${mulumis.lib}/junit.jar"/>
@@ -70,7 +71,7 @@
                windowtitle="Simulum"
                doctitle="Simulum"
                packageList="${mulumis.inc}/packagelist"
-               overview="${mulumis.docRel}/overview.html"
+               overview="${mulumis.doc}/overview.html"
                use="true"
                splitindex="true"
                author="true"
@@ -84,9 +85,6 @@
             <header><![CDATA[<b>Simulum - JAVA-Packages</b>]]></header>
             <footer><![CDATA[<i>Simulum - JAVA-Packages</i>]]></footer>
             <bottom><![CDATA[<table><td style="font-size:8pt"><a href="http://www.gnu.org/copyleft/gpl.html">&copy;left GNU General Public Licence</a><br> All Rights Reserved.</td></table>]]></bottom>
-<!-- for use with proxy: 
-            additionalparam="-J-DproxySet=true -J-DproxyHost=www-cache -J-DproxyPort=3128"
--->
     </javadoc>
   </target>
 
@@ -97,7 +95,7 @@
       <fileset dir="${mulumis.inc}" includes="**/manifest*.txt">
       </fileset>
       <filterset begintoken="@" endtoken="@">
-        <filter token="MULUMIS_VERSION" value="${mulumis.version}" />
+        <filter token="MULUMIS_VERSION" value="${mulumis.working.version}" />
       </filterset>
     </copy>
 
@@ -108,18 +106,38 @@
       </fileset>
     </copy>
 
+    <copy todir="${mulumis.dest}/doc">
+      <fileset dir="${mulumisw.src}" includes="physics.html"
+      >
+      </fileset>
+    </copy>
+
+    <copy todir="${mulumis.dest}/doc">
+      <fileset dir="${mulumisw.inc}" includes="**/projection.gif"
+      >
+      </fileset>
+    </copy>
+
     <copy todir="${mulumis.dest}">
       <fileset dir="${mulumis.doc}" includes="readme.txt"/>
       <filterset begintoken="@" endtoken="@">
-        <filter token="MULUMIS_VERSION"     value="${mulumis.version}" />
-        <filter token="MULUMIS_VERSION_DIR" value="${mulumis.version.dir}" />
+        <filter token="MULUMIS_VERSION"     value="${mulumis.working.version}" />
         <filter token="MULUMIS_TIMESTAMP"   value="${mulumis.timestamp}" />
       </filterset>
     </copy>
     
+    <copy todir="${mulumis.dest}">
+      <fileset dir="${mulumis.inc}" includes="simulum,simulum.bat"/>
+      <filterset begintoken="@" endtoken="@">
+        <filter token="MULUMIS_JAVA"        value="java" />
+      </filterset>
+    </copy>
+
+  	
+  	
     <mkdir dir="${mulumis.dist}"/>
     <jar
-     jarfile="${mulumis.dist}/mulumis_${mulumis.version}.jar"
+     jarfile="${mulumis.dist}/mulumis_${mulumis.working.version}.jar"
      manifest="${mulumis.temp}/manifest.txt"
     >
       <fileset dir="${mulumis.dest}/classes"
@@ -129,15 +147,15 @@
       />
       <fileset dir="${mulumis.dest}" includes="readme.txt"/>
     </jar>
-	<signjar jar="${mulumis.dist}/mulumis_${mulumis.version}.jar" alias="mulumiskey" storepass="wwmsdzzwf&amp;mrvszdbse" keystore="${mulumis.inc}/mulumis.bin"/>
+	<signjar jar="${mulumis.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="wwmsdzzwf&amp;mrvszdbse" keystore="${mulumis.inc}/mulumis.bin"/>
 
     <mkdir dir="${mulumis.dist}"/>
 
-    <copy file="${mulumis.dist}/mulumis_${mulumis.version}.jar" tofile="${mulumis.dest}/lib/mulumis.jar"/>
+    <copy file="${mulumis.dist}/mulumis_${mulumis.working.version}.jar" tofile="${mulumis.dest}/lib/mulumis.jar"/>
 
     <mkdir dir="${mulumis.dist}"/>
     <zip
-      zipfile="${mulumis.dist}/mulumis_${mulumis.version}_src.zip"
+      zipfile="${mulumis.dist}/mulumis_${mulumis.working.version}_src.zip"
     >
       <fileset dir="${mulumis.dest}" 
         excludes="classes,classes/**/*,**/Test*,**/*Test*,**/*.class,**/test,**/test/*,**/*.output" 
@@ -152,9 +170,9 @@
   </target>
 
   <target name="release">
-  	<copy todir="${mulumis.rdist}/${mulumis.version}"> 
+    <copy todir="${mulumis.rdist}/${mulumis.working.version}"> 
       <fileset dir="${mulumis.dist}"/>
-  	</copy>
+    </copy>
   </target>
 
   <target name="clean">

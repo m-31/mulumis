@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  - xscreensaver-style configuration file for the simulum screensaver.
+  -->
+<screensaver name="simulum" _label="Simulum - Star Field Simuluation (Java)">
+
+  <command arg="-root"/>
+  
+  <command arg="-jar simulum.jar"/>
+  
+  <command arg="-class com.meyling.mulumis.screensaver.Stars"/>
+  
+  <file id="jdkhome" _label="Java Home (blank=auto)" arg="-jdkhome %" />
+
+  <_description>
+Star field simulation. You fly through a big star field.
+  </_description>
+
+</screensaver>
