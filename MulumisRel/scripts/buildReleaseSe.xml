@@ -11,7 +11,7 @@
   <property file="${basedir}/MulumisRel/conf/build.properties" />
   <property name="mulumis.se.src"          value="${basedir}/MulumisSe/src" />
   <property name="mulumis.se.lib"          value="${basedir}/MulumisSe/lib" />
-  <property name="mulumis.se.lib"          value="${basedir}/MulumisSe/bin" />
+  <property name="mulumis.se.bin"          value="${basedir}/MulumisSe/bin" />
   <property name="mulumis.se.dest"         value="${basedir}/../release/se/dest" />
   <property name="mulumis.se.dist"         value="${basedir}/../release/se/dist" />
   <property name="mulumis.se.rdist"        value="${basedir}/../release/release/se" />
@@ -148,7 +148,7 @@
       />
       <fileset dir="${mulumis.se.dest}" includes="readme.txt"/>
     </jar>
-	<signjar jar="${mulumis.se.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="wwmsdzzwf&amp;mrvszdbse" keystore="${mulumis.se.inc}/mulumis.se.bin"/>
+	<signjar jar="${mulumis.se.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="wwmsdzzwf&amp;mrvszdbse" keystore="${mulumis.se.inc}/mulumis.bin"/>
 
     <mkdir dir="${mulumis.se.dist}"/>
 
