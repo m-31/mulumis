@@ -7,8 +7,10 @@
 <project name="Simulum Screensaver" default="dist" basedir="../..">
 
 <!-- set global properties for this build -->
+<property file="${basedir}/MulumisRel/conf/build.properties" />
 <property name="mulumiss.debugParams" value="" />
 <property name="mulumiss.src"         value="${basedir}/MulumisScr/src/" />
+<property name="mulumis.se.src"       value="${basedir}/MulumisSe/src/" />
 <property name="mulumiss.conf"        value="${basedir}/MulumisScr/conf" />
 <property name="mulumiss.lib"         value="${basedir}/MulumisScr/lib" />
 <property name="mulumiss.doc"         value="${basedir}/MulumisScr/doc/" />
@@ -31,7 +33,7 @@
   
   <target name="compile" depends="init" description="Compile the screensaver">
     <mkdir dir="${mulumiss.build}/share" />
-    <javac debug="on" destdir="${mulumiss.build}/share" srcdir="${mulumiss.src}" 
+    <javac debug="on" destdir="${mulumiss.build}/share" srcdir="${mulumiss.src}:${mulumis.se.src}"
            classpath="${mulumiss.lib}/saverbeans-api.jar" />
     <copy todir="${mulumiss.build}/share">
       <fileset dir="${mulumiss.src}">
@@ -76,7 +78,7 @@
         <include name="README.txt" />
       </fileset>
     </copy>
-    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}-win32.zip" basedir="${mulumiss.dist}"
+    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.release.version}_win32.zip" basedir="${mulumiss.dist}"
          includes="${mulumiss.screensaver}-win32/**" />
     
     <!-- Create distribution for Unix: -->
@@ -99,7 +101,7 @@
         <include name="README.txt" />
       </fileset>
     </copy>
-    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}-unix.zip" basedir="${mulumiss.dist}"
+    <zip destfile="${mulumiss.dist}/${mulumiss.screensaver}_${mulumis.release.version}_unix.zip" basedir="${mulumiss.dist}"
          includes="${mulumiss.screensaver}-unix/**" />
   </target>
   
