@@ -42,7 +42,6 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
