@@ -79,7 +79,7 @@ public final class Stars extends SimpleScreensaver {
     }
 
     public final void paint(Graphics g) {
-    	this.field.calculateMove();
+    	this.field.calculateCircleMovement();
     	this.field.paint(g);
     }
 
