@@ -156,7 +156,7 @@ public final class Stars extends Applet implements Runnable {
                 }
                 int xir = (int) xr;
                 int yir = (int) yr;
-/*
+/* TODO
                 int hell = 255;
                 try {
                     hell = (int) (1 / distanceSquare(star[i], pos));
