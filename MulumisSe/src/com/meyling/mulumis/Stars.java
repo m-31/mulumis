@@ -52,29 +52,38 @@ public final class Stars extends Applet implements Runnable {
     }
 
     public void init() {
-    	this.field.init(getSize().width, getSize().height, this);
     	try {
-    		field.setNumberOfStars(Integer.parseInt(getParameter("stars")));
+    		if (getParameter("stars") != null) {
+	    		field.setNumberOfStars(Integer.parseInt(getParameter("stars")));
+    		}
     	} catch (Exception e){
     		e.printStackTrace();
     	};
     	try {
-    		field.setDelta(parseDouble(getParameter("delta")));
+    		if (getParameter("delta") != null) {
+    			field.setDelta(parseDouble(getParameter("delta")));
+    		}
     	} catch (Exception e){
     		e.printStackTrace();
     	};
     	try {
-    		field.setSensitivity(parseDouble(getParameter("sensitivity")));
+    		if (getParameter("sensitivity") != null) {
+    			field.setSensitivity(parseDouble(getParameter("sensitivity")));
+    		}
     	} catch (Exception e){
     		e.printStackTrace();
     	};
     	try {
-    		field.setRadius(parseDouble(getParameter("radius")));
+    		if (getParameter("radius") != null) {
+    			field.setRadius(parseDouble(getParameter("radius")));
+    		}
     	} catch (Exception e){
     		e.printStackTrace();
     	};
     	try {
-    		field.setZoom(parseDouble(getParameter("zoom")));
+    		if (getParameter("zoom") != null) {
+    			field.setZoom(parseDouble(getParameter("zoom")));
+    		}
     	} catch (Exception e){
     		e.printStackTrace();
     	};
@@ -94,6 +103,7 @@ public final class Stars extends Applet implements Runnable {
     	} catch (Exception e){
     		e.printStackTrace();
     	};
+    	this.field.init(getSize().width, getSize().height, this);
     }
 
     public final void paint(Graphics g) {
