@@ -52,10 +52,12 @@ public final class StarField  {
     private double alpha = 0;
     private double radius = 0.25;
     private double zoom = 1;
-    private double pos[];
-    private double x[];
-    private double y[];
-    private double z[];
+    private double pos[] = new double[] {0.5 - radius, 0.5 - radius, 0.5 - radius};
+
+    private double x[] = new double[] {-2/Math.sqrt(6), 1/Math.sqrt(6), 1/Math.sqrt(6)};
+    private double z[] = new double[] {1/Math.sqrt(3), 1/Math.sqrt(3), 1/Math.sqrt(3)};
+    // cross product
+    private double y[] = new double[] {z[1]*x[2] - z[2]*x[1], -(z[0]*x[2] - z[2]*x[0]), z[0]*x[1] - z[1]*x[0]};
 
     private int width;
     private int height;
@@ -71,6 +73,7 @@ public final class StarField  {
     private Graphics offscreen = null;
     byte[][] paletteTable;
     private double star[][];
+    final double[] zero = new double[] {0.5, 0.5, 0.5};
 
 
     public StarField() {
@@ -84,14 +87,7 @@ public final class StarField  {
         this.halfHeight = height / 2;
         star = new double[stars][3];
         // starting view point position
-        pos = new double[] {0.5 - radius, 0.5 - radius, 0.5 - radius};
 
-        x = new double[] {-2/Math.sqrt(6), 1/Math.sqrt(6), 1/Math.sqrt(6)};
-        z = new double[] {1/Math.sqrt(3), 1/Math.sqrt(3), 1/Math.sqrt(3)};
-        // cross product
-        y = new double[] {z[1]*x[2] - z[2]*x[1], -(z[0]*x[2] - z[2]*x[0]), z[0]*x[1] - z[1]*x[0]};
-
-        final double[] zero = new double[] {0.5, 0.5, 0.5};
         for (int i = 0; i < stars; i++){
             do {
                 for (int j = 0; j < 3; j++) {
@@ -159,15 +155,29 @@ public final class StarField  {
     public final void calculateLinearMovement() {
         // new viewpoint
     	if (this.pos[0] < 2) {
-    		final double d = this.delta * (Math.abs(pos[0]) + 1);
-    		this.pos[0] = pos[0] + d;
-	    	this.pos[1] = pos[1] + d;
-	    	this.pos[2] = pos[2] + d;
+    		final double distance = distance(pos, zero);
+        	final double distanceSquare = distanceSquare(pos, zero);
+//    		final double d = this.delta * (Math.pow(2*distance(pos, zero), 4) + 1);
+//    		/ Schrott!!!!!!!!!!!!
+//    		final double d = this.delta * (distanceSquare(pos, zero) + 1);
+        	System.out.println("distance  =" + distance);
+        	System.out.println("distance^2=" + distanceSquare);
+        	final double d;
+        	if (3 * delta * (distanceSquare + 1) > distance) {
+	    		d = delta * (distance + 1);
+        	} else {
+    		    d = delta * (distanceSquare + 1);
+        	}
+        	System.out.println("d=" + d);
+    		pos[0] = pos[0] + d;
+	    	pos[1] = pos[1] + d;
+	    	pos[2] = pos[2] + d;
     	} else {
-	        this.pos[0] = 0.5 - this.radius;
-	        this.pos[1] = 0.5 - this.radius;
-	        this.pos[2] = 0.5 - this.radius;
+	        pos[0] = 0.5 - radius;
+	        pos[1] = 0.5 - radius;
+	        pos[2] = 0.5 - radius;
     	}
+    	System.out.println(pos[0]);
     }    
 
     
