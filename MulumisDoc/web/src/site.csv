@@ -1,5 +1,15 @@
 ;index.html;introduction;Introduction;Simulum is introduced
-;samples.html;sample;Sample Animation;examples to view
+;samples.html;samples;Sample Animation;examples to view
++;circular.html;circular;Circular Movement
+++;sample1.html;sample1;;
+++;sample2.html;sample2;;
+++;sample3.html;sample3;;
+++;sample4.html;sample4;;
++;linear.html;linear;Linear Movement
+++;sample5.html;sample5;;
+++;sample6.html;sample6;;
+++;sample7.html;sample7;;
+++;sample8.html;sample8;;
 ;physics.html;physics;Physical Modeling;a little bit physical background
 ;news.html;news;News;what is new;
 ;download.html;download;Download;get the source and executables
