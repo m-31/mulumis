@@ -8,12 +8,22 @@
 
   <command arg="-root"/>
   
-  <command arg="-jar simulum.jar"/>
+  <command arg="-jar simulumscr.jar"/>
   
   <command arg="-class com.meyling.mulumis.screensaver.Stars"/>
   
   <file id="jdkhome" _label="Java Home (blank=auto)" arg="-jdkhome %" />
 
+  <number id="delta" type="slider" arg="-delta %"
+          _label="Speed" _low-label="Slow" _high-label="Fast"
+          low="0.0001" high="0.1" default="0.005"
+  />
+ 
+  <number id="stars" type="slider" arg="-stars %"
+          _label="Number of Stars" _low-label="Low" _high-label="High"
+          low="10" high="1000000" default="50000"
+  />
+ 
   <_description>
 Star field simulation. You fly through a big star field.
   </_description>
