@@ -1,0 +1,36 @@
+<!-- $Revision$ -->
+<p>
+Here the physical and mathematical background of the first simulation are sketched.
+</p>
+
+<h2>Star distribution</h2>
+<p>
+What is the initial star distribution? The first simple approch is a homogen (but random) distribution on a three dimensional sphere. All stars are of equal mass and brightness.
+</p>
+
+<h2>Projection</h2>
+<p>
+To get an visual impression we must choose a viewpoint. We also have to decide about our viewing direction and orientation. These informations fix the position of our virtual photo plate. Now each star position is mapped through the viewpoint onto the photo plate.
+</p>
+<p>
+<img src="pic/projection.gif" alt="projection picture">
+</p>
+
+<h2>Brightness</h2>
+<p>
+The brightness of the star makes an little spot on our virtual photo plate. The brightness of the spot depends only from the distance between star and viewpoint. The photo plate is a pixel matrix, that has some implications:
+<ul>
+<li>one pixel could only have a small range of brightness (e.g. between 0 and 255)</li>
+<li>different stars could be mapped onto the same pixel</li>
+</ul>
+</p>
+
+<h2>Movement of viewpoint</h2>
+<p>
+Currently the viewpoint simply circles around the middle of the sphere.
+</p>
+
+<h2>Movement of stars</h2>
+<p>
+Not yet implemented. The stars will have to move according to Newton's gravitional law. Because there is no analytical solution for the differential calculus problem, we have to use approximations. With a small time unit we calculate the star movements. We have to be carefull, that the stars don't get to close to each other. If this happens the calculation error has a great impact on our dynamical system. To renormalize the system we use the conservational laws of energy and impulse.
+</p>
