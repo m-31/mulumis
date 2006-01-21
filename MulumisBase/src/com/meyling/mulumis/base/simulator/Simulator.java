@@ -44,10 +44,10 @@ import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
- * Simulates star field.
+ * Star field simulator.
  *
- * @version     $Revision$
- * @author      Michael Meyling
+ * @version $Revision$
+ * @author  Michael Meyling
  */
 public final class Simulator {
 
