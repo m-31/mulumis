@@ -55,14 +55,18 @@ public class PageGenerator {
     private static final String selectionBackground = "#DDEEFF";
     
     /** name of the subdirectory where the input source is in */
-    public static final String INPUT = "source";
+    public static final String INPUT = "src";
 
     /** to this subdirectory goes the output */
-    public static final String OUTPUT = "pages";
+    public static final String OUTPUT = "page";
 
-    /** default directory, in which input and output directories are in */
-    public static final String DEFAULT_DIR
-        = "../../../doc/web/";
+    /** default directory, where input is in */
+    public static final String DEFAULT_INPUT_DIR
+        = "../MulumisDoc/web/";
+
+    /** default output directory, in which input and output directories are in */
+    public static final String DEFAULT_OUTPUT_DIR
+        = "../MulumisGen/";
 
 
     /** read from this directory */
@@ -108,8 +112,8 @@ public class PageGenerator {
             PageGenerator r = null;
             if (args.length == 0) {
                 try {
-                    r = new PageGenerator(DEFAULT_DIR + "/" + INPUT,
-                        DEFAULT_DIR + "/" + OUTPUT);
+                    r = new PageGenerator(DEFAULT_INPUT_DIR + "/" + INPUT,
+                        DEFAULT_OUTPUT_DIR + "/" + OUTPUT);
                 } catch (Exception e) {
                     e.printStackTrace();
                     help();
@@ -525,15 +529,20 @@ public class PageGenerator {
      */
     public static String loadFile(final File file) throws IOException {
 
-        final int size = (int) file.length();
-        final FileReader in = new FileReader(file);
-        final char[] data = new char[size];
-        int charsread = 0;
-        while (charsread < size) {
-            charsread += in.read(data, charsread, size-charsread);
+        try {
+            final int size = (int) file.length();
+            final FileReader in = new FileReader(file);
+            final char[] data = new char[size];
+            int charsread = 0;
+            while (charsread < size) {
+                charsread += in.read(data, charsread, size-charsread);
+            }
+            in.close();
+            return new String(data);
+        } catch (IOException e) {
+            System.err.println(file.getAbsolutePath());
+            throw e;
         }
-        in.close();
-        return new String(data);
     }
 
 
@@ -546,6 +555,7 @@ public class PageGenerator {
      */
     public static void saveFile(final File file, final String data)
             throws IOException {
+        file.getParentFile().mkdirs();
         final BufferedWriter out = new BufferedWriter(
             new FileWriter(file));
         out.write(data);
