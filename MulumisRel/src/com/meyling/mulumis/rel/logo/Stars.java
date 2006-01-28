@@ -54,8 +54,8 @@ import javax.imageio.stream.ImageOutputStream;
  * @version     $Revision$
  * @author      Michael Meyling
  */
-//class Stars extends JPanel {
 public final class Stars extends Applet implements Runnable {
+    private static final long serialVersionUID = -8049498509142209275L;
     private int MAXIMUM_COUNTER = 120;
 	private Thread runThread;
     private int stars = 30000;

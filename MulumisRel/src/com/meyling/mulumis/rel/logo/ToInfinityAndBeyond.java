@@ -42,19 +42,19 @@ import javax.swing.JFrame;
 
 
 /**
- * Info window.
+ * Test window.
  *
  * @version     $Revision$
  * @author      Michael Meyling
  */
 public class ToInfinityAndBeyond extends JFrame {
 
+    private static final long serialVersionUID = -6806024472136033023L;
     private final Stars field;
 
 
     public ToInfinityAndBeyond() {
     	super();
-        final String METHOD = "Constructor";
 		this.setSize(new Dimension(200, 200));
 
         this.getContentPane().setLayout(null);
