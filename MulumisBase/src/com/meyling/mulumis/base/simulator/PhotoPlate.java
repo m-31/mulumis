@@ -38,6 +38,7 @@ import java.awt.Image;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
 
+import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.GravityObject;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
@@ -89,6 +90,9 @@ public final class PhotoPlate  {
             System.err.println("waiting");
         }
         calculatePaletteTable();
+        Trace.traceParam(this, "init", "width*height", (int) width * height);
+        Trace.traceParam(this, "init", "width", width);
+        Trace.traceParam(this, "init", "height" , height);
         pix = new byte[width * height];
         bright = new double[width * height];
         emptyPix = new byte[width * height];
@@ -153,6 +157,7 @@ public final class PhotoPlate  {
     }
 
     public final void generateImage() {
+        final double sensitivity = Math.exp(this.sensitivity);
         // empty brightness everywhere
         System.arraycopy(emptyBright, 0, bright, 0, emptyBright.length);
         // black screen
@@ -316,6 +321,12 @@ public final class PhotoPlate  {
     public final void setZoom(double zoom) {
         this.zoom = zoom;
     }
+
+    public final StarField getField() {
+        return field;
+    }
+    
+
 }
 
 

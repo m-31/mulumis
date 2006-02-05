@@ -34,11 +34,19 @@ package com.meyling.mulumis.base.application;
 
 import java.applet.Applet;
 import java.awt.Graphics;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
+import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.simulator.PhotoPlate;
 import com.meyling.mulumis.base.simulator.Simulator;
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.util.IoUtility;
+import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
@@ -48,75 +56,88 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class StarApplet extends Applet implements Runnable, MouseListener, MouseMotionListener  {
+public final class StarApplet extends Applet implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener  {
     private static final long serialVersionUID = -3554962680447033507L;
     private Thread runThread;
+    private Boolean stopped = Boolean.TRUE;
+    final SimulatorProperties properties = new SimulatorProperties();
     private Simulator simulator;
     int prevx, prevy;
+    private double ytheta;
+    private double xtheta;
 
     public StarApplet() {
     }
 
     public void init() {
-        int stars = 4000;
         try {
             if (getParameter("stars") != null) {
-                stars = Integer.parseInt(getParameter("stars"));
+                properties.setStars(Integer.parseInt(getParameter("stars")));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
 
-        String movement = "manual";
         try {
             if (getParameter("movement") != null ) {
-                movement = getParameter("movement");
+                properties.setMovement(getParameter("movement"));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
-        double delta = 0.001;
         try {
             if (getParameter("delta") != null) {
-                delta = parseDouble(getParameter("delta"));
+                properties.setDelta(IoUtility.parseDouble(getParameter("delta")));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
-        double sensitivity = 70;
         try {
             if (getParameter("sensitivity") != null) {
-                sensitivity = parseDouble(getParameter("sensitivity"));
+                properties.setSensitivity(IoUtility.parseDouble(getParameter("sensitivity")));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
-        double radius = 0.9;
         try {
             if (getParameter("radius") != null) {
-                radius = parseDouble(getParameter("radius"));
+                properties.setRadius(IoUtility.parseDouble(getParameter("radius")));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
-        double zoom = 700;
         try {
             if (getParameter("zoom") != null) {
-                zoom = parseDouble(getParameter("zoom"));
+                properties.setZoom(IoUtility.parseDouble(getParameter("zoom")));
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
             e.printStackTrace();
         };
-        simulator = new Simulator(stars, movement, delta, sensitivity, radius, zoom);
-        simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+        if (simulator != null) {
+            synchronized (simulator) {
+                simulator = new Simulator(properties);
+                simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+            }
+        } else {
+            simulator = new Simulator(properties);
+            simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+        }
+        if ("manualDelay".equals(simulator.getProperties().getMovement())) {
+        	final ManualMovement mover = (ManualMovement) simulator.getPositionCalculator();
+        	mover.setXtheta(-0.003);
+        	mover.setYtheta(-0.002);
+        }
+        prevx = 0;
+        prevy = 0;
         addMouseListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
      }
 
     public void destroy() {
@@ -128,83 +149,48 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         simulator.paint(g);
     }
 
-    private final double parseDouble(final String value) throws NumberFormatException {
-        final String v = value.trim();
-        double result = 0;
-        int position = 0;
-        boolean isDecimal = false;
-        double decimal = 1;
-        if (v.length() == 0) {
-            throw new NumberFormatException("empty String");
-        }
-        if (v.charAt(position) == '-') {
-            result = -1;
-            position++;
-        } else {
-            if (v.charAt(position) == '+') {
-                position++;
-            }
-        }
-        while (position < v.length()) {
-            switch (v.charAt(position)) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                result = 10 * result + (v.charAt(position) - '0');
-                if (isDecimal) {
-                    decimal *= 10;
-                }
-                break;
-            case '.':
-                if (isDecimal) {
-                    throw new NumberFormatException("multiple decimal points in " + v);
-                }
-                isDecimal = true;
-                break;
-            default:
-                throw new NumberFormatException("unexpected character: " + v.charAt(position) + " in " + v);
-            }
-            position++;
-        }
-        System.out.println(v + " -> " + (result / decimal));
-        return result / decimal;
-    }
-
     public final void start() {
-        try {
+        synchronized (stopped) {
             if (runThread == null) {
                 runThread = new Thread(this);
                 runThread.start();
             }
-        } catch(Exception e) {
-            e.printStackTrace();
+            Trace.trace(this, "start", "Thread started");
         }
     }
 
-
     public final void stop(){
-        if (runThread != null) {
-            runThread = null;
+        synchronized (stopped) {
+            if (runThread != null) {
+                runThread = null;
+            }
+            Trace.trace(this, "stop", "Thread stopped");
         }
     }
 
     public final void run() {
         try {
-            while (runThread != null) {
+            synchronized (stopped) {
+                stopped = Boolean.FALSE;
+            }
+            if ("manual".equals(properties.getMovement())) {
                 simulator.moveViewPoint();
-                simulator.getPhotoPlate().generateImage();
+            }
+            while (runThread != null) {
+                synchronized (simulator) {
+                    if (!"manual".equals(properties.getMovement())) {
+                        simulator.moveViewPoint();
+                    }
+                    simulator.getPhotoPlate().generateImage();
+                }
                 paint(getGraphics());
                 try {
                     Thread.sleep(30);
                 } catch (InterruptedException e) {
                 }
+            }
+            synchronized (stopped) {
+                stopped = Boolean.TRUE;
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -213,13 +199,21 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
 
     /* event handling */
     public void mouseClicked(MouseEvent e) {
+        if (e.getButton() != 1) {
+            return;
+        }
         if (!(simulator.getPositionCalculator() instanceof ManualMovement)) {
+            return;
+        }
+        
+        if (!"manualDelay".equals(properties.getMovement())) {
             return;
         }
         ManualMovement positionCalculator = (ManualMovement) simulator.getPositionCalculator();
         positionCalculator.setXtheta(0);
         positionCalculator.setYtheta(0);
     }
+    
     public void mousePressed(MouseEvent e) {
       prevx = e.getX();
       prevy = e.getY();
@@ -227,30 +221,76 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     }
     public void mouseReleased(MouseEvent e) {
     }
+    
     public void mouseEntered(MouseEvent e) {
     }
+    
     public void mouseExited(MouseEvent e) {
     }
+    
     public void mouseDragged(MouseEvent e) {
+        if (InputEvent.BUTTON1_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK)) {
+            return;
+        }
         if (!(simulator.getPositionCalculator() instanceof ManualMovement)) {
             return;
         }
-        ManualMovement positionCalculator = (ManualMovement) simulator.getPositionCalculator();
+        final ManualMovement positionCalculator = (ManualMovement) simulator.getPositionCalculator();
         int x = e.getX();
         int y = e.getY();
         final double pi_fraction = Math.PI / 10;
-        double ytheta = (prevy - y) * (pi_fraction / getSize().width);
-        double xtheta = (prevx - x) * (pi_fraction / getSize().height);
+//        final double pi_fraction = Math.PI / 5;
+        final double max = Math.max(getSize().width, getSize().height);
+        ytheta = (prevy - y) * (pi_fraction / max);
+        xtheta = (prevx - x) * (pi_fraction / max);
         positionCalculator.setXtheta(xtheta);
         positionCalculator.setYtheta(ytheta);
-          simulator.moveViewPoint();
-           simulator.getPhotoPlate().generateImage();
-           prevx = x;
-           prevy = y;
-           e.consume();
+        simulator.moveViewPoint();
+        simulator.getPhotoPlate().generateImage();
+        prevx = x;
+        prevy = y;
+        e.consume();
     }
 
     public void mouseMoved(MouseEvent e) {
+    }
+
+    public final SimulatorProperties getProperties() {
+        return properties;
+    }
+
+    public final SimulatorProperties getCurrentProperties() {
+        return simulator.getProperties();
+    }
+
+    public final Simulator getSimulator() {
+        return simulator;
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+            AbstractAutomaticMover r = simulator.getPositionCalculator();
+            if (InputEvent.BUTTON3_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK)) {
+                if (e.getUnitsToScroll() < 0) {
+                    r.setRadius(r.getRadius() * 1.05);
+                } else {
+                    r.setRadius(r.getRadius() / 1.05);
+                }
+            }
+            PhotoPlate r1 = simulator.getPhotoPlate();
+            final double s;
+            if (e.getUnitsToScroll() < 0) {
+    //            zoom = zoom * 1.1;
+                s = r1.getSensitivity() + 2 * Math.log(1.05);
+            } else {
+    //            zoom = zoom / 1.1;
+                s = r1.getSensitivity() - 2 * Math.log(1.05);
+            }
+            if (!Double.isInfinite(s)) {
+                r1.setSensitivity(s);
+            }
+        }
+        e.consume();
     }
 
 

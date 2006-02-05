@@ -57,15 +57,23 @@ public final class Simulator {
 
     private AbstractAutomaticMover positionCalculator;
 
+    private String movement;
+
+    private int stars;
+
     public Simulator(final int stars, final String movement,
             final double delta, final double sensitivity, final double radius, final double zoom) {
+        this.stars = stars;
         final StarField field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         field.fillBall(0.5, zero);
         photoPlate = new PhotoPlate(field);
 
         viewPoint = new ViewPoint();
-        if (movement.equals("manual")) {
+        if (movement == null) {
+            throw new NullPointerException("movement is null");
+        }
+        if (movement.equals("manual") || movement.equals("manualDelay")) {
             positionCalculator = new ManualMovement(zero);
         } else if (movement.equals("linear")) {
             positionCalculator = new LinearMover(zero);
@@ -77,6 +85,7 @@ public final class Simulator {
             throw new IllegalArgumentException(
                 "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
         }
+        this.movement = movement;
         positionCalculator.setDelta(delta);
         positionCalculator.setRadius(radius);
         photoPlate.setSensitivity(sensitivity);
@@ -85,6 +94,16 @@ public final class Simulator {
         photoPlate.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
     }
 
+    public Simulator(final SimulatorProperties properties) {
+        this(properties.getStars(), properties.getMovement(), properties.getDelta(), 
+            properties.getSensitivity(), properties.getRadius(), properties.getZoom());
+    }
+
+    public final SimulatorProperties getProperties() {
+        return new SimulatorProperties(stars, movement, positionCalculator.getDelta(), 
+            photoPlate.getSensitivity(), positionCalculator.getRadius(), photoPlate.getZoom());
+    }
+    
     public final void paint(Graphics g) {
         if (g != null) {
             photoPlate.paint(g);

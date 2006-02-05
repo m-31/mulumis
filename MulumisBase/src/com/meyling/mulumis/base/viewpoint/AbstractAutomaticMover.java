@@ -85,6 +85,7 @@ public abstract class AbstractAutomaticMover implements ViewPointMover  {
         this.radius = radius;
     }
 
+    
     public final double[] getZero() {
         return zero;
     }

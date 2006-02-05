@@ -40,19 +40,20 @@ import javax.swing.JFrame;
 
 
 
+
 /**
  * JFrame with star simulation applet.
  *
  * @version $Revision$
  * @author  Michael Meyling
  */
-public class StarFrame extends JFrame {
+public class CopyOfStarFrame extends JFrame {
 
     private static final long serialVersionUID = -6021001107124948085L;
     private StarApplet field;
 
 
-    public StarFrame() {
+    public CopyOfStarFrame() {
         this.setSize(new Dimension(400, 400));
 
         this.getContentPane().setLayout(null);
@@ -78,7 +79,7 @@ public class StarFrame extends JFrame {
 
     public static final void main(final String args[]) {
         try {
-            final StarFrame infinity = new StarFrame();
+            final CopyOfStarFrame infinity = new CopyOfStarFrame();
             infinity.show();
         } catch (Exception e){
             e.printStackTrace();

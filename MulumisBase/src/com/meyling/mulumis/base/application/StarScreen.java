@@ -39,6 +39,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.viewpoint.ManualMovement;
+
 
 
 /**
@@ -61,6 +64,12 @@ public class StarScreen extends Window {
         addNotify();
 
         visualizer = new StarApplet();
+        final SimulatorProperties properties = visualizer.getProperties();
+        properties.setMovement("manualDelay");
+        properties.setStars(10000);
+        properties.setZoom(1000);
+        properties.setRadius(0.8);
+        properties.setSensitivity(4.5);
         visualizer.setSize(getToolkit().getScreenSize());
         this.add(visualizer);
 
@@ -82,7 +91,16 @@ public class StarScreen extends Window {
         });
         this.repaint();
         visualizer.init();
+        final ManualMovement mover = (ManualMovement) visualizer.getSimulator().getPositionCalculator();
+        mover.setXtheta(-0.0015);
+        mover.setYtheta(-0.0010);
         visualizer.start();
+    }
+    
+    public void dispose() {
+        visualizer.stop();
+        visualizer.destroy();
+        super.dispose();
     }
 
     public void show() {

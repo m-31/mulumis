@@ -31,12 +31,10 @@
 
 package com.meyling.mulumis.base.viewpoint;
 
-import com.meyling.mulumis.base.util.CalculatorUtility;
-
 
 
 /**
- * Simulates star field.
+ * Makes a linear star field movement.
  *
  * @version     $Revision$
  * @author      Michael Meyling
@@ -48,27 +46,17 @@ public final class LinearMover extends AbstractAutomaticMover {
     }
 
     public final void calculateMovement(final ViewPoint viewPoint) {
-        // new viewpoint
         final double[] position = viewPoint.getPosition();
         final double[] zero = getZero();
-
-        if (position[0] < 2) {
-            final double distance = CalculatorUtility.distance(position, zero);
-//            final double distanceSquare = CalculatorUtility.distanceSquare(pos, zero);
-            final double d;
-//            if (3 * delta * (distanceSquare + 1) > distance) {
-                d = getDelta() * (distance + 1);
-//            } else {
-//                d = delta * (distanceSquare + 1);
-//            }
-            position[0] = position[0] + d;
-            position[1] = position[1] + d;
-            position[2] = position[2] + d;
-        } else {
-            position[0] = zero[0] - getRadius();
-            position[1] = zero[1] - getRadius();
-            position[2] = zero[2] - getRadius();
+        double d;
+        d = getDelta() * (getRadius() + 1);
+        if (getRadius() - d < 0) {
+        	setRadius(10);
         }
+        position[0] = zero[0];
+        position[1] = zero[1];
+        position[2] = zero[2] - getRadius() - d;
+        setRadius(getRadius() - d);
     }
 
 }
