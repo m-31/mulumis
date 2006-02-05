@@ -111,6 +111,8 @@ public class PageGenerator {
         try {
             PageGenerator r = null;
             if (args.length == 0) {
+            	System.err.println("Please start the ANT script to build the web page!");
+            	System.exit(-99);
                 try {
                     r = new PageGenerator(DEFAULT_INPUT_DIR + "/" + INPUT,
                         DEFAULT_OUTPUT_DIR + "/" + OUTPUT);
