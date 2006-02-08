@@ -50,69 +50,70 @@ import com.meyling.mulumis.base.log.Trace;
  */
 public class CPDoubleField extends CPTextField {
 
-	private static final long serialVersionUID = 8914097339960479977L;
+    private static final long serialVersionUID = 8914097339960479977L;
 
-	private Double value;
-	
-	private final double minimum;
+    private Double value;
 
-	private final double maximum;
+    private final double minimum;
 
-	private final int len;
+    private final double maximum;
+
+    private final int len;
 
     /**
      * Constructor with initial value.
      *
-     * @param   value	Initial value.
-     * @param	minimum	Minimum value, must be greater or equal to zero.
+     * @param   value    Initial value.
+     * @param    minimum    Minimum value, must be greater or equal to zero.
      * @param   maximum Maximum value.
-     * @param	len		Maxium string length.
+     * @param    len        Maxium string length.
      */
     public CPDoubleField(final Double value, final double minimum, final double maximum, final int len) {
-        super(value == null ? "" : value.toString());
+        super();
         if (minimum < 0) {
-        	throw new IllegalArgumentException("negative values are not allowed");
+            throw new IllegalArgumentException("negative values are not allowed");
         }
         if (value != null && (value.doubleValue() < minimum || value.doubleValue() > maximum)) {
-        	throw new IllegalArgumentException("initial value out of bounds");
+            throw new IllegalArgumentException("initial value out of bounds");
         }
         this.value = value;
         this.minimum = minimum;
         this.maximum = maximum;
         this.len = len;
+        setText(value == null ? "" : value.toString());
     }
 
     private final void setInternValue(final Double value) {
-    	if (value == null) {
-    		this.value = null;
-    		return;
-    	}
-    	if (value.doubleValue() < minimum || value.doubleValue() > maximum) {
-    		throw new IllegalArgumentException("value is out of bound");
-    	}
-    	this.value = value;
+        if (value == null) {
+            this.value = null;
+            return;
+        }
+        if (value.doubleValue() < minimum || value.doubleValue() > maximum) {
+            throw new IllegalArgumentException("value is out of bound");
+        }
+        this.value = value;
     }
 
     public final void setValue(final Double value) {
-    	Trace.traceParam(this, "setValue", "value", value);
-    	setInternValue(value);
-    	// TODO mime 20060205: shorten according to length
-    	setText(value == null ? "" : value.toString());
+        Trace.traceParam(this, "setValue", "value", value);
+        setInternValue(value);
+        // TODO mime 20060205: shorten according to length
+        setText(value == null ? "" : value.toString());
     }
-    	
+
     public final Double getValue() {
-    	return value;
+        return value;
     }
 
     protected Document createDefaultModel() {
         return new DoubleDocument();
     }
-    
+
     class DoubleDocument extends PlainDocument {
 
-		private static final long serialVersionUID = 1694648039096424847L;
+        private static final long serialVersionUID = 1694648039096424847L;
 
-		public void insertString(int offs, String str, AttributeSet a) 
+        public void insertString(int offs, String str, AttributeSet a)
                 throws BadLocationException {
 
             if (str == null) {
@@ -120,29 +121,41 @@ public class CPDoubleField extends CPTextField {
             }
             StringBuffer buffer = new StringBuffer(str.length());
             boolean noPoint = getContent().getString(0, getContent().length()).indexOf('.')  <  0;
+            final String method = "insertString";
             for (int i = 0; i < str.length(); i++) {
                 if (Character.isDigit(str.charAt(i))) {
                     buffer.append(str.charAt(i));
                 } else if (noPoint && '.' == str.charAt(i)) {
                     buffer.append(str.charAt(i));
+                } else {
+                    Trace.trace(this, method, "Format Error");
+                    Trace.traceParam(this, method, "str", str);
+                    Toolkit.getDefaultToolkit().beep();
                 }
             }
             // TODO mime 20060130: + 1???
             if (buffer.length() + getContent().length() - 1 > len) {
+                Toolkit.getDefaultToolkit().beep();
+                Trace.trace(this, method, "Format Error");
+                Trace.traceParam(this, method, "str", str);
+                Trace.traceParam(this, method, "len", len);
+                Trace.traceParam(this, method, "buffer.length() + getContent().length - 1",
+                    buffer.length() + getContent().length() - 1);
                 return;
             }
             try {
-	            super.insertString(offs, buffer.toString(), a);
-	            if (getContent().length() == 0) {
-	            	setInternValue(null);
-	            } else {
-	            	// TODO mime 20060130: why cut last position???
-	            	setInternValue(new Double(getContent().getString(0, getContent().length() - 1))); 
-	            }
+                super.insertString(offs, buffer.toString(), a);
+                if (getContent().length() == 0) {
+                    setInternValue(null);
+                } else {
+                    // TODO mime 20060130: why cut last position???
+                    setInternValue(new Double(getContent().getString(0, getContent().length() - 1)));
+                }
             } catch (IllegalArgumentException e) {
-            	super.remove(offs, str.length());
-            	Trace.trace(this, "insertString", e);
-            	Toolkit.getDefaultToolkit().beep();
+                super.remove(offs, str.length());
+                Trace.traceParam(this, method, "str", str);
+                Trace.trace(this, method, e);
+                Toolkit.getDefaultToolkit().beep();
             }
         }
     }

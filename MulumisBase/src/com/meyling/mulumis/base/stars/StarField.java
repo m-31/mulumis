@@ -45,7 +45,9 @@ public final class StarField  {
 
     private final Star[] star;
 
-    private final double[] zero = new double[GravityObject.DIMENSION];
+    private double mass;
+    
+    private static final double[] zero = new double[GravityObject.DIMENSION];
 
     public StarField(final int numberOfStars) {
         star = new Star[numberOfStars];
@@ -61,6 +63,7 @@ public final class StarField  {
 
     public void fillBall(final double radius, double[] zero) {
         final double radiusSquare = radius * radius;
+        mass = 0;
         for (int i = 0; i < star.length; i++){
             final double[] position = new double[GravityObject.DIMENSION];
             do {
@@ -69,6 +72,7 @@ public final class StarField  {
                 }
             } while (CalculatorUtility.distanceSquare(position, zero) > radiusSquare);
             star[i] = new Star(1, position);
+            mass += 1;
         }
     }
 
@@ -81,12 +85,14 @@ public final class StarField  {
     }
 
     public void fillSquare(final double radius, double[] zero) {
+        mass = 0;
         for (int i = 0; i < star.length; i++){
             final double[] position = new double[GravityObject.DIMENSION];
             for (int j = 0; j < GravityObject.DIMENSION; j++) {
                 position[j] = 2.0d * radius * Math.random() - radius + zero[j];
             }
             star[i] = new Star(1, position);
+            mass += 1;
         }
     }
 
@@ -97,6 +103,15 @@ public final class StarField  {
      */
     public final int getNumberOfStars() {
         return star.length;
+    }
+
+    /**
+     * Returns the mass sum of stars.
+     *
+     * @return    Mass of stars.
+     */
+    public final double getMass() {
+        return mass;
     }
 
     /**

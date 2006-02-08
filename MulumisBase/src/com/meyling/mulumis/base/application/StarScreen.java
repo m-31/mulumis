@@ -39,7 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
@@ -96,7 +96,7 @@ public class StarScreen extends Window {
         mover.setYtheta(-0.0010);
         visualizer.start();
     }
-    
+
     public void dispose() {
         visualizer.stop();
         visualizer.destroy();

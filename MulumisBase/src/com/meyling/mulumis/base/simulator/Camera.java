@@ -29,67 +29,52 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.viewpoint;
+package com.meyling.mulumis.base.simulator;
 
 
 
+import com.meyling.mulumis.base.stars.StarField;
+import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
- * Calculates the observer viewpoint.
+ * Star field simulator.
  *
- * @version     $Revision$
- * @author      Michael Meyling
+ * @version $Revision$
+ * @author  Michael Meyling
  */
-public abstract class AbstractAutomaticMover implements ViewPointMover  {
+public final class Camera {
 
-    private double delta = 0.001;
-    private double radius = 0.25;
-    private final double[] zero;
+    private PhotoPlate photoPlate;
 
-    /**
-     * Constructor.
-     *
-     * @param    zero    Observer reference vector. For example the center of gravity.
-     */
-    public AbstractAutomaticMover(final double[] zero) {
-        this.zero = zero;
+    private ViewPoint viewPoint;
+
+    public Camera(final PhotoPlate photoPlate, final ViewPoint viewPoint) {
+        this.photoPlate = photoPlate;
+        this.viewPoint = viewPoint;
     }
 
-    public abstract void calculateMovement(final ViewPoint viewPoint);
-
-    /**
-     * @return Returns the delta.
-     */
-    public final double getDelta() {
-        return delta;
+    public final void takePicture(final StarField field) {
+        photoPlate.generateImage(field);
     }
 
-    /**
-     * @param delta The delta to set.
-     */
-    public final void setDelta(double delta) {
-        this.delta = delta;
+    public final double getZoom() {
+        return photoPlate.getZoom();
     }
 
-    /**
-     * @return Returns the radius.
-     */
-    public final double getRadius() {
-        return radius;
+    public final void setZoom(final double zoom) {
+        photoPlate.setZoom(zoom);
     }
 
-    /**
-     * @param radius The radius to set.
-     */
-    public final void setRadius(double radius) {
-        this.radius = radius;
+    public final double getSensitivity() {
+        return photoPlate.getSensitivity();
     }
 
-
-    public final double[] getZero() {
-        return zero;
+    public final void setSensitivity(final double sensitivity) {
+        photoPlate.setSensitivity(sensitivity);
     }
 
+    public final void setSnapshot(final int snapshot) {
+        photoPlate.setSnapshot(snapshot);
+    }
 }
-
 

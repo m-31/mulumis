@@ -50,9 +50,9 @@ import javax.swing.JTextField;
  */
 public class CPTextField extends JTextField {
 
-	private static final long serialVersionUID = -5925892673653612125L;
+    private static final long serialVersionUID = -5925892673653612125L;
 
-	/**
+    /**
      * Constructor.
      */
     public CPTextField() {

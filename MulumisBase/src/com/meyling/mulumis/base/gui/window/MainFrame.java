@@ -40,6 +40,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -49,12 +50,12 @@ import javax.swing.JLabel;
 
 import com.meyling.mulumis.base.application.StarApplet;
 import com.meyling.mulumis.base.config.Parameter;
+import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.config.SimulumProperties;
 import com.meyling.mulumis.base.gui.field.CPDoubleField;
 import com.meyling.mulumis.base.gui.field.CPIntegerField;
 import com.meyling.mulumis.base.gui.field.CPTextField;
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
 
 /**
  * Show and edit preferences of this application. Start simulation.
@@ -64,16 +65,16 @@ import com.meyling.mulumis.base.simulator.SimulatorProperties;
  */
 public final class MainFrame extends JFrame {
 
-	/** String length of double fields. Includes decimal seperator. */
+    /** String length of double fields. Includes decimal seperator. */
     private static final int DOUBLE_LENGTH = 30;
 
-	private static final long serialVersionUID = 9195725908114213914L;
+    private static final long serialVersionUID = 9195725908114213914L;
 
     /** Width for big components inside this dialog. */
     private static final int CONTENTS_WIDTH = 800;
 
     private int contentsWidth = CONTENTS_WIDTH;
-    
+
     /** Height for components inside this dialog. */
     private static final int CONTENT_HEIGHT = 17;
 
@@ -81,7 +82,7 @@ public final class MainFrame extends JFrame {
     private static final int MARGIN_X = 33;
 
     private SimulumProperties properties;
-    
+
     private StarApplet applet;
 
     /** Current y height. */
@@ -106,21 +107,33 @@ public final class MainFrame extends JFrame {
     private CPDoubleField radius;
     private JLabel radiusCurrent;
 
-	private CPTextField message;
+    private CPIntegerField snapshot;
+    private JLabel snapshotCurrent;
+
+    private CPDoubleField gamma;
+    private JLabel gammaCurrent;
+
+    private CPDoubleField deltat;
+    private JLabel deltatCurrent;
+
+    private JLabel impulseCurrent;
+    
+    private CPTextField message;
+
 
     /**
      * Constructor.
      *
      * @param   title           Dialog title.
-     * @param   configLocation  path of config file. 
+     * @param   configLocation  path of config file.
      */
     public MainFrame(final String title) {
         super(title);
         final String method = "StarterDialog(String)";
         try {
             Trace.traceBegin(this, method);
-            setSize(2 * MARGIN_X + CONTENTS_WIDTH, 400);
-            setupView(2 * MARGIN_X + CONTENTS_WIDTH, 400);
+            setSize(2 * MARGIN_X + CONTENTS_WIDTH, 500);
+            setupView(2 * MARGIN_X + CONTENTS_WIDTH, 500);
         } catch (Throwable e) {
             Trace.trace(this, method, e);
             e.printStackTrace();
@@ -135,8 +148,8 @@ public final class MainFrame extends JFrame {
      */
     public final void setupView(int width, int height) {
         int deltay = 40;
-    	int contentsWidth = width - 2 * MARGIN_X;
-    	int contentsHight = height - 4 * deltay;
+        int contentsWidth = width - 2 * MARGIN_X;
+        int contentsHight = height - 4 * deltay;
         final int startY = 21;
         y = 21;
 
@@ -152,33 +165,37 @@ public final class MainFrame extends JFrame {
             }
         });
         this.addComponentListener(new ComponentAdapter() {
-        	public void componentResized(ComponentEvent e) {
-            	applet.stop();
-            	applet.destroy();
-        		System.out.println(e.paramString());
-        		setupView(getSize().width, getSize().height);
+            public void componentResized(ComponentEvent e) {
+                stopApplet();
+                Trace.traceParam(this, "componentResized", "e", e.paramString());
+                setupView(getSize().width, getSize().height);
                 copyCurrentProperties();
-        	}
+            }
         });
-        
+
         setupFields(contentsWidth);
 
         // setup applet
         applet = new StarApplet();
         applet.setBounds(4 * MARGIN_X + contentsWidth / 6, startY, contentsWidth - contentsWidth / 6 - 3* MARGIN_X, contentsHight);
+        applet.setBackground(Color.BLACK);
         contents.add(applet);
         fillProperties();
-        applet.init();
-        applet.start();
-        y = 1 * deltay + contentsHight;
+        y = startY + CONTENT_HEIGHT + contentsHight;
+
+        impulseCurrent = new JLabel();
+        contents.add(impulseCurrent);
+        impulseCurrent.setBounds(4 * MARGIN_X + contentsWidth / 6, y, contentsWidth, CONTENT_HEIGHT);
+        y += CONTENT_HEIGHT * 1.5;
         
         setupMessageAndButtons(contentsWidth);
 
     }
 
-	private void setupFields(int contentsWidth) {
+    private void setupFields(int contentsWidth) {
         final Container contents = getContentPane();
-		stars = createIntegerField(properties.get("stars"));
+
+        stars = createIntegerField(properties.get("stars"), 0, 99999999);
         contents.add(stars);
         starsCurrent = new JLabel();
         contents.add(starsCurrent);
@@ -191,7 +208,7 @@ public final class MainFrame extends JFrame {
         contents.add(movementCurrent);
         movementCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
         y += CONTENT_HEIGHT * 1.5;
-        
+
         sensitivity = createDoubleField(properties.get("sensitivity"), 0, 1000000000, DOUBLE_LENGTH);
         contents.add(sensitivity);
         sensitivityCurrent = new JLabel();
@@ -212,10 +229,31 @@ public final class MainFrame extends JFrame {
         contents.add(radiusCurrent);
         radiusCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
         y += CONTENT_HEIGHT * 1.5;
-        
-	}
 
-	private void setupMessageAndButtons(int contentsWidth) {
+        snapshot = createIntegerField(properties.get("snapshot"), 0, 99999999);
+        contents.add(snapshot);
+        snapshotCurrent = new JLabel();
+        contents.add(snapshotCurrent);
+        snapshotCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
+        y += CONTENT_HEIGHT * 1.5;
+
+        gamma = createDoubleField(properties.get("gamma"), 0, 1000000000, DOUBLE_LENGTH);
+        contents.add(gamma);
+        gammaCurrent = new JLabel();
+        contents.add(gammaCurrent);
+        gammaCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
+        y += CONTENT_HEIGHT * 1.5;
+
+        deltat = createDoubleField(properties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
+        contents.add(deltat);
+        deltatCurrent = new JLabel();
+        contents.add(deltatCurrent);
+        deltatCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
+        y += CONTENT_HEIGHT * 1.5;
+
+    }
+
+    private void setupMessageAndButtons(int contentsWidth) {
         final Container contents = getContentPane();
 
         message = new CPTextField();
@@ -231,8 +269,7 @@ public final class MainFrame extends JFrame {
         dflt.setToolTipText("Resets all parameters to default values.");
         dflt.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-            	applet.stop();
-            	applet.destroy();
+                stopApplet();
                 MainFrame.this.setupView(getSize().width, getSize().height);
             }
         });
@@ -248,13 +285,8 @@ public final class MainFrame extends JFrame {
                 try {
                     setResultMessage(true, "generating");
                     fillProperties();
-                    applet.stop();
-                    applet.destroy();
-                    applet.init();
-                    copyCurrentProperties();
-                    applet.start();
+                    startApplet();
                     Trace.trace(this, method, "successfully started");
-                    setResultMessage(true, "successfully started");
                 } catch (final Exception e) {
                     Trace.trace(this, method, e);
                     setResultMessage(false, e.toString());
@@ -263,12 +295,13 @@ public final class MainFrame extends JFrame {
                     setResultMessage(false, e.toString());
                     // seems to be the only solution to deal with this kind of error
                     if (!(e instanceof OutOfMemoryError)) {
-                    	shutdown();
+                        shutdown();
                     }
                 }
-    
+
                 saveParameters();
             }
+
         });
 
         current = new JButton("Current");
@@ -277,7 +310,7 @@ public final class MainFrame extends JFrame {
         current.setToolTipText("Display current model properties.");
         current.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-            	copyCurrentProperties();
+                copyCurrentProperties();
             }
         });
 
@@ -288,8 +321,8 @@ public final class MainFrame extends JFrame {
         copy.setToolTipText("Copy current model properites into start parameters.");
         copy.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-            	copyProperties();
-            	copyCurrentProperties();
+                copyProperties();
+                copyCurrentProperties();
 //                final SimulatorProperties properties = applet.getSimulator().getProperties();
 //                openTextFileAtPosition();
             }
@@ -301,63 +334,11 @@ public final class MainFrame extends JFrame {
         cancel.setToolTipText("Exits the application.");
         cancel.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-            	applet.stop();
-            	applet.destroy();
+                applet.stop();
+                applet.destroy();
                 shutdown();
             }
         });
-	}
-
-    private void fillProperties() {
-        final SimulatorProperties properties = applet.getProperties();
-        final Integer i = stars.getValue();
-        if (i != null) {
-            properties.setStars(i.intValue());
-        }
-        
-        final String m = (String) movement.getSelectedItem();
-        if (m != null) {
-            properties.setMovement(m);
-        }
-        
-        final Double s = sensitivity.getValue();
-        if (s != null) {
-            properties.setSensitivity(s.doubleValue());
-        }
-        final Double r = radius.getValue();
-        if (r != null) {
-            properties.setRadius(r.doubleValue());
-        }
-        final Double z = zoom.getValue();
-        if (z != null) {
-            properties.setZoom(z.doubleValue());
-        }
-    }
-
-    private void copyProperties() {
-    	try {
-    		Trace.traceBegin(this, "copyProperties");
-	        final SimulatorProperties properties = applet.getCurrentProperties();
-	    	stars.setValue(new Integer(properties.getStars()));
-	        movement.setSelectedItem(properties.getMovement());
-	    	sensitivity.setValue(new Double(properties.getSensitivity()));
-	    	radius.setValue(new Double(properties.getRadius()));
-	    	zoom.setValue(new Double(properties.getZoom()));
-    	} catch (RuntimeException e) {
-    		Trace.trace(this, "copyProperties", e);
-    		throw e;
-    	} finally {
-    		Trace.traceEnd(this, "copyProperties");
-    	}
-    }
-
-    private void copyCurrentProperties() {
-        final SimulatorProperties properties = applet.getCurrentProperties();
-    	starsCurrent.setText("" + properties.getStars());
-    	movementCurrent.setText(properties.getMovement());
-    	sensitivityCurrent.setText("" + properties.getSensitivity());
-    	radiusCurrent.setText("" + properties.getRadius());
-    	zoomCurrent.setText("" + properties.getZoom());
     }
 
     private void setResultMessage(final boolean ok, final String message) {
@@ -368,7 +349,7 @@ public final class MainFrame extends JFrame {
         }
         this.message.setText(message);
     }
-    
+
     /**
      * Add combo box field for list parameter.
      *
@@ -385,11 +366,9 @@ public final class MainFrame extends JFrame {
         if (parameter.getStringValue() != null) {
             comboBox.setSelectedItem(parameter.getStringValue());
         }
-        System.out.println("selected: " + comboBox.getSelectedItem());
         contents.add(comboBox);
         comboBox.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
         comboBox.setToolTipText(parameter.getComment());
-        System.out.println(comboBox);
         return comboBox;
     }
 
@@ -398,14 +377,13 @@ public final class MainFrame extends JFrame {
      *
      * @param   parameter   Add text field selector for this parameter.
      */
-    CPIntegerField createIntegerField(final Parameter parameter) {
+    CPIntegerField createIntegerField(final Parameter parameter, final int minimum, final int maximum) {
         final Container contents = getContentPane();
         final JLabel label = new JLabel(parameter.getLabel());
         contents.add(label);
         label.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
         y += CONTENT_HEIGHT;
-//        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), 0, 99999);
-        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), 0, 99999999);
+        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), minimum, maximum);
         integerField.setValue(parameter.getIntegerValue());
         integerField.setToolTipText(parameter.getComment());
         integerField.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
@@ -417,45 +395,141 @@ public final class MainFrame extends JFrame {
      *
      * @param   parameter   Add text field selector for this parameter.
      */
-    private CPDoubleField createDoubleField(final Parameter parameter, final double minimum, 
-    		final double maximum, final int length) {
+    private CPDoubleField createDoubleField(final Parameter parameter, final double minimum,
+            final double maximum, final int length) {
         final Container contents = getContentPane();
         final JLabel label = new JLabel(parameter.getLabel());
         contents.add(label);
         label.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
         y += CONTENT_HEIGHT;
-        final CPDoubleField doubleField = new CPDoubleField(parameter.getDoubleValue(), 
-        	minimum, maximum, length);
+        final CPDoubleField doubleField = new CPDoubleField(parameter.getDoubleValue(),
+            minimum, maximum, length);
         doubleField.setValue(parameter.getDoubleValue());
         doubleField.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
         doubleField.setToolTipText(parameter.getComment());
         return doubleField;
     }
-    
+
     private void shutdown() {
         final String method = "shutdown()";
+        stopApplet();
         dispose();
         Trace.trace(this, method, "calling System.exit");
         System.exit(0);
     }
 
+    private void startApplet() {
+        stopApplet();
+        applet.init();
+        copyCurrentProperties();
+        applet.start();
+        setResultMessage(true, "viewer started");
+    }
+    private void stopApplet() {
+        if (applet != null) {
+            applet.stop();
+            applet.destroy();
+        }
+        setResultMessage(true, "viewer stopped");
+    }
+
+    /**
+     * Fill applet start parameters with GUI parameters.
+     */
+    private void fillProperties() {
+        final SimulatorProperties properties = applet.getProperties();
+        final Integer i = stars.getValue();
+        if (i != null) {
+            properties.setStars(i.intValue());
+        }
+
+        final String m = (String) movement.getSelectedItem();
+        if (m != null) {
+            properties.setMovement(m);
+        }
+
+        final Double s = sensitivity.getValue();
+        if (s != null) {
+            properties.setSensitivity(s.doubleValue());
+        }
+        final Double r = radius.getValue();
+        if (r != null) {
+            properties.setRadius(r.doubleValue());
+        }
+        final Double z = zoom.getValue();
+        if (z != null) {
+            properties.setZoom(z.doubleValue());
+        }
+
+        final Integer n = snapshot.getValue();
+        if (n != null) {
+            properties.setSnapshot(n.intValue());
+        }
+
+        final Double g = gamma.getValue();
+        if (g != null) {
+            properties.setGamma(g.doubleValue());
+        }
+
+        final Double t = deltat.getValue();
+        if (t != null) {
+            properties.setDeltat(t.doubleValue());
+        }
+    }
+
+    private void copyProperties() {
+        try {
+            Trace.traceBegin(this, "copyProperties");
+            final SimulatorProperties properties = applet.getCurrentProperties();
+            stars.setValue(new Integer(properties.getStars()));
+            movement.setSelectedItem(properties.getMovement());
+            sensitivity.setValue(new Double(properties.getSensitivity()));
+            radius.setValue(new Double(properties.getRadius()));
+            zoom.setValue(new Double(properties.getZoom()));
+            snapshot.setValue(new Integer(properties.getSnapshot()));
+            gamma.setValue(new Double(properties.getGamma()));
+            deltat.setValue(new Double(properties.getDeltat()));
+        } catch (RuntimeException e) {
+            Trace.trace(this, "copyProperties", e);
+            throw e;
+        } finally {
+            Trace.traceEnd(this, "copyProperties");
+        }
+    }
+
+    private void copyCurrentProperties() {
+        final SimulatorProperties properties = applet.getCurrentProperties();
+        starsCurrent.setText("" + properties.getStars());
+        movementCurrent.setText(properties.getMovement());
+        sensitivityCurrent.setText("" + properties.getSensitivity());
+        radiusCurrent.setText("" + properties.getRadius());
+        zoomCurrent.setText("" + properties.getZoom());
+        snapshotCurrent.setText("" + properties.getSnapshot());
+        gammaCurrent.setText("" + properties.getGamma());
+        deltatCurrent.setText("" + new BigDecimal(properties.getDeltat()).toString());
+        impulseCurrent.setText("" + applet.getSimulator().getImpulse());
+    }
+
     /**
      * Save parameters.
      */
-	private void saveParameters() {
-		final String method = "saveParameters";
-		Trace.trace(this, method, "saving parameters");
-    	properties.get("stars").setValue(stars.getValue());
-    	properties.get("movement").setValue((String) movement.getSelectedItem());
-    	properties.get("sensitivity").setValue(sensitivity.getValue());
-    	properties.get("radius").setValue(radius.getValue());
-    	properties.get("zoom").setValue(zoom.getValue());
-		try {
-		    properties.save();
-		} catch (IOException e) {
-		    Trace.trace(this, method, e);
-		}
-	}
-    
+    private void saveParameters() {
+        final String method = "saveParameters";
+        Trace.trace(this, method, "saving parameters");
+        properties.get("stars").setValue(stars.getValue());
+        properties.get("movement").setValue((String) movement.getSelectedItem());
+        properties.get("sensitivity").setValue(sensitivity.getValue());
+        properties.get("radius").setValue(radius.getValue());
+        properties.get("zoom").setValue(zoom.getValue());
+        properties.get("snapshot").setValue(snapshot.getValue());
+        properties.get("gamma").setValue(gamma.getValue());
+        properties.get("deltat").setValue(deltat.getValue());
+        try {
+            properties.save();
+        } catch (IOException e) {
+            Trace.trace(this, method, e);
+        }
+    }
+
 
 }

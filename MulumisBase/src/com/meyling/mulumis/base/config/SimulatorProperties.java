@@ -29,7 +29,7 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.simulator;
+package com.meyling.mulumis.base.config;
 
 /**
  * Star field simulator properties.
@@ -45,15 +45,22 @@ public final class SimulatorProperties {
     private double radius;
     private double sensitivity;
     private double zoom;
+    private int snapshot;
+    private double gamma;
+    private double deltat;
 
     public SimulatorProperties(final int stars, final String movement,
-            final double delta, final double sensitivity, final double radius, final double zoom) {
+            final double delta, final double sensitivity, final double radius,
+            final double zoom, final int snapshot, final double gamma, final double deltat) {
         setStars(stars);
         setMovement(movement);
         setDelta(delta);
         setRadius(radius);
         setSensitivity(sensitivity);
         setZoom(zoom);
+        setSnapshot(snapshot);
+        setGamma(gamma);
+        setDeltat(deltat);
     }
 
     public SimulatorProperties() {
@@ -63,6 +70,9 @@ public final class SimulatorProperties {
         setRadius(4);
         setSensitivity(7);
         setZoom(1000);
+        setSnapshot(0);
+        setGamma(0);
+        setDeltat(0.001);
     }
 
     public final double getDelta() {
@@ -85,7 +95,7 @@ public final class SimulatorProperties {
         } else if (movement.equals("circular")){
         } else {
             throw new IllegalArgumentException(
-                "Mover \"" + movement 
+                "Mover \"" + movement
                 + "\" unknown. Allowed: \"manual\", \"manualDelay\", \"linear\", \"circular\" or \"circularNormale\"");
         }
         this.movement = movement;
@@ -122,6 +132,31 @@ public final class SimulatorProperties {
     public final void setZoom(double zoom) {
         this.zoom = zoom;
     }
+
+    public int getSnapshot() {
+        return snapshot;
+    }
+
+    public final void setSnapshot(int snapshot) {
+        this.snapshot = snapshot;
+    }
+
+    public final double getGamma() {
+        return gamma;
+    }
+
+    public final void setGamma(double gamma) {
+        this.gamma = gamma;
+    }
+
+    public final double getDeltat() {
+        return deltat;
+    }
+
+    public final void setDeltat(double deltat) {
+        this.deltat = deltat;
+    }
+
 
 }
 

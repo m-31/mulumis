@@ -51,7 +51,7 @@ public final class LinearMover extends AbstractAutomaticMover {
         double d;
         d = getDelta() * (getRadius() + 1);
         if (getRadius() - d < 0) {
-        	setRadius(10);
+            setRadius(10);
         }
         position[0] = zero[0];
         position[1] = zero[1];

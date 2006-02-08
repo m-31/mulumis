@@ -90,16 +90,16 @@ public final class ParameterList {
     /**
      * Get parameter by name.
      *
-     * @param   name	Parameter name.
+     * @param   name    Parameter name.
      * @return  Parameter with this <code>name</code>.
      */
     public final Parameter get(final String name) {
-    	for (int i = 0; i < size(); i++) {
-    		if (get(i).getName().equals(name)) {
-    			return get(i);
-    		}
-    	}
-    	throw new NullPointerException("parameter \"" + name + "\" not found");
+        for (int i = 0; i < size(); i++) {
+            if (get(i).getName().equals(name)) {
+                return get(i);
+            }
+        }
+        throw new NullPointerException("parameter \"" + name + "\" not found");
     }
 
     /**

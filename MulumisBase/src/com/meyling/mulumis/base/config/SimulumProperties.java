@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.util.IoUtility;
 
 
@@ -66,7 +65,12 @@ public final class SimulumProperties {
 
     private Parameter radius;
 
-    
+    private Parameter snapshot;
+
+    private Parameter gamma;
+
+    private Parameter deltat;
+
     /**
      * Constructor. Reads previously saved values.
      */
@@ -83,7 +87,7 @@ public final class SimulumProperties {
         list.add("circular");
         list.add("circularNormale");
         list.add("linear");
-        movement = new Parameter("movement", "Viewpoint Movement", "Method to move viewpoint", 
+        movement = new Parameter("movement", "Viewpoint Movement", "Method to move viewpoint",
                 properties.getMovement(), properties.getMovement(), list);
         parameterList.add(movement);
 
@@ -99,24 +103,35 @@ public final class SimulumProperties {
                 "View Point Distance.", "" + properties.getRadius());
         parameterList.add(radius);
 
-        
+        snapshot = new Parameter("snapshot", "Snapshot", Integer.class,
+                "Clear the photo plate after this number of pictures.", "" + properties.getSnapshot());
+        parameterList.add(snapshot);
+
+        gamma = new Parameter("gamma", "Gamma", Double.class,
+                "Gamma constant. Zero means no gravity at all.", "" + properties.getGamma());
+        parameterList.add(gamma);
+
+        deltat = new Parameter("deltat", "Delta t", Double.class,
+                "Time unit used to calculate the gravity movement.", "" + properties.getDeltat());
+        parameterList.add(deltat);
+
         final File configFile = new File(CONFIG_MULUMIS_PROPERTIES);
         try {
-        	Trace.trace(this, "SimulumProperties", "loading properties");
-        	parameterList.fill(configFile);
+            Trace.trace(this, "SimulumProperties", "loading properties");
+            parameterList.fill(configFile);
         } catch (IOException e) {
-        	Trace.trace(this, "SimulumProperties", e);
+            Trace.trace(this, "SimulumProperties", e);
         }
     }
 
     /**
      * Get parameter by name.
      *
-     * @param   name	Parameter name.
+     * @param   name    Parameter name.
      * @return  Parameter with this <code>name</code>.
      */
     public final Parameter get(final String name) {
-    	return parameterList.get(name);
+        return parameterList.get(name);
     }
 
     /**
@@ -125,16 +140,16 @@ public final class SimulumProperties {
      * @throws  IOException File problem.
      */
     public void save() throws IOException {
-    	final File configFile = new File(CONFIG_MULUMIS_PROPERTIES);
-    	IoUtility.createNecessaryDirectories(configFile);
-    	parameterList.save(configFile);
+        final File configFile = new File(CONFIG_MULUMIS_PROPERTIES);
+        IoUtility.createNecessaryDirectories(configFile);
+        parameterList.save(configFile);
     }
 
     /**
      * Set all parameters back to default values.
      */
     public void resetToDefaultValues() {
-    	parameterList.resetToDefaultValues();
+        parameterList.resetToDefaultValues();
     }
 
 }

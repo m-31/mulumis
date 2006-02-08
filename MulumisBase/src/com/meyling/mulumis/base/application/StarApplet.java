@@ -31,7 +31,6 @@
 
 package com.meyling.mulumis.base.application;
 
-
 import java.applet.Applet;
 import java.awt.Graphics;
 import java.awt.event.InputEvent;
@@ -41,10 +40,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.simulator.PhotoPlate;
+import com.meyling.mulumis.base.simulator.Camera;
 import com.meyling.mulumis.base.simulator.Simulator;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.util.IoUtility;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
@@ -121,17 +120,15 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         };
         if (simulator != null) {
             synchronized (simulator) {
-                simulator = new Simulator(properties);
-                simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+                simulator = new Simulator(properties, getSize().width, getSize().height, this);
             }
         } else {
-            simulator = new Simulator(properties);
-            simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+            simulator = new Simulator(properties, getSize().width, getSize().height, this);
         }
-        if ("manualDelay".equals(simulator.getProperties().getMovement())) {
-        	final ManualMovement mover = (ManualMovement) simulator.getPositionCalculator();
-        	mover.setXtheta(-0.003);
-        	mover.setYtheta(-0.002);
+        if ("manualDelay".equals(simulator.getProperties().getMovement()) && !simulator.hasGravity()) {
+            final ManualMovement mover = (ManualMovement) simulator.getPositionCalculator();
+            mover.setXtheta(-0.003);
+            mover.setYtheta(-0.002);
         }
         prevx = 0;
         prevy = 0;
@@ -146,7 +143,9 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     }
 
     public final void paint(Graphics g) {
-        simulator.paint(g);
+        if (simulator != null) {
+            simulator.paintPicture(g);
+        }
     }
 
     public final void start() {
@@ -181,18 +180,27 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
                     if (!"manual".equals(properties.getMovement())) {
                         simulator.moveViewPoint();
                     }
-                    simulator.getPhotoPlate().generateImage();
+                    simulator.takePicture();
                 }
                 paint(getGraphics());
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
+                if (simulator.hasGravity()) {
+                    simulator.applyGravity();
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                    }
+                } else {
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
             synchronized (stopped) {
                 stopped = Boolean.TRUE;
             }
         } catch (Exception e){
+            Trace.trace(this, "run", e);
             e.printStackTrace();
         }
     }
@@ -205,7 +213,7 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         if (!(simulator.getPositionCalculator() instanceof ManualMovement)) {
             return;
         }
-        
+
         if (!"manualDelay".equals(properties.getMovement())) {
             return;
         }
@@ -213,7 +221,7 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         positionCalculator.setXtheta(0);
         positionCalculator.setYtheta(0);
     }
-    
+
     public void mousePressed(MouseEvent e) {
       prevx = e.getX();
       prevy = e.getY();
@@ -221,13 +229,13 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     }
     public void mouseReleased(MouseEvent e) {
     }
-    
+
     public void mouseEntered(MouseEvent e) {
     }
-    
+
     public void mouseExited(MouseEvent e) {
     }
-    
+
     public void mouseDragged(MouseEvent e) {
         if (InputEvent.BUTTON1_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK)) {
             return;
@@ -246,7 +254,7 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         positionCalculator.setXtheta(xtheta);
         positionCalculator.setYtheta(ytheta);
         simulator.moveViewPoint();
-        simulator.getPhotoPlate().generateImage();
+        simulator.takePicture();
         prevx = x;
         prevy = y;
         e.consume();
@@ -277,17 +285,17 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
                     r.setRadius(r.getRadius() / 1.05);
                 }
             }
-            PhotoPlate r1 = simulator.getPhotoPlate();
+            final Camera camera = simulator.getCamera();
             final double s;
             if (e.getUnitsToScroll() < 0) {
     //            zoom = zoom * 1.1;
-                s = r1.getSensitivity() + 2 * Math.log(1.05);
+                s = camera.getSensitivity() + 2 * Math.log(1.05);
             } else {
     //            zoom = zoom / 1.1;
-                s = r1.getSensitivity() - 2 * Math.log(1.05);
+                s = camera.getSensitivity() - 2 * Math.log(1.05);
             }
             if (!Double.isInfinite(s)) {
-                r1.setSensitivity(s);
+                camera.setSensitivity(s);
             }
         }
         e.consume();

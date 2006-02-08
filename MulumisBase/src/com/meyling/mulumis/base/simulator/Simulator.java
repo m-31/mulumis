@@ -32,15 +32,19 @@
 package com.meyling.mulumis.base.simulator;
 
 
+import java.awt.Component;
 import java.awt.Graphics;
 
+import com.meyling.mulumis.base.config.SimulatorProperties;
+import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.GravityObject;
 import com.meyling.mulumis.base.stars.StarField;
-import com.meyling.mulumis.base.viewpoint.CircularMover;
+import com.meyling.mulumis.base.util.CalculatorUtility;
+import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.CirclularMoverWithChangingViewingDirection;
+import com.meyling.mulumis.base.viewpoint.CircularMover;
 import com.meyling.mulumis.base.viewpoint.LinearMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
-import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
@@ -50,6 +54,8 @@ import com.meyling.mulumis.base.viewpoint.ViewPoint;
  * @author  Michael Meyling
  */
 public final class Simulator {
+
+    private StarField field;
 
     private PhotoPlate photoPlate;
 
@@ -61,14 +67,19 @@ public final class Simulator {
 
     private int stars;
 
+    private Camera camera;
+
+    private GravityEngine engine;
+
     public Simulator(final int stars, final String movement,
-            final double delta, final double sensitivity, final double radius, final double zoom) {
+            final double delta, final double sensitivity, final double radius, final double zoom,
+            final int snapshot, final double gamma, final double deltat,
+            final int width, final int height, final Component parent) {
         this.stars = stars;
-        final StarField field = new StarField(stars);
+        field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         field.fillBall(0.5, zero);
-        photoPlate = new PhotoPlate(field);
-
+        photoPlate = new PhotoPlate();
         viewPoint = new ViewPoint();
         if (movement == null) {
             throw new NullPointerException("movement is null");
@@ -92,19 +103,27 @@ public final class Simulator {
         photoPlate.setZoom(zoom);
         photoPlate.setPosition(viewPoint.getPosition());
         photoPlate.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
+        photoPlate.setSnapshot(snapshot);
+        photoPlate.init(width, height, parent);
+        camera = new Camera(photoPlate, viewPoint);
+        engine = new GravityEngine(gamma, deltat);
     }
 
-    public Simulator(final SimulatorProperties properties) {
-        this(properties.getStars(), properties.getMovement(), properties.getDelta(), 
-            properties.getSensitivity(), properties.getRadius(), properties.getZoom());
+    public Simulator(final SimulatorProperties properties, final int width, final int height,
+            final Component parent) {
+        this(properties.getStars(), properties.getMovement(), properties.getDelta(),
+            properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
+            properties.getSnapshot(), properties.getGamma(), properties.getDeltat(),
+            width, height, parent);
     }
 
     public final SimulatorProperties getProperties() {
-        return new SimulatorProperties(stars, movement, positionCalculator.getDelta(), 
-            photoPlate.getSensitivity(), positionCalculator.getRadius(), photoPlate.getZoom());
+        return new SimulatorProperties(stars, movement, positionCalculator.getDelta(),
+            photoPlate.getSensitivity(), positionCalculator.getRadius(), photoPlate.getZoom(),
+            photoPlate.getSnapshot(), engine.getGamma(), engine.getDeltat());
     }
-    
-    public final void paint(Graphics g) {
+
+    public final void paintPicture(Graphics g) {
         if (g != null) {
             photoPlate.paint(g);
         }
@@ -114,12 +133,32 @@ public final class Simulator {
         positionCalculator.calculateMovement(viewPoint);
     }
 
+    public final void applyGravity() {
+        engine.calculate(field);
+    }
+
     public final AbstractAutomaticMover getPositionCalculator() {
         return positionCalculator;
     }
 
-    public final PhotoPlate getPhotoPlate() {
-        return photoPlate;
+    public final void takePicture() {
+        camera.takePicture(field);
+    }
+
+    public final Camera getCamera() {
+        return camera;
+    }
+
+    public final boolean hasGravity() {
+        return engine.hasGravity();
+    }
+
+    public final double getImpulse() {
+        Trace.traceParam(this, "getImpulse", "impulse[0]", engine.getImpulse()[0]);
+        Trace.traceParam(this, "getImpulse", "impulse[1]", engine.getImpulse()[1]);
+        Trace.traceParam(this, "getImpulse", "impulse[2]", engine.getImpulse()[2]);
+        Trace.traceParam(this, "getImpulse", "impulse", CalculatorUtility.len(engine.getImpulse()));
+        return CalculatorUtility.len(engine.getImpulse());
     }
 
 }

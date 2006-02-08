@@ -70,7 +70,7 @@ public final class Trace {
      * @param   stream  New trace output.
      */
     public static void setPrintStream(final PrintStream stream) {
-// TODO mime: remove        out = stream;
+        out = stream;
     }
 
     /**

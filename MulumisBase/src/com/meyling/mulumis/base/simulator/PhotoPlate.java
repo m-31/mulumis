@@ -69,11 +69,11 @@ public final class PhotoPlate  {
     private double[] emptyBright;
     private IndexColorModel icm;
     private byte[][] paletteTable;
-    private final StarField field;
+    private int snapshot;
+    private int current;
 
 
-    public PhotoPlate(final StarField star) {
-        this.field = star;
+    public PhotoPlate() {
         x[0] = 1;
         y[1] = 1;
         z[2] = 1;
@@ -118,6 +118,7 @@ public final class PhotoPlate  {
             throw new IllegalArgumentException("position has not dimension " + GravityObject.DIMENSION);
         }
         this.position = position;
+// old copy code:
 /*
         for (int i = 0; i < GravityObject.DIMENSION; i++) {
             this.position[i] = position[i];
@@ -156,13 +157,15 @@ public final class PhotoPlate  {
         }
     }
 
-    public final void generateImage() {
+    public final void generateImage(final StarField field) {
         final double sensitivity = Math.exp(this.sensitivity);
-        // empty brightness everywhere
-        System.arraycopy(emptyBright, 0, bright, 0, emptyBright.length);
-        // black screen
-        System.arraycopy(emptyPix, 0, pix, 0, emptyPix.length);
-
+        if (++current > snapshot) {    // clear old image
+            // empty brightness everywhere
+            System.arraycopy(emptyBright, 0, bright, 0, emptyBright.length);
+            // black screen
+            System.arraycopy(emptyPix, 0, pix, 0, emptyPix.length);
+            current = 0;
+        }
         for (int i = 0; i < field.getNumberOfStars(); i++) {
             final double d = CalculatorUtility.minusscalar(field.getStar(i).getPosition(), position, z);
             if (d > 0) {
@@ -177,11 +180,7 @@ public final class PhotoPlate  {
                 int xir = (int) xr;
                 int yir = (int) yr;
                 double brightness = 255;
-                try {
-                    brightness = sensitivity / CalculatorUtility.distanceSquare(field.getStar(i).getPosition(), position);
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                }
+                brightness = sensitivity / CalculatorUtility.distanceSquare(field.getStar(i).getPosition(), position);
                 bright[width * yir + xir] += brightness;
                 int hell = (int) bright[width * yir + xir];
                 drawBrightness(xir, yir, hell);
@@ -322,10 +321,19 @@ public final class PhotoPlate  {
         this.zoom = zoom;
     }
 
-    public final StarField getField() {
-        return field;
+    /**
+     * @return Returns the snapshot.
+     */
+    public final int getSnapshot() {
+        return snapshot;
     }
-    
+    /**
+     * @param snapshot The snapshot to set.
+     */
+    public final void setSnapshot(int snapshot) {
+        this.snapshot = snapshot;
+    }
+
 
 }
 

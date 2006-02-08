@@ -80,7 +80,7 @@ public final class Parameter {
 
     /**
      * Constructor.
-     * 
+     *
      * @param   name    Parameter name.
      * @param   label   Parameter label.
      * @param   type    Parameter type.
@@ -100,7 +100,7 @@ public final class Parameter {
 
     /**
      * Constructor.
-     * 
+     *
      * @param   name    Parameter name.
      * @param   label   Parameter label.
      * @param   type    Parameter type.
@@ -121,7 +121,7 @@ public final class Parameter {
 
     /**
      * Constructor.
-     * 
+     *
      * @param   name    Parameter name.
      * @param   label   Parameter label.
      * @param   comment Parameter comment.
@@ -340,7 +340,7 @@ public final class Parameter {
                     allowed.append("\"" + list.get(i) + "\"");
                 }
                 allowed.append("}");
-                throw new IllegalArgumentException("argument was not in expected value list: \"" + value  
+                throw new IllegalArgumentException("argument was not in expected value list: \"" + value
                     + "\" is not in " + allowed);
             }
         } else if (!String.class.equals(type)) {
@@ -579,7 +579,7 @@ public final class Parameter {
                     allowed.append("\"" + list.get(i) + "\"");
                 }
                 allowed.append("}");
-                throw new IllegalArgumentException("argument was not in expected value list: \"" + valueCurrent  
+                throw new IllegalArgumentException("argument was not in expected value list: \"" + valueCurrent
                     + "\" is not in " + allowed);
             }
         } else if (!String.class.equals(type)) {
