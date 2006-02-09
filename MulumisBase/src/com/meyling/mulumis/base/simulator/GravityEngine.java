@@ -46,17 +46,31 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
  */
 public final class GravityEngine {
 
+    /* Gravity constant. */
     private final double gamma;
+    
+    /* Delta t, small time interval. */
     private final double deltat;
+
+    /** Temporary variable to save velocities. */
     private double[][] vn;
+
+    /** Total impulse. */
     private double[] impulse;
 
     public GravityEngine(final double gamma, double deltat) {
         this.gamma = gamma;
         this.deltat = deltat;
-        impulse = new double[GravityObject.DIMENSION];
+        impulse = new double[
+                             GravityObject.DIMENSION];
     }
 
+    /**
+     * Calculate new star positions and velocities according to current gravity constant and
+     * delta t. Afterwards the total impulse has a new value.
+     * 
+     * @param   field   Work on this star field.
+     */
     public synchronized final void calculate(final StarField field) {
         if (!hasGravity()) {
             return;
@@ -65,37 +79,44 @@ public final class GravityEngine {
             vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
         }
 
+
         // for each star calculating the new position
+        
+        // set total impulse to zero 
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
             impulse[k] = 0;
+            for (int i = 0; i < field.getNumberOfStars(); i++) {
+                vn[i][k] = field.getStar(i).getVelocity()[k];
+            }
         }
         for (int i = 0; i < field.getNumberOfStars(); i++) {
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                vn[i][k] = field.getStar(i).getVelocity()[k];
-                for (int j = 0; j < field.getNumberOfStars(); j++) {
-                    if (i == j) {
-                        continue;
-                    }
+                for (int j = 0; j < i; j++) {
                     final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
                         field.getStar(j).getPosition());
                     if (r < 0.0001) {
-                        // build cluster from both stars
-                        System.out.println("Contact");
+                        // TODO mime 20060209: build cluster from both stars
+//                        System.out.println("Contact");
                     } else if (r < 0.0003) {
-                        // the stars are so close together, that dt must be smaller to reduce the calculation error
-                        System.out.println("Close together");
+                        // TODO mime 20060209: the stars are so close together, that dt must be smaller to reduce the calculation error
+//                        System.out.println("Close together");
                     }
-                    vn[i][k] -= deltat * gamma * field.getStar(j).getMass()
-                       * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k]) / r / r / r;
+                    final double a = deltat * gamma 
+                        * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k]) / r / r / r;
+                    vn[i][k] -= a * field.getStar(j).getMass();
+                    vn[j][k] += a * field.getStar(i).getMass();;
                 }
                 impulse[k] += field.getStar(i).getMass() * vn[i][k];
                 if (Double.isNaN(impulse[k])) {
+                    // TODO mime 20060209: what to do?
                     Trace.traceParam(this, "calculate", "vn[i][k]", vn[i][k]);
                 }
             }
         }
 
-        // Doing some kind of renormation to correct calculation errors. As example a primitive impulse renormation if the complete impuls was initially  = 0:
+// TODO not working        
+        // Doing some kind of renormation to correct calculation errors. 
+        // As example a primitive impulse renormation if the complete impuls was initially  = 0:
         for (int k = 0; k < 3; k++) {
             for (int i = 0; i < field.getNumberOfStars(); i++) {
 //                double v = impulse[k] / field.getMass() / field.getMass() * field.getStar(i).getMass();
@@ -125,14 +146,29 @@ public final class GravityEngine {
 
     }
 
+    /**
+     * Get gravity constant.
+     * 
+     * @return  Gravity constant.
+     */
     public final double getGamma() {
         return gamma;
     }
 
+    /**
+     * Get delta t. This is a small time unit.
+     * 
+     * @return  Delta t.
+     */
     public final double getDeltat() {
         return deltat;
     }
 
+    /**
+     * Does this gravity engine has any gravity set?
+     * 
+     * @return  Gravity is active.
+     */
     public boolean hasGravity() {
         if (gamma == 0 || deltat == 0) {
             return false;
@@ -140,6 +176,11 @@ public final class GravityEngine {
         return true;
     }
     
+    /**
+     * Get total impulse of last calculated star field.
+     * 
+     * @return  Total impulse.
+     */
     public synchronized double[] getImpulse() {
         return impulse;
     }

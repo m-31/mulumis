@@ -45,12 +45,26 @@ public final class StarField  {
 
     private final Star[] star;
 
+    /** Total mass of star field. */
     private double mass;
+    
+    /** Total impulse of star field. */
+    private double[] impulse;
     
     private static final double[] zero = new double[GravityObject.DIMENSION];
 
+    /** Last calculated current total impulse. */
+    private double[] currentImpulse;
+
+    /**
+     * Constructor.
+     * 
+     * @param   numberOfStars   Number of stars.
+     */
     public StarField(final int numberOfStars) {
         star = new Star[numberOfStars];
+        impulse = new double[GravityObject.DIMENSION];
+        currentImpulse = new double[GravityObject.DIMENSION];
     }
 
     public void fillBall() {
@@ -74,6 +88,9 @@ public final class StarField  {
             star[i] = new Star(1, position);
             mass += 1;
         }
+        for (int k = 0; k < GravityObject.DIMENSION; k++) {
+            impulse[k] = 0;
+        }
     }
 
     public void fillSquare(final double radius) {
@@ -93,6 +110,9 @@ public final class StarField  {
             }
             star[i] = new Star(1, position);
             mass += 1;
+        }
+        for (int k = 0; k < GravityObject.DIMENSION; k++) {
+            impulse[k] = 0;
         }
     }
 
@@ -124,6 +144,32 @@ public final class StarField  {
         return star[i];
     }
 
+    /**
+     * Get total impulse of star field. This is the initial value and could be different from
+     * an newly calculated value.
+     * 
+     * @return  Total impulse.
+     */
+    public double[] getInitialImpulse() {
+        return impulse;
+    }
+    
+    /**
+     * Get total impulse of star field. This is the current value and could be different from
+     * the initial value.
+     * 
+     * @return  Total impulse.
+     */
+    public double[] getCurrentImpulse() {
+        for (int k = 0; k < GravityObject.DIMENSION; k++) {
+            currentImpulse[k] = 0;
+            for (int j = 0; j < getNumberOfStars(); j++) {
+                currentImpulse[k] += getStar(j).getMass() * getStar(j).getVelocity()[k]; 
+            }
+        }
+        return currentImpulse;
+    }
+    
 }
 
 
