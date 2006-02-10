@@ -80,7 +80,7 @@ public final class StarApplet2 extends Applet implements Runnable {
         } catch (Exception e){
             e.printStackTrace();
         };
-        double sensitivity = 20;
+        double sensitivity = 2;
         try {
             if (getParameter("sensitivity") != null) {
                 sensitivity = parseDouble(getParameter("sensitivity"));
@@ -107,13 +107,13 @@ public final class StarApplet2 extends Applet implements Runnable {
         } catch (Exception e){
             e.printStackTrace();
         };
-        simulator = new Simulator(stars, movement, delta, sensitivity, radius, zoom);
-        simulator.getPhotoPlate().init(getSize().width, getSize().height, this);
+        simulator = new Simulator(stars, movement, delta, sensitivity, radius, zoom, 
+            0, 0, 0, getSize().width, getSize().height, this);
         System.out.println("applet initialized");
     }
 
     public final void paint(Graphics g) {
-        simulator.paint(g);
+        simulator.paintPicture(g);
     }
 
     private final double parseDouble(final String value) throws NumberFormatException {
@@ -187,7 +187,7 @@ public final class StarApplet2 extends Applet implements Runnable {
         try {
             while (runThread != null) {
                 simulator.moveViewPoint();
-                simulator.getPhotoPlate().generateImage();
+                simulator.takePicture();
                 paint(getGraphics());
                 try {
                     Thread.sleep(30);

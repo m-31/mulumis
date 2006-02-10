@@ -60,6 +60,7 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
     float xfac;
     int prevx, prevy;
     float xtheta, ytheta;
+    private StarField field;
 
 
     public ManualViewer() {
@@ -75,18 +76,18 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
         } catch (Exception e){
             e.printStackTrace();
         };
-        final StarField field = new StarField(stars);
+        field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         for (int i = 0; i < GravityObject.DIMENSION; i++) {
             zero[i] = 0.0;
         }
         field.fillBall(0.5, zero);
-        visualizer = new PhotoPlate(field);
+        visualizer = new PhotoPlate();
         try {
             if (getParameter("sensitivity") != null) {
                 visualizer.setSensitivity(parseDouble(getParameter("sensitivity")));
             } else {
-                visualizer.setSensitivity(500);
+                visualizer.setSensitivity(8);
             }
         } catch (NullPointerException e) {
         } catch (Exception e){
@@ -197,7 +198,7 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
 
     public final void run() {
         while (true) {
-            visualizer.generateImage();
+            visualizer.generateImage(field);
             paint(getGraphics());
             try {
                 Thread.sleep(30);
@@ -232,7 +233,7 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
 //      if (painted) {
 //        painted = false;
           positionCalculator.calculateMovement(viewPoint);
-           visualizer.generateImage();
+           visualizer.generateImage(field);
 //      }
       prevx = x;
       prevy = y;

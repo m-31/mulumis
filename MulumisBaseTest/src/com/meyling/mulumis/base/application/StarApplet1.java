@@ -58,6 +58,7 @@ public final class StarApplet1 extends Applet implements Runnable {
     private AbstractAutomaticMover positionCalculator;
     private boolean circleNormale;
     private boolean linear;
+    private StarField field;
 
     public StarApplet1() {
     }
@@ -72,13 +73,13 @@ public final class StarApplet1 extends Applet implements Runnable {
         } catch (Exception e){
             e.printStackTrace();
         };
-        final StarField field = new StarField(stars);
+        field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         for (int i = 0; i < GravityObject.DIMENSION; i++) {
             zero[i] = 0.0;
         }
         field.fillBall(0.5, zero);
-        visualizer = new PhotoPlate(field);
+        visualizer = new PhotoPlate();
 
         try {
             this.circleNormale = false;
@@ -225,7 +226,7 @@ public final class StarApplet1 extends Applet implements Runnable {
 
                 positionCalculator.calculateMovement(viewPoint);
 //                positionCalculator.printOrientation();
-                visualizer.generateImage();
+                visualizer.generateImage(field);
                 paint(getGraphics());
                 try {
                     Thread.sleep(30);
