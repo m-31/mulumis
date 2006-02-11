@@ -9,44 +9,43 @@
 
   <!-- set global properties for this build -->
   <property file="${basedir}/MulumisRel/conf/build.properties" />
-  <property name="mulumis.se.src"          value="${basedir}/MulumisSe/src" />
-  <property name="mulumis.se.lib"          value="${basedir}/MulumisSe/lib" />
-  <property name="mulumis.se.bin"          value="${basedir}/MulumisSe/bin" />
-  <property name="mulumis.se.dest"         value="${basedir}/../release/se/dest" />
-  <property name="mulumis.se.dist"         value="${basedir}/../release/se/dist" />
-  <property name="mulumis.se.rdist"        value="${basedir}/../release/release/se" />
-  <property name="mulumis.se.temp"         value="${basedir}/../release/se/temp" />
-  <property name="mulumis.se.doc"          value="${basedir}/MulumisRel/doc" />
-  <property name="mulumis.se.inc"          value="${basedir}/MulumisRel/inc" />
+  <property name="mulumis.base.src"          value="${basedir}/MulumisBase/src" />
+  <property name="mulumis.base.lib"          value="${basedir}/MulumisBase/lib" />
+  <property name="mulumis.base.bin"          value="${basedir}/MulumisBase/bin" />
+  <property name="mulumis.base.dest"         value="${basedir}/../release/base/dest" />
+  <property name="mulumis.base.dist"         value="${basedir}/../release/base/dist" />
+  <property name="mulumis.base.temp"         value="${basedir}/../release/base/temp" />
+  <property name="mulumis.base.doc"          value="${basedir}/MulumisRel/doc" />
+  <property name="mulumis.base.inc"          value="${basedir}/MulumisRel/inc" />
   <property name="mulumis.web.src"         value="${basedir}/MulumisDoc/web/src" />
   <property name="mulumis.web.inc"         value="${basedir}/MulumisDoc/web/inc" />
 
   <path id="classpath.common">
-      <pathelement location="${mulumis.se.lib}/junit.jar"/>
+      <pathelement location="${mulumis.base.lib}/junit.jar"/>
   </path>
 
 
   <target name="init">
     <tstamp>
-      <format property="mulumis.se.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
+      <format property="mulumis.base.timestamp" pattern="yyyy-MM-dd HH:mm:ss"/>
     </tstamp>
-    <mkdir dir="${mulumis.se.dest}"/>
-    <mkdir dir="${mulumis.se.dist}"/>
-    <mkdir dir="${mulumis.se.temp}"/>
+    <mkdir dir="${mulumis.base.dest}"/>
+    <mkdir dir="${mulumis.base.dist}"/>
+    <mkdir dir="${mulumis.base.temp}"/>
   </target>
 
 
   <target name="compile" depends="init">
-    <mkdir dir="${mulumis.se.dest}/classes"/>
+    <mkdir dir="${mulumis.base.dest}/classes"/>
     <javac
-      srcdir="${mulumis.se.src}"
-      destdir="${mulumis.se.dest}/classes"
+      srcdir="${mulumis.base.src}"
+      destdir="${mulumis.base.dest}/classes"
       debug="on"
       deprecation="on"
       classpathref="classpath.common"
     />
-    <copy todir="${mulumis.se.dest}/classes">
-      <fileset dir="${mulumis.se.src}"
+    <copy todir="${mulumis.base.dest}/classes">
+      <fileset dir="${mulumis.base.src}"
 	       includes="com/meyling/mulumis/resources/*"
        />
     </copy>
@@ -55,29 +54,29 @@
 
 
   <target name="source" depends="init">
-    <mkdir dir="${mulumis.se.dest}/src"/>
-    <copy todir="${mulumis.se.dest}/src" >
-      <fileset dir="${mulumis.se.src}"
+    <mkdir dir="${mulumis.base.dest}/src"/>
+    <copy todir="${mulumis.base.dest}/src" >
+      <fileset dir="${mulumis.base.src}"
        />
     </copy>
   </target>  
 
 
   <target name="javadoc" description="javadoc" depends="source">
-    <mkdir dir="${mulumis.se.dest}/javadoc"/>
-      <javadoc destdir="${mulumis.se.dest}/javadoc"
-               sourcepath="${mulumis.se.dest}/src"
+    <mkdir dir="${mulumis.base.dest}/javadoc"/>
+      <javadoc destdir="${mulumis.base.dest}/javadoc"
+               sourcepath="${mulumis.base.dest}/src"
                classpathref="classpath.common"
                access="package"
                windowtitle="Simulum"
                doctitle="Simulum"
-               packageList="${mulumis.se.inc}/packagelist"
-               overview="${mulumis.se.doc}/overview.html"
+               packageList="${mulumis.base.inc}/packagelist"
+               overview="${mulumis.base.doc}/overview.html"
                use="true"
                splitindex="true"
                author="true"
                version="true"
-               stylesheetfile="${mulumis.se.inc}/stylesheet.css" 
+               stylesheetfile="${mulumis.base.inc}/stylesheet.css" 
       >
             <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
             <link href="http://java.sun.com/xml/jaxp-docs-1.0.1/docs/api/"/>
@@ -92,43 +91,43 @@
 
   <target name="jar" depends="compile,source,javadoc">
 
-    <copy todir="${mulumis.se.temp}">
-      <fileset dir="${mulumis.se.inc}" includes="**/manifest*.txt">
+    <copy todir="${mulumis.base.temp}">
+      <fileset dir="${mulumis.base.inc}" includes="**/manifest*.txt">
       </fileset>
       <filterset begintoken="@" endtoken="@">
         <filter token="MULUMIS_VERSION" value="${mulumis.working.version}" />
       </filterset>
     </copy>
 
-    <mkdir dir="${mulumis.se.dest}/doc"/>
-    <copy todir="${mulumis.se.dest}/doc">
-      <fileset dir="${mulumis.se.doc}" 
+    <mkdir dir="${mulumis.base.dest}/doc"/>
+    <copy todir="${mulumis.base.dest}/doc">
+      <fileset dir="${mulumis.base.doc}" 
       >
       </fileset>
     </copy>
 
-    <copy todir="${mulumis.se.dest}/doc">
+    <copy todir="${mulumis.base.dest}/doc">
       <fileset dir="${mulumis.web.src}" includes="physics.html"
       >
       </fileset>
     </copy>
 
-    <copy todir="${mulumis.se.dest}/doc">
+    <copy todir="${mulumis.base.dest}/doc">
       <fileset dir="${mulumis.web.inc}" includes="**/projection.gif"
       >
       </fileset>
     </copy>
 
-    <copy todir="${mulumis.se.dest}">
-      <fileset dir="${mulumis.se.doc}" includes="readme.txt"/>
+    <copy todir="${mulumis.base.dest}">
+      <fileset dir="${mulumis.base.doc}" includes="readme.txt"/>
       <filterset begintoken="@" endtoken="@">
         <filter token="MULUMIS_VERSION"     value="${mulumis.working.version}" />
-        <filter token="MULUMIS_TIMESTAMP"   value="${mulumis.se.timestamp}" />
+        <filter token="MULUMIS_TIMESTAMP"   value="${mulumis.base.timestamp}" />
       </filterset>
     </copy>
     
-    <copy todir="${mulumis.se.dest}">
-      <fileset dir="${mulumis.se.inc}" includes="simulum,simulum.bat"/>
+    <copy todir="${mulumis.base.dest}">
+      <fileset dir="${mulumis.base.inc}" includes="simulum,simulum.bat"/>
       <filterset begintoken="@" endtoken="@">
         <filter token="MULUMIS_JAVA"        value="java" />
       </filterset>
@@ -136,29 +135,29 @@
 
   	
   	
-    <mkdir dir="${mulumis.se.dist}"/>
+    <mkdir dir="${mulumis.base.dist}"/>
     <jar
-     jarfile="${mulumis.se.dist}/mulumis_${mulumis.working.version}.jar"
-     manifest="${mulumis.se.temp}/manifest.txt"
+     jarfile="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar"
+     manifest="${mulumis.base.temp}/manifest.txt"
     >
-      <fileset dir="${mulumis.se.dest}/classes"
+      <fileset dir="${mulumis.base.dest}/classes"
       />
-      <fileset dir="${mulumis.se.dest}" 
+      <fileset dir="${mulumis.base.dest}" 
                includes="gpl.txt"
       />
-      <fileset dir="${mulumis.se.dest}" includes="readme.txt"/>
+      <fileset dir="${mulumis.base.dest}" includes="readme.txt"/>
     </jar>
-	<signjar jar="${mulumis.se.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="tK8dAfj2QafTf8" keystore="${mulumis.se.inc}/mulumis.bin"/>
+	<signjar jar="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="tK8dAfj2QafTf8" keystore="${mulumis.base.inc}/mulumis.bin"/>
 
-    <mkdir dir="${mulumis.se.dist}"/>
+    <mkdir dir="${mulumis.base.dist}"/>
 
-    <copy file="${mulumis.se.dist}/mulumis_${mulumis.working.version}.jar" tofile="${mulumis.se.dest}/lib/mulumis.jar"/>
+    <copy file="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar" tofile="${mulumis.base.dest}/lib/mulumis.jar"/>
 
-    <mkdir dir="${mulumis.se.dist}"/>
+    <mkdir dir="${mulumis.base.dist}"/>
     <zip
-      zipfile="${mulumis.se.dist}/mulumis_${mulumis.working.version}_src.zip"
+      zipfile="${mulumis.base.dist}/mulumis_${mulumis.working.version}_src.zip"
     >
-      <fileset dir="${mulumis.se.dest}" 
+      <fileset dir="${mulumis.base.dest}" 
         excludes="classes,classes/**/*,**/Test*,**/*Test*,**/*.class,**/test,**/test/*,**/*.output" 
       />
     </zip>
@@ -168,8 +167,8 @@
   	     with special compiler settings (1.3 compatible) that allow the applet to
   	     work within the MS internet exporer
   	-->
-    <copy todir="${mulumis.se.dist}">
-    	<fileset dir="${mulumis.se.bin}"
+    <copy todir="${mulumis.base.dist}">
+    	<fileset dir="${mulumis.base.bin}"
     	   includes="**/Stars.class,**/StarField.class"
     	/>
     </copy>
@@ -177,14 +176,14 @@
   </target>
 
   <target name="clean">
-    <delete dir="${mulumis.se.dest}"/>
-    <delete dir="${mulumis.se.dist}"/>
+    <delete dir="${mulumis.base.dest}"/>
+    <delete dir="${mulumis.base.dist}"/>
   </target>
 
 
   <target name="tidy">
     <delete>
-      <fileset dir="${mulumis.se.dest}" defaultexcludes="no" includes="**/*~"/>
+      <fileset dir="${mulumis.base.dest}" defaultexcludes="no" includes="**/*~"/>
     </delete>
   </target>
 

@@ -12,6 +12,7 @@
   <property name="mulumisr.src"          value="${basedir}/MulumisDoc/web/src/" />
   <property name="mulumisr.inc"          value="${basedir}/MulumisDoc/web/inc/" />
   <property name="mulumise.dist"         value="${basedir}/../release/release/${mulumis.release.version}" />
+  <property name="mulumise.base"         value="${basedir}/../release/base/dist" />
   <property name="mulumisr.dest"         value="${basedir}/../web/page/" />
   <property name="mulumisr.genDir"       value="${basedir}/MulumisRel/bin/" />
   <property name="mulumisr.genMain"      value="com.meyling.mulumis.rel.web.PageGenerator" />
@@ -50,6 +51,11 @@
         	includes="mulumis_*.jar"
          />
   	</move>
+    <copy todir="${mulumisr.dest}/lib" >
+        <fileset dir="${mulumise.base}"
+        	includes="mulumis_*.jar"
+         />
+    </copy>
     <java classname="${mulumisr.genMain}" classpathref="mulumisr.genclasspath" 
        dir="${mulumisr.genDir}" fork="true">
       <arg value="${mulumisr.src}" />
