@@ -279,14 +279,25 @@ public final class MainFrame extends JFrame {
         start.setBounds(MARGIN_X + 90 + 21, y, 90, 21);
         start.setToolTipText("Starts the application.");
         start.addActionListener(new  ActionListener() {
+            
+            boolean started;
 
             public void actionPerformed(final ActionEvent actionEvent) {
                 final String method ="actionPerformed";
                 try {
-                    setResultMessage(true, "generating");
-                    fillProperties();
-                    startApplet();
-                    Trace.trace(this, method, "successfully started");
+                    if (!started) {
+                        setResultMessage(true, "starting..");
+                        fillProperties();
+                        startApplet();
+                        started = true;
+                        Trace.trace(this, method, "successfully started");
+                    } else {
+                        setResultMessage(true, "stopping..");
+                        copyCurrentProperties();
+                        stopApplet();
+                        started = false;
+                        Trace.trace(this, method, "successfully stopped");
+                    }
                 } catch (final Exception e) {
                     Trace.trace(this, method, e);
                     setResultMessage(false, e.toString());
@@ -298,10 +309,9 @@ public final class MainFrame extends JFrame {
                         shutdown();
                     }
                 }
-
+                start.setText(started ? "Stop" : "Start");
                 saveParameters();
             }
-
         });
 
         current = new JButton("Current");
@@ -316,15 +326,12 @@ public final class MainFrame extends JFrame {
 
         copy = new JButton("Copy");
         contents.add(copy);
-//        copy.setEnabled(false);
         copy.setBounds(MARGIN_X + contentsWidth - 290 - 6 * 21, y, 90, 21);
         copy.setToolTipText("Copy current model properites into start parameters.");
         copy.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 copyProperties();
                 copyCurrentProperties();
-//                final SimulatorProperties properties = applet.getSimulator().getProperties();
-//                openTextFileAtPosition();
             }
         });
 
