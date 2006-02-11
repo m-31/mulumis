@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0" codebase="http://www.mulumis.meyling.com/" href="mulumis_0_00_04.jnlp" >
+  <information>
+     <title>Simulum</title>
+     <vendor>Michael Meyling</vendor>
+     <homepage ref="index.html"/>
+     <description>Star Field Screen</description>
+     <icon href="pic/starfield.gif"/>
+     <offline-allowed/>
+  </information>
+  <security>
+     <all-permissions/>
+  </security>
+  <resources>
+     <j2se version="1.4+" />
+     <jar href="lib/mulumis_0.00.04.jar"/>
+  </resources>
+  <application-desc main-class="com.meyling.mulumis.base.application.Simulum" />
+</jnlp>
