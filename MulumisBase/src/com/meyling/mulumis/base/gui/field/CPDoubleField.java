@@ -33,6 +33,7 @@
 package com.meyling.mulumis.base.gui.field;
 
 import java.awt.Toolkit;
+import java.math.BigDecimal;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -40,6 +41,7 @@ import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
 import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.util.FormatUtility;
 
 
 /**
@@ -97,8 +99,11 @@ public class CPDoubleField extends CPTextField {
     public final void setValue(final Double value) {
         Trace.traceParam(this, "setValue", "value", value);
         setInternValue(value);
-        // TODO mime 20060205: shorten according to length
-        setText(value == null ? "" : value.toString());
+        String text = FormatUtility.toString(value);
+        if (text.length() > len) {
+            text = text.substring(0, len);
+        }
+        setText(value == null ? "" : text);
     }
 
     public final Double getValue() {
