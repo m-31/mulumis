@@ -33,7 +33,6 @@
 package com.meyling.mulumis.base.gui.field;
 
 import java.awt.Toolkit;
-import java.math.BigDecimal;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
