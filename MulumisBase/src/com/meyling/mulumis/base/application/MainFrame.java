@@ -29,7 +29,7 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.gui.window;
+package com.meyling.mulumis.base.application;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -47,8 +47,8 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import com.meyling.mulumis.base.application.StarApplet;
 import com.meyling.mulumis.base.config.Parameter;
 import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.config.SimulumProperties;
@@ -119,6 +119,10 @@ public final class MainFrame extends JFrame {
     private JLabel impulseCurrent;
     
     private CPTextField message;
+
+    boolean started;
+
+    private JButton start;
 
 
     /**
@@ -263,25 +267,25 @@ public final class MainFrame extends JFrame {
         message.setEditable(false);
         y += CONTENT_HEIGHT * 1.5;
 
-        final JButton dflt = new JButton("Default");
+        final JButton dflt = new JButton("Maximize");
         contents.add(dflt);
         dflt.setBounds(MARGIN_X, y, 90, 21);
-        dflt.setToolTipText("Resets all parameters to default values.");
+        dflt.setToolTipText("Start full screen mode.");
         dflt.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 stopApplet();
-                MainFrame.this.setupView(getSize().width, getSize().height);
+                StarScreen screen = new StarScreen(applet);
+                screen.show();
+                screen = null;
             }
         });
 
-        final JButton start = new JButton("Start");
+        start = new JButton("Start");
         contents.add(start);
         start.setBounds(MARGIN_X + 90 + 21, y, 90, 21);
         start.setToolTipText("Starts the application.");
         start.addActionListener(new  ActionListener() {
             
-            boolean started;
-
             public void actionPerformed(final ActionEvent actionEvent) {
                 final String method ="actionPerformed";
                 try {
@@ -289,14 +293,10 @@ public final class MainFrame extends JFrame {
                         setResultMessage(true, "starting..");
                         fillProperties();
                         startApplet();
-                        started = true;
-                        Trace.trace(this, method, "successfully started");
                     } else {
                         setResultMessage(true, "stopping..");
                         copyCurrentProperties();
                         stopApplet();
-                        started = false;
-                        Trace.trace(this, method, "successfully stopped");
                     }
                 } catch (final Exception e) {
                     Trace.trace(this, method, e);
@@ -309,8 +309,26 @@ public final class MainFrame extends JFrame {
                         shutdown();
                     }
                 }
-                start.setText(started ? "Stop" : "Start");
                 saveParameters();
+            }
+        });
+
+        final JButton apply = new JButton("Apply");
+        contents.add(apply);
+        apply.setBounds(MARGIN_X + 2* 90 + 2 * 21, y, 90, 21);
+        apply.setToolTipText("Applies visual changes.");
+        apply.addActionListener(new  ActionListener() {
+            public void actionPerformed(final ActionEvent actionEvent) {
+                try {
+                    fillProperties();
+                    applet.getSimulator().applyVisualChanges(applet.getProperties());;
+                    applet.getSimulator().takePicture();
+                    applet.repaint();
+                    saveParameters();
+                } catch (final Exception e) {
+                    Trace.trace(this, "actionPerformed", e);
+                    setResultMessage(false, e.toString());
+                }
             }
         });
 
@@ -431,13 +449,17 @@ public final class MainFrame extends JFrame {
         copyCurrentProperties();
         applet.start();
         setResultMessage(true, "viewer started");
+        started = true;
+        start.setText(started ? "Stop" : "Start");
     }
     private void stopApplet() {
+        started = false;
         if (applet != null) {
             applet.stop();
             applet.destroy();
         }
         setResultMessage(true, "viewer stopped");
+        start.setText(started ? "Stop" : "Start");
     }
 
     /**

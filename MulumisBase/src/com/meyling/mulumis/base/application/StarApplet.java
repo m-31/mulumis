@@ -59,7 +59,7 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     private static final long serialVersionUID = -3554962680447033507L;
     private Thread runThread;
     private Boolean stopped = Boolean.TRUE;
-    final SimulatorProperties properties = new SimulatorProperties();
+    private SimulatorProperties properties = new SimulatorProperties();
     private Simulator simulator;
     int prevx, prevy;
     private double ytheta;
@@ -267,6 +267,10 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
         return properties;
     }
 
+    public final void setProperties(final SimulatorProperties properties) {
+        this.properties = properties;
+    }
+    
     public final SimulatorProperties getCurrentProperties() {
         return simulator.getProperties();
     }
@@ -298,6 +302,8 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
                 camera.setSensitivity(s);
             }
         }
+        simulator.moveViewPoint();
+        simulator.takePicture();
         e.consume();
     }
 

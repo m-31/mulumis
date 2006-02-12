@@ -32,6 +32,7 @@
 package com.meyling.mulumis.base.application;
 
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.KeyAdapter;
@@ -53,16 +54,14 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
 public class StarScreen extends Window {
 
     private static final long serialVersionUID = 2563504527447287674L;
-    private final StarApplet visualizer;
+    private static Frame frame;
+    private StarApplet visualizer;
 
 
     public StarScreen() {
-        super(new Frame());
+        super(frame = new Frame("mulumis"));
         this.setSize(getToolkit().getScreenSize());
-
         this.setLayout(null);
-        addNotify();
-
         visualizer = new StarApplet();
         final SimulatorProperties properties = visualizer.getProperties();
         properties.setMovement("manualDelay");
@@ -76,6 +75,8 @@ public class StarScreen extends Window {
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 visualizer.stop();
+                visualizer.destroy();
+                hide();
                 dispose();
                 System.exit(0);
             }
@@ -84,6 +85,8 @@ public class StarScreen extends Window {
             public void keyPressed(final KeyEvent e) {
                 e.consume();
                 visualizer.stop();
+                visualizer.destroy();
+                hide();
                 dispose();
                 System.exit(0);
             }
@@ -97,10 +100,44 @@ public class StarScreen extends Window {
         visualizer.start();
     }
 
+    public StarScreen(final StarApplet applet) {
+        super(frame = new Frame("mulumis"));
+        visualizer = new StarApplet();
+        visualizer.setProperties(applet.getProperties());
+        setSize(getToolkit().getScreenSize());
+
+        setLayout(null);
+        addNotify();
+
+        visualizer.setSize(getToolkit().getScreenSize());
+        visualizer.setBackground(Color.BLACK);
+        this.add(visualizer);
+
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                hide();
+                frame.dispose();
+                frame = null;
+            }
+        });
+        this.getParent().addKeyListener(new KeyAdapter() {
+            public void keyPressed(final KeyEvent e) {
+                e.consume();
+                hide();
+                frame.dispose();
+                frame = null;
+            }
+
+        });
+        this.repaint();
+        visualizer.init();
+        visualizer.start();
+    }
+
     public void dispose() {
         visualizer.stop();
         visualizer.destroy();
-        super.dispose();
+        visualizer = null;
     }
 
     public void show() {

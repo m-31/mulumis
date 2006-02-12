@@ -33,7 +33,7 @@ package com.meyling.mulumis.base.simulator;
 
 
 
-import com.meyling.mulumis.base.stars.StarField;
+import com.meyling.mulumis.base.common.Field;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
@@ -53,7 +53,7 @@ public final class Camera {
         this.viewPoint = viewPoint;
     }
 
-    public final void takePicture(final StarField field) {
+    public final void takePicture(final Field field) {
         photoPlate.generateImage(field);
     }
 

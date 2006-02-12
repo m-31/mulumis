@@ -31,6 +31,8 @@
 
 package com.meyling.mulumis.base.stars;
 
+import com.meyling.mulumis.base.common.GravityObject;
+
 
 
 /**

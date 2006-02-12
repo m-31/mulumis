@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import com.meyling.mulumis.base.gui.window.MainFrame;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.util.IoUtility;
 

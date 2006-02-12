@@ -29,7 +29,7 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.stars;
+package com.meyling.mulumis.base.common;
 
 /**
  * Description of an object with reacts to gravity.It has a mass, position and

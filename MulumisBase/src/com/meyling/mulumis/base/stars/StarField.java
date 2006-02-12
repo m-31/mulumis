@@ -31,6 +31,8 @@
 
 package com.meyling.mulumis.base.stars;
 
+import com.meyling.mulumis.base.common.Field;
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.util.CalculatorUtility;
 
 
@@ -41,7 +43,7 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
  * @version     $Revision$
  * @author      Michael Meyling
  */
-public final class StarField  {
+public final class StarField implements Field  {
 
     private final Star[] star;
 
@@ -116,31 +118,24 @@ public final class StarField  {
         }
     }
 
-    /**
-     * Returns the number of stars.
-     *
-     * @return    Number of stars.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.stars.Field#getNumberOfStars()
      */
     public final int getNumberOfStars() {
         return star.length;
     }
 
-    /**
-     * Returns the mass sum of stars.
-     *
-     * @return    Mass of stars.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.stars.Field#getMass()
      */
     public final double getMass() {
         return mass;
     }
 
-    /**
-     * Returns the requested star.
-     *
-     * @param    i    Star number. Between 0 and <code>{@link #getNumberOfStars()} - 1</code>.
-     * @return    Requested star.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.stars.Field#getStar(int)
      */
-    public final Star getStar(int i) {
+    public final GravityObject getStar(int i) {
         return star[i];
     }
 

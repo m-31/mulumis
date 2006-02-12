@@ -33,9 +33,10 @@ package com.meyling.mulumis.base.simulator;
 
 
 
+import com.meyling.mulumis.base.common.Field;
+import com.meyling.mulumis.base.common.Gravity;
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.stars.GravityObject;
-import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
 
 /**
@@ -44,7 +45,7 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class GravityEngine {
+public final class GravityEngine implements Gravity {
 
     /* Gravity constant. */
     private final double gamma;
@@ -65,13 +66,10 @@ public final class GravityEngine {
                              GravityObject.DIMENSION];
     }
 
-    /**
-     * Calculate new star positions and velocities according to current gravity constant and
-     * delta t. Afterwards the total impulse has a new value.
-     * 
-     * @param   field   Work on this star field.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#calculate(com.meyling.mulumis.base.stars.Field)
      */
-    public synchronized final void calculate(final StarField field) {
+    public synchronized final void calculate(final Field field) {
         if (!hasGravity()) {
             return;
         }
@@ -146,28 +144,22 @@ public final class GravityEngine {
 
     }
 
-    /**
-     * Get gravity constant.
-     * 
-     * @return  Gravity constant.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getGamma()
      */
     public final double getGamma() {
         return gamma;
     }
 
-    /**
-     * Get delta t. This is a small time unit.
-     * 
-     * @return  Delta t.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getDeltat()
      */
     public final double getDeltat() {
         return deltat;
     }
 
-    /**
-     * Does this gravity engine has any gravity set?
-     * 
-     * @return  Gravity is active.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#hasGravity()
      */
     public boolean hasGravity() {
         if (gamma == 0 || deltat == 0) {
@@ -176,10 +168,8 @@ public final class GravityEngine {
         return true;
     }
     
-    /**
-     * Get total impulse of last calculated star field.
-     * 
-     * @return  Total impulse.
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getImpulse()
      */
     public synchronized double[] getImpulse() {
         return impulse;

@@ -38,9 +38,9 @@ import java.awt.Image;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
 
+import com.meyling.mulumis.base.common.Field;
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.stars.GravityObject;
-import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
 
 /**
@@ -157,7 +157,7 @@ public final class PhotoPlate  {
         }
     }
 
-    public final void generateImage(final StarField field) {
+    public final void generateImage(final Field field) {
         final double sensitivity = Math.exp(this.sensitivity);
         if (++current > snapshot) {    // clear old image
             // empty brightness everywhere

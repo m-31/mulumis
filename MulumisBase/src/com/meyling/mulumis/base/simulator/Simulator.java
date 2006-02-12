@@ -35,9 +35,11 @@ package com.meyling.mulumis.base.simulator;
 import java.awt.Component;
 import java.awt.Graphics;
 
+import com.meyling.mulumis.base.common.Field;
+import com.meyling.mulumis.base.common.Gravity;
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.stars.GravityObject;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
@@ -55,7 +57,7 @@ import com.meyling.mulumis.base.viewpoint.ViewPoint;
  */
 public final class Simulator {
 
-    private StarField field;
+    private Field field;
 
     private PhotoPlate photoPlate;
 
@@ -69,7 +71,7 @@ public final class Simulator {
 
     private Camera camera;
 
-    private GravityEngine engine;
+    private Gravity engine;
 
     public Simulator(final int stars, final String movement,
             final double delta, final double sensitivity, final double radius, final double zoom,
@@ -78,7 +80,7 @@ public final class Simulator {
         this.stars = stars;
         field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
-        field.fillBall(0.5, zero);
+        ((StarField) field).fillBall(0.5, zero);
         photoPlate = new PhotoPlate();
         viewPoint = new ViewPoint();
         if (movement == null) {
@@ -121,6 +123,44 @@ public final class Simulator {
         return new SimulatorProperties(stars, movement, positionCalculator.getDelta(),
             photoPlate.getSensitivity(), positionCalculator.getRadius(), photoPlate.getZoom(),
             photoPlate.getSnapshot(), engine.getGamma(), engine.getDeltat());
+    }
+
+    public final void applyVisualChanges(final SimulatorProperties properties) {
+        applyVisualChanges(properties.getMovement(), properties.getDelta(),
+        properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
+        properties.getSnapshot());
+        moveViewPoint();
+    }
+    
+    public final void applyVisualChanges(final String movement,
+            final double delta, final double sensitivity, final double radius, final double zoom,
+            final int snapshot) {
+        if (!this.movement.equals(movement)) {
+            final double[] zero = new double[GravityObject.DIMENSION];
+            if (movement == null) {
+                throw new NullPointerException("movement is null");
+            }
+            if (movement.equals("manual") || movement.equals("manualDelay")) {
+                positionCalculator = new ManualMovement(zero);
+            } else if (movement.equals("linear")) {
+                positionCalculator = new LinearMover(zero);
+            } else if (movement.equals("circularNormale")) {
+                positionCalculator = new CirclularMoverWithChangingViewingDirection(zero);
+            } else if (movement.equals("circular")){
+                positionCalculator = new CircularMover(zero);
+            } else {
+                throw new IllegalArgumentException(
+                    "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
+            }
+            this.movement = movement;
+        }
+        positionCalculator.setDelta(delta);
+        positionCalculator.setRadius(radius);
+        photoPlate.setSensitivity(sensitivity);
+        photoPlate.setZoom(zoom);
+        photoPlate.setPosition(viewPoint.getPosition());
+        photoPlate.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
+        photoPlate.setSnapshot(snapshot);
     }
 
     public final void paintPicture(Graphics g) {

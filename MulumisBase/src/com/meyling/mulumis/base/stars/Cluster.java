@@ -34,6 +34,8 @@ package com.meyling.mulumis.base.stars;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.meyling.mulumis.base.common.GravityObject;
+
 
 
 /**
