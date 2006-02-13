@@ -62,8 +62,7 @@ public final class GravityEngine implements Gravity {
     public GravityEngine(final double gamma, double deltat) {
         this.gamma = gamma;
         this.deltat = deltat;
-        impulse = new double[
-                             GravityObject.DIMENSION];
+        impulse = new double[GravityObject.DIMENSION];
     }
 
     /* (non-Javadoc)
