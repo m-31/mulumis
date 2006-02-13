@@ -32,7 +32,7 @@
 package com.meyling.mulumis.base.common;
 
 /**
- * Description of an object with reacts to gravity.It has a mass, position and
+ * Description of an object with reacts to gravity. It has a mass, position and
  * velocity.
  *
  * @version $Revision$
