@@ -31,13 +31,13 @@
 
 package com.meyling.mulumis.base.simulator;
 
-
+import java.awt.Graphics;
 
 import com.meyling.mulumis.base.common.Field;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
- * Star field simulator.
+ * Camera of star field simulator. Has a position, orientation and a photo plate.
  *
  * @version $Revision$
  * @author  Michael Meyling
@@ -46,15 +46,11 @@ public final class Camera {
 
     private PhotoPlate photoPlate;
 
-    private ViewPoint viewPoint;
+    private ViewPoint viewpoint;
 
     public Camera(final PhotoPlate photoPlate, final ViewPoint viewPoint) {
         this.photoPlate = photoPlate;
-        this.viewPoint = viewPoint;
-    }
-
-    public final void takePicture(final Field field) {
-        photoPlate.generateImage(field);
+        this.viewpoint = viewPoint;
     }
 
     public final double getZoom() {
@@ -73,8 +69,25 @@ public final class Camera {
         photoPlate.setSensitivity(sensitivity);
     }
 
+    public final int getSnapshot() {
+        return photoPlate.getSnapshot();
+    }
+
     public final void setSnapshot(final int snapshot) {
         photoPlate.setSnapshot(snapshot);
     }
+
+    public final void takePicture(final Field field) {
+        photoPlate.generateImage(viewpoint, field);
+    }
+
+    public final void paint(Graphics g) {
+        photoPlate.paint(g);
+    }
+
+    public final ViewPoint getViewPoint() {
+        return viewpoint;
+    }
+
 }
 

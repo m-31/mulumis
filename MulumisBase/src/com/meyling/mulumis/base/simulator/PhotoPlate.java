@@ -39,12 +39,12 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
 
 import com.meyling.mulumis.base.common.Field;
-import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.util.CalculatorUtility;
+import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
- * Simulates photo plate.
+ * Photo plate that can take a photograph of an {@link com.meyling.mulumis.base.common.Field}.
  *
  * @version     $Revision$
  * @author      Michael Meyling
@@ -52,11 +52,6 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
 public final class PhotoPlate  {
     private double sensitivity = 6;
     private double zoom = 320;
-    private double position[] = new double[GravityObject.DIMENSION];
-    private double x[] = new double[GravityObject.DIMENSION];
-    private double y[] = new double[GravityObject.DIMENSION];
-    private double z[] = new double[GravityObject.DIMENSION];
-
     private int width;
     private int height;
     private int halfWidth;
@@ -74,11 +69,15 @@ public final class PhotoPlate  {
 
 
     public PhotoPlate() {
-        x[0] = 1;
-        y[1] = 1;
-        z[2] = 1;
     }
 
+    /**
+     * Set size of photo plate. 
+     * 
+     * @param   width   Width.
+     * @param   height  Height.
+     * @param   parent  Needed for creation of image to draw on.
+     */
     public void init(final int width, final int height, final Component parent) {
         this.width = width;
         this.height = height;
@@ -110,46 +109,6 @@ public final class PhotoPlate  {
         im = parent.createImage(mem);
     }
 
-    public final void setPosition(final double[] position) {
-        if (position == null) {
-            throw new NullPointerException("position is null");
-        }
-        if (position.length != GravityObject.DIMENSION) {
-            throw new IllegalArgumentException("position has not dimension " + GravityObject.DIMENSION);
-        }
-        this.position = position;
-// old copy code:
-/*
-        for (int i = 0; i < GravityObject.DIMENSION; i++) {
-            this.position[i] = position[i];
-        }
-*/
-    }
-
-    public final void setOrientation(final double[] x, final double[] y, final double[] z) {
-        if (x == null) {
-            throw new NullPointerException("x vector is null");
-        }
-        if (x.length != GravityObject.DIMENSION) {
-            throw new IllegalArgumentException("x has not dimension " + GravityObject.DIMENSION);
-        }
-        this.x = x;
-        if (y == null) {
-            throw new NullPointerException("y vector is null");
-        }
-        if (y.length != GravityObject.DIMENSION) {
-            throw new IllegalArgumentException("y has not dimension " + GravityObject.DIMENSION);
-        }
-        this.y = y;
-        if (z == null) {
-            throw new NullPointerException("z vector is null");
-        }
-        if (z.length != GravityObject.DIMENSION) {
-            throw new IllegalArgumentException("z has not dimension " + GravityObject.DIMENSION);
-        }
-        this.z = z;
-    }
-
     public final void paint(Graphics g) {
         if (g != null) {
             mem.newPixels();
@@ -157,7 +116,11 @@ public final class PhotoPlate  {
         }
     }
 
-    public final void generateImage(final Field field) {
+    public final void generateImage(final ViewPoint viewpoint, final Field field) {
+        final double[] position = viewpoint.getPosition();
+        final double[] x = viewpoint.getX();
+        final double[] y = viewpoint.getY();
+        final double[] z = viewpoint.getZ();
         final double sensitivity = Math.exp(this.sensitivity);
         if (++current > snapshot) {    // clear old image
             // empty brightness everywhere

@@ -38,7 +38,6 @@ import java.awt.Graphics;
 import com.meyling.mulumis.base.common.Field;
 import com.meyling.mulumis.base.common.Gravity;
 import com.meyling.mulumis.base.common.GravityObject;
-import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
@@ -59,10 +58,6 @@ public final class Simulator {
 
     private Field field;
 
-    private PhotoPlate photoPlate;
-
-    private ViewPoint viewPoint;
-
     private AbstractAutomaticMover positionCalculator;
 
     private String movement;
@@ -81,8 +76,8 @@ public final class Simulator {
         field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         ((StarField) field).fillBall(0.5, zero);
-        photoPlate = new PhotoPlate();
-        viewPoint = new ViewPoint();
+        final PhotoPlate photoPlate = new PhotoPlate();
+        final ViewPoint viewPoint = new ViewPoint();
         if (movement == null) {
             throw new NullPointerException("movement is null");
         }
@@ -103,8 +98,6 @@ public final class Simulator {
         positionCalculator.setRadius(radius);
         photoPlate.setSensitivity(sensitivity);
         photoPlate.setZoom(zoom);
-        photoPlate.setPosition(viewPoint.getPosition());
-        photoPlate.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
         photoPlate.setSnapshot(snapshot);
         photoPlate.init(width, height, parent);
         camera = new Camera(photoPlate, viewPoint);
@@ -121,8 +114,8 @@ public final class Simulator {
 
     public final SimulatorProperties getProperties() {
         return new SimulatorProperties(stars, movement, positionCalculator.getDelta(),
-            photoPlate.getSensitivity(), positionCalculator.getRadius(), photoPlate.getZoom(),
-            photoPlate.getSnapshot(), engine.getGamma(), engine.getDeltat());
+            camera.getSensitivity(), positionCalculator.getRadius(), camera.getZoom(),
+            camera.getSnapshot(), engine.getGamma(), engine.getDeltat());
     }
 
     public final void applyVisualChanges(final SimulatorProperties properties) {
@@ -156,21 +149,19 @@ public final class Simulator {
         }
         positionCalculator.setDelta(delta);
         positionCalculator.setRadius(radius);
-        photoPlate.setSensitivity(sensitivity);
-        photoPlate.setZoom(zoom);
-        photoPlate.setPosition(viewPoint.getPosition());
-        photoPlate.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
-        photoPlate.setSnapshot(snapshot);
+        camera.setSensitivity(sensitivity);
+        camera.setZoom(zoom);
+        camera.setSnapshot(snapshot);
     }
 
     public final void paintPicture(Graphics g) {
         if (g != null) {
-            photoPlate.paint(g);
+            camera.paint(g);
         }
     }
 
     public final void moveViewPoint() {
-        positionCalculator.calculateMovement(viewPoint);
+        positionCalculator.calculateMovement(camera.getViewPoint());
     }
 
     public final void applyGravity() {

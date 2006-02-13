@@ -29,7 +29,7 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.config;
+package com.meyling.mulumis.base.simulator;
 
 /**
  * Star field simulator properties.

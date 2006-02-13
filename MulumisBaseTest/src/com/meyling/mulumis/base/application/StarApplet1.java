@@ -35,8 +35,8 @@ package com.meyling.mulumis.base.application;
 import java.applet.Applet;
 import java.awt.Graphics;
 
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.simulator.PhotoPlate;
-import com.meyling.mulumis.base.stars.GravityObject;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.CirclularMoverWithChangingViewingDirection;
@@ -140,10 +140,7 @@ public final class StarApplet1 extends Applet implements Runnable {
             e.printStackTrace();
         };
 
-        visualizer.setPosition(viewPoint.getPosition());
-        visualizer.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
-
-        this.visualizer.init(getSize().width, getSize().height, this);
+        visualizer.init(getSize().width, getSize().height, this);
         System.out.println("applet initialized");
     }
 
@@ -226,7 +223,7 @@ public final class StarApplet1 extends Applet implements Runnable {
 
                 positionCalculator.calculateMovement(viewPoint);
 //                positionCalculator.printOrientation();
-                visualizer.generateImage(field);
+                visualizer.generateImage(viewPoint, field);
                 paint(getGraphics());
                 try {
                     Thread.sleep(30);

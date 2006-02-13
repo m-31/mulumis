@@ -33,8 +33,6 @@ package com.meyling.mulumis.base.viewpoint;
 
 import com.meyling.mulumis.base.common.GravityObject;
 
-
-
 /**
  * Viewpoint with position and orientation.
  *

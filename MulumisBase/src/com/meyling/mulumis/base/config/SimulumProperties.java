@@ -38,11 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.util.IoUtility;
 
 
 /**
- * List of {@link Parameter}s.
+ * List of Simulum {@link Parameter}s.
  *
  * @version $Revision$
  * @author Michael Meyling
@@ -129,6 +130,7 @@ public final class SimulumProperties {
      *
      * @param   name    Parameter name.
      * @return  Parameter with this <code>name</code>.
+     * @throws  NullPointerException    Parameter not found.
      */
     public final Parameter get(final String name) {
         return parameterList.get(name);

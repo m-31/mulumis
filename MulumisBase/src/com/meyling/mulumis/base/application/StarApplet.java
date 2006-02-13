@@ -40,10 +40,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Camera;
 import com.meyling.mulumis.base.simulator.Simulator;
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.util.IoUtility;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;

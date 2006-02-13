@@ -92,6 +92,7 @@ public final class ParameterList {
      *
      * @param   name    Parameter name.
      * @return  Parameter with this <code>name</code>.
+     * @throws  NullPointerException    Parameter not found.
      */
     public final Parameter get(final String name) {
         for (int i = 0; i < size(); i++) {

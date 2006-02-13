@@ -47,15 +47,14 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import com.meyling.mulumis.base.config.Parameter;
-import com.meyling.mulumis.base.config.SimulatorProperties;
 import com.meyling.mulumis.base.config.SimulumProperties;
 import com.meyling.mulumis.base.gui.field.CPDoubleField;
 import com.meyling.mulumis.base.gui.field.CPIntegerField;
 import com.meyling.mulumis.base.gui.field.CPTextField;
 import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
 
 /**
  * Show and edit preferences of this application. Start simulation.

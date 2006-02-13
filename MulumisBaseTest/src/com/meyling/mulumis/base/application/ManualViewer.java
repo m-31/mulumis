@@ -38,8 +38,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import com.meyling.mulumis.base.common.GravityObject;
 import com.meyling.mulumis.base.simulator.PhotoPlate;
-import com.meyling.mulumis.base.stars.GravityObject;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
@@ -108,8 +108,6 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
         positionCalculator = new ManualMovement(zero);
         positionCalculator.setRadius(2);
         positionCalculator.calculateMovement(viewPoint);
-        visualizer.setPosition(viewPoint.getPosition());
-        visualizer.setOrientation(viewPoint.getX(), viewPoint.getY(), viewPoint.getZ());
         visualizer.init(getSize().width, getSize().height, this);
 
         addMouseListener(this);
@@ -198,7 +196,7 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
 
     public final void run() {
         while (true) {
-            visualizer.generateImage(field);
+            visualizer.generateImage(viewPoint, field);
             paint(getGraphics());
             try {
                 Thread.sleep(30);
@@ -233,7 +231,7 @@ public final class ManualViewer extends Applet implements Runnable, MouseListene
 //      if (painted) {
 //        painted = false;
           positionCalculator.calculateMovement(viewPoint);
-           visualizer.generateImage(field);
+           visualizer.generateImage(viewPoint, field);
 //      }
       prevx = x;
       prevy = y;

@@ -40,7 +40,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import com.meyling.mulumis.base.config.SimulatorProperties;
+import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
@@ -76,6 +76,7 @@ public class StarScreen extends Window {
             public void windowClosing(WindowEvent e) {
                 visualizer.stop();
                 visualizer.destroy();
+                visualizer = null;
                 hide();
                 dispose();
                 System.exit(0);
@@ -86,6 +87,7 @@ public class StarScreen extends Window {
                 e.consume();
                 visualizer.stop();
                 visualizer.destroy();
+                visualizer = null;
                 hide();
                 dispose();
                 System.exit(0);
@@ -112,20 +114,25 @@ public class StarScreen extends Window {
         visualizer.setSize(getToolkit().getScreenSize());
         visualizer.setBackground(Color.BLACK);
         this.add(visualizer);
-
+/*
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 hide();
+                visualizer.stop();
+                visualizer.destroy();
+                visualizer = null;
                 frame.dispose();
                 frame = null;
             }
         });
+*/        
         this.getParent().addKeyListener(new KeyAdapter() {
             public void keyPressed(final KeyEvent e) {
                 e.consume();
                 hide();
                 frame.dispose();
                 frame = null;
+                System.out.println("free memory: " + Runtime.getRuntime().freeMemory());
             }
 
         });
