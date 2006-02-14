@@ -88,24 +88,6 @@ public class MulumisContext {
         }
         engines.put(gravityFactoryClassName, gravityFactory);
         return (AbstractGravityFactory) gravityFactory;
-/*        
-        final Method create;
-        try {
-            create = gravityFactory.getClass().getDeclaredMethod("createGravity", new Class[0]);
-        } catch (Exception e) {
-            Trace.trace(Context.class, method, e);
-            throw new RuntimeException("Couldn't find method \"createGravity()\" within class \"" 
-                    + gravityFactoryClassName + "\".", e);
-        }
-        final gravityF
-        try {
-            final Object result = create.invoke(gravityFactory, new Object[0]);
-        } catch (Exception e) {
-            Trace.trace(Context.class, method, e);
-            throw new RuntimeException("Couldn't find method \"createGravity()\" within class \"" 
-                    + gravityFactoryClassName + "\".", e);
-        }
- */
     }
     
  }
