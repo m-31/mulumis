@@ -40,7 +40,7 @@ import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.util.CalculatorUtility;
 
 /**
- * Star field simulator.
+ * Gravity engine.
  *
  * @version $Revision$
  * @author  Michael Meyling
@@ -48,10 +48,10 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
 public final class GravityEngine implements Gravity {
 
     /* Gravity constant. */
-    private final double gamma;
+    private double gamma;
     
     /* Delta t, small time interval. */
-    private final double deltat;
+    private double deltat;
 
     /** Temporary variable to save velocities. */
     private double[][] vn;
@@ -59,9 +59,7 @@ public final class GravityEngine implements Gravity {
     /** Total impulse. */
     private double[] impulse;
 
-    public GravityEngine(final double gamma, double deltat) {
-        this.gamma = gamma;
-        this.deltat = deltat;
+    public GravityEngine() {
         impulse = new double[GravityObject.DIMENSION];
     }
 
@@ -144,10 +142,10 @@ public final class GravityEngine implements Gravity {
     }
 
     /* (non-Javadoc)
-     * @see com.meyling.mulumis.base.simulator.Gravity#getGamma()
+     * @see com.meyling.mulumis.base.simulator.Gravity#setDeltat()
      */
-    public final double getGamma() {
-        return gamma;
+    public final void setDeltat(final double deltat) {
+        this.deltat = deltat;
     }
 
     /* (non-Javadoc)
@@ -155,6 +153,20 @@ public final class GravityEngine implements Gravity {
      */
     public final double getDeltat() {
         return deltat;
+    }
+
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#setGamma()
+     */
+    public final void setGamma(double gamma) {
+       this.gamma = gamma;
+    }
+
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getGamma()
+     */
+    public final double getGamma() {
+        return gamma;
     }
 
     /* (non-Javadoc)

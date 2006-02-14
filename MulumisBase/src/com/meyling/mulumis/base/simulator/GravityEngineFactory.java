@@ -29,30 +29,22 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.common;
+package com.meyling.mulumis.base.simulator;
 
-public interface Field {
+import com.meyling.mulumis.base.common.AbstractGravityFactory;
+import com.meyling.mulumis.base.common.Gravity;
 
-    /**
-     * Returns the number of stars.
-     *
-     * @return    Number of stars.
-     */
-    public abstract int getNumberOfStars();
+/**
+ * Gravity engine factory.
+ *
+ * @version $Revision$
+ * @author  Michael Meyling
+ */
+public final class GravityEngineFactory implements AbstractGravityFactory {
 
-    /**
-     * Returns the mass sum of stars.
-     *
-     * @return    Mass of stars.
-     */
-    public abstract double getMass();
-
-    /**
-     * Returns the requested star.
-     *
-     * @param    i    Star number. Between 0 and <code>{@link #getNumberOfStars()} - 1</code>.
-     * @return    Requested star.
-     */
-    public abstract GravityObject getStar(int i);
+    public Gravity createGravity() {
+        return new GravityEngine();
+    }
 
 }
+

@@ -31,28 +31,13 @@
 
 package com.meyling.mulumis.base.common;
 
-public interface Field {
+public interface AbstractGravityFactory {
 
     /**
-     * Returns the number of stars.
+     * Returns a concrete gravity implemention.
      *
-     * @return    Number of stars.
+     * @return  Object that calculates gravity.
      */
-    public abstract int getNumberOfStars();
-
-    /**
-     * Returns the mass sum of stars.
-     *
-     * @return    Mass of stars.
-     */
-    public abstract double getMass();
-
-    /**
-     * Returns the requested star.
-     *
-     * @param    i    Star number. Between 0 and <code>{@link #getNumberOfStars()} - 1</code>.
-     * @return    Requested star.
-     */
-    public abstract GravityObject getStar(int i);
+    public Gravity createGravity();
 
 }

@@ -40,7 +40,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -534,7 +533,7 @@ public final class MainFrame extends JFrame {
         zoomCurrent.setText("" + properties.getZoom());
         snapshotCurrent.setText("" + properties.getSnapshot());
         gammaCurrent.setText("" + properties.getGamma());
-        deltatCurrent.setText("" + new BigDecimal(properties.getDeltat()).toString());
+        deltatCurrent.setText("" + properties.getDeltat());
         impulseCurrent.setText("" + applet.getSimulator().getImpulse());
     }
 

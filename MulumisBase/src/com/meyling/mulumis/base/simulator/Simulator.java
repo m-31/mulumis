@@ -38,6 +38,7 @@ import java.awt.Graphics;
 import com.meyling.mulumis.base.common.Field;
 import com.meyling.mulumis.base.common.Gravity;
 import com.meyling.mulumis.base.common.GravityObject;
+import com.meyling.mulumis.base.config.MulumisContext;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
@@ -101,7 +102,9 @@ public final class Simulator {
         photoPlate.setSnapshot(snapshot);
         photoPlate.init(width, height, parent);
         camera = new Camera(photoPlate, viewPoint);
-        engine = new GravityEngine(gamma, deltat);
+        engine = MulumisContext.getAbstractGravityFactory().createGravity();
+        engine.setGamma(gamma);
+        engine.setDeltat(deltat);
     }
 
     public Simulator(final SimulatorProperties properties, final int width, final int height,

@@ -81,7 +81,7 @@ public class CPDoubleField extends CPTextField {
         this.minimum = minimum;
         this.maximum = maximum;
         this.len = len;
-        setText(value == null ? "" : value.toString());
+        setText(FormatUtility.toString(value));
     }
 
     private final void setInternValue(final Double value) {
@@ -133,6 +133,7 @@ public class CPDoubleField extends CPTextField {
                     buffer.append(str.charAt(i));
                 } else {
                     Trace.trace(this, method, "Format Error");
+                    Trace.traceStack(this, method);
                     Trace.traceParam(this, method, "str", str);
                     Toolkit.getDefaultToolkit().beep();
                 }

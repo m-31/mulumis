@@ -36,6 +36,7 @@ import java.io.File;
 import java.util.List;
 
 import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.util.FormatUtility;
 
 
 /**
@@ -246,6 +247,8 @@ public final class Parameter {
         }
         if (value instanceof File) {    // get more or less platform independent form
             return value.toString().replace('\\', '/');
+        } else if (value instanceof Double) {
+            return FormatUtility.toString(getDoubleValue());
         }
         return value.toString();
     }
