@@ -32,6 +32,7 @@
 package com.meyling.mulumis.base.application;
 
 import java.applet.Applet;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -42,9 +43,7 @@ import java.awt.event.MouseWheelListener;
 
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Simulator;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
-import com.meyling.mulumis.base.util.IoUtility;
-import com.meyling.mulumis.base.view.Camera;
+import com.meyling.mulumis.base.view.ViewChangedListener;
 import com.meyling.mulumis.base.view.Viewer;
 import com.meyling.mulumis.base.view.ViewerProperties;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
@@ -52,104 +51,79 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
 /**
- * Simulates star field.
+ * Star field viewer.
  *
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class StarApplet extends Applet implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener  {
+public final class FieldViewer extends Applet implements Runnable, 
+        MouseListener, MouseMotionListener, MouseWheelListener {
     private static final long serialVersionUID = -3554962680447033507L;
     private Thread runThread;
-    private Boolean stopped = Boolean.TRUE;
-    private ViewerProperties viewerProperties = new ViewerProperties();
-    private SimulatorProperties simulatorProperties = new SimulatorProperties();
-
-    private Simulator simulator;
-    private Viewer viewer;
-    
     int prevx, prevy;
     private double ytheta;
     private double xtheta;
 
-    public StarApplet() {
+    private Viewer viewer;
+    private boolean threadSuspended;
+
+
+    public FieldViewer() {
+    }
+    
+    public FieldViewer(final FieldViewer v, final int width, final int height, final Component parent) {
+        this.viewer = new Viewer(v.viewer, width, height, parent);
+        this.prevx = v.prevx;
+        this.prevy = v.prevy;
+        super.resize(width, height);
     }
 
     public void init() {
-        try {
-            if (getParameter("stars") != null) {
-                simulatorProperties.setStars(Integer.parseInt(getParameter("stars")));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-
-        try {
-            if (getParameter("movement") != null ) {
-                viewerProperties.setMovement(getParameter("movement"));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-        try {
-            if (getParameter("delta") != null) {
-                viewerProperties.setDelta(IoUtility.parseDouble(getParameter("delta")));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-        try {
-            if (getParameter("sensitivity") != null) {
-                viewerProperties.setSensitivity(IoUtility.parseDouble(getParameter("sensitivity")));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-        try {
-            if (getParameter("radius") != null) {
-                viewerProperties.setRadius(IoUtility.parseDouble(getParameter("radius")));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-        try {
-            if (getParameter("zoom") != null) {
-                viewerProperties.setZoom(IoUtility.parseDouble(getParameter("zoom")));
-            }
-        } catch (NullPointerException e) {
-        } catch (Exception e){
-            e.printStackTrace();
-        };
-        if (simulator != null) {
-            synchronized (simulator) {
-                simulator = new Simulator(simulatorProperties);
-                viewer = new Viewer(simulator, viewerProperties, getSize().width, getSize().height, this);
-            }
-        } else {
-            simulator = new Simulator(simulatorProperties);
-            viewer = new Viewer(simulator, viewerProperties, getSize().width, getSize().height, this);
-        }
-        if ("manualDelay".equals(viewer.getProperties().getMovement()) && !simulator.hasGravity()) {
-            final ManualMovement mover = (ManualMovement) viewer.getPositionCalculator();
-            mover.setXtheta(-0.003);
-            mover.setYtheta(-0.002);
-        }
         prevx = 0;
         prevy = 0;
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
-     }
-
+        threadSuspended = false;
+    }
+    
     public void destroy() {
+        super.destroy();
         removeMouseListener(this);
         removeMouseMotionListener(this);
+        if (viewer != null) {
+            viewer.close();
+            viewer = null;
+        }
     }
 
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        if (viewer != null) {
+            viewer.resize(width, height, this);
+        }
+    }
+
+    public final void applyVisualChanges(final Simulator simulator, final ViewerProperties properties) {
+        if (viewer == null) {
+            viewer = new Viewer(simulator, properties, getWidth(), getHeight(), this);
+        }
+        viewer.applyVisualChanges(simulator, properties);
+        paint(getGraphics());
+    }
+
+    public final void addViewChangedListener(final ViewChangedListener list) {
+        viewer.addViewChangedListener(list);
+    }
+    
+    public final void removeViewChangedListener(final ViewChangedListener list) {
+        viewer.removeViewChangedListener(list);
+    }
+    
+    public final void removeAllViewChangedListeners() {
+        viewer.removeAllViewChangedListeners();
+    }
+    
     public final void paint(Graphics g) {
         if (viewer != null) {
             viewer.paintPicture(g);
@@ -157,55 +131,43 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     }
 
     public final void start() {
-        synchronized (stopped) {
-            if (runThread == null) {
-                runThread = new Thread(this);
-                runThread.start();
-            }
-            Trace.trace(this, "start", "Thread started");
+        if (runThread == null) {
+            runThread = new Thread(this);
+            runThread.start();
         }
+        Trace.trace(this, "start", "Thread started");
     }
 
-    public final void stop(){
-        synchronized (stopped) {
-            if (runThread != null) {
-                runThread = null;
-            }
-            Trace.trace(this, "stop", "Thread stopped");
-        }
+    public synchronized final void stop(){
+        runThread = null;
+        if (threadSuspended) {
+            threadSuspended = false;
+            notify();
+        }         
+        Trace.trace(this, "stop", "Thread stopped");
+    }
+
+    public final boolean isRunning(){
+        return runThread != null;
     }
 
     public final void run() {
         try {
-            synchronized (stopped) {
-                stopped = Boolean.FALSE;
-            }
-            if ("manual".equals(viewerProperties.getMovement())) {
+            Thread me = Thread.currentThread();
+            while (runThread == me) { 
                 viewer.moveViewPoint();
-            }
-            while (runThread != null) {
-                synchronized (simulator) {
-                    if (!"manual".equals(viewerProperties.getMovement())) {
-                        viewer.moveViewPoint();
-                    }
-                    viewer.takePicture();
-                }
+                viewer.takePicture();
                 paint(getGraphics());
-                if (simulator.hasGravity()) {
-                    simulator.applyGravity();
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
+                try {
+                    Thread.sleep(30);
+                    synchronized(this) {
+                        while (threadSuspended) {
+                            wait();
+                        }
                     }
-                } else {
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException e) {
-                    }
+                } catch (InterruptedException e) {
                 }
-            }
-            synchronized (stopped) {
-                stopped = Boolean.TRUE;
+                
             }
         } catch (Exception e){
             Trace.trace(this, "run", e);
@@ -222,29 +184,31 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
             return;
         }
 
-        if (!"manualDelay".equals(viewerProperties.getMovement())) {
-            return;
-        }
         ManualMovement positionCalculator = (ManualMovement) viewer.getPositionCalculator();
         positionCalculator.setXtheta(0);
         positionCalculator.setYtheta(0);
     }
 
     public void mousePressed(MouseEvent e) {
-      prevx = e.getX();
-      prevy = e.getY();
-      e.consume();
+        prevx = e.getX();
+        prevy = e.getY();
+        e.consume();
     }
+    
     public void mouseReleased(MouseEvent e) {
+        e.consume();
     }
 
     public void mouseEntered(MouseEvent e) {
+        e.consume();
     }
 
     public void mouseExited(MouseEvent e) {
+        e.consume();
     }
 
     public void mouseDragged(MouseEvent e) {
+        e.consume();
         if (InputEvent.BUTTON1_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK)) {
             return;
         }
@@ -271,34 +235,14 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     public void mouseMoved(MouseEvent e) {
     }
 
-    public final SimulatorProperties getSimulatorProperties() {
-        return simulatorProperties;
-    }
-
-    public final ViewerProperties getViewerProperties() {
-        return viewerProperties;
-    }
-
-    public final void setSimulatorProperties(final SimulatorProperties properties) {
-        this.simulatorProperties = properties;
-    }
-    
-    public final SimulatorProperties getCurrentProperties() {
-        return simulator.getProperties();
-    }
-
-    public final Simulator getSimulator() {
-        return simulator;
-    }
-
     public void mouseWheelMoved(MouseWheelEvent e) {
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             AbstractAutomaticMover r = viewer.getPositionCalculator();
             if (InputEvent.BUTTON3_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK)) {
                 if (e.getUnitsToScroll() < 0) {
-                    r.setRadius(r.getRadius() * 1.05);
+                    viewer.setRadius(r.getRadius() * 1.05);
                 } else {
-                    r.setRadius(r.getRadius() / 1.05);
+                    viewer.setRadius(r.getRadius() / 1.05);
                 }
             }
             final double s;
@@ -313,11 +257,20 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
                 viewer.setSensitivity(s);
             }
         }
-        viewer.moveViewPoint();
         viewer.takePicture();
         e.consume();
     }
 
+    public final ViewerProperties getProperties() {
+        if (viewer == null) {
+            return null;
+        }
+        return viewer.getProperties();
+    }
+
+    public final Viewer getViewer() {
+        return viewer;
+    }
 
 }
 

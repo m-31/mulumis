@@ -32,9 +32,6 @@
 package com.meyling.mulumis.base.simulator;
 
 
-import java.awt.Component;
-import java.awt.Graphics;
-
 import com.meyling.mulumis.base.common.Field;
 import com.meyling.mulumis.base.common.Gravity;
 import com.meyling.mulumis.base.common.GravityObject;
@@ -42,11 +39,7 @@ import com.meyling.mulumis.base.config.MulumisContext;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
-import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
-import com.meyling.mulumis.base.viewpoint.CirclularMoverWithChangingViewingDirection;
-import com.meyling.mulumis.base.viewpoint.CircularMover;
-import com.meyling.mulumis.base.viewpoint.LinearMover;
-import com.meyling.mulumis.base.viewpoint.ManualMovement;
+import com.meyling.mulumis.base.view.PhotoPlate;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
@@ -59,132 +52,55 @@ public final class Simulator {
 
     private Field field;
 
-    private AbstractAutomaticMover positionCalculator;
-
-    private String movement;
-
-    private int stars;
-
-    private Camera camera;
-
     private Gravity engine;
 
-    public Simulator(final int stars, final String movement,
-            final double delta, final double sensitivity, final double radius, final double zoom,
-            final int snapshot, final double gamma, final double deltat,
-            final int width, final int height, final Component parent) {
-        this.stars = stars;
-        field = new StarField(stars);
-        final double[] zero = new double[GravityObject.DIMENSION];
-        ((StarField) field).fillBall(0.5, zero);
-        final PhotoPlate photoPlate = new PhotoPlate();
-        final ViewPoint viewPoint = new ViewPoint();
-        if (movement == null) {
-            throw new NullPointerException("movement is null");
-        }
-        if (movement.equals("manual") || movement.equals("manualDelay")) {
-            positionCalculator = new ManualMovement(zero);
-        } else if (movement.equals("linear")) {
-            positionCalculator = new LinearMover(zero);
-        } else if (movement.equals("circularNormale")) {
-            positionCalculator = new CirclularMoverWithChangingViewingDirection(zero);
-        } else if (movement.equals("circular")){
-            positionCalculator = new CircularMover(zero);
-        } else {
-            throw new IllegalArgumentException(
-                "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
-        }
-        this.movement = movement;
-        positionCalculator.setDelta(delta);
-        positionCalculator.setRadius(radius);
-        photoPlate.setSensitivity(sensitivity);
-        photoPlate.setZoom(zoom);
-        photoPlate.setSnapshot(snapshot);
-        photoPlate.init(width, height, parent);
-        camera = new Camera(photoPlate, viewPoint);
+    private Thread thread;
+
+    private Boolean stopped = Boolean.TRUE;
+    
+    
+    public Simulator(final int stars, final double gamma, final double deltat) {
+        createField(stars);
         engine = MulumisContext.getAbstractGravityFactory().createGravity();
         engine.setGamma(gamma);
         engine.setDeltat(deltat);
     }
 
-    public Simulator(final SimulatorProperties properties, final int width, final int height,
-            final Component parent) {
-        this(properties.getStars(), properties.getMovement(), properties.getDelta(),
-            properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
-            properties.getSnapshot(), properties.getGamma(), properties.getDeltat(),
-            width, height, parent);
+    private void createField(final int stars) {
+        field = new StarField(stars);
+        final double[] zero = new double[GravityObject.DIMENSION];
+        ((StarField) field).fillBall(0.5, zero);
+    }
+
+    public Simulator(final SimulatorProperties properties) {
+        this(properties.getStars(), properties.getGamma(), properties.getDeltat());
     }
 
     public final SimulatorProperties getProperties() {
-        return new SimulatorProperties(stars, movement, positionCalculator.getDelta(),
-            camera.getSensitivity(), positionCalculator.getRadius(), camera.getZoom(),
-            camera.getSnapshot(), engine.getGamma(), engine.getDeltat());
+        return new SimulatorProperties(field.getNumberOfStars(), engine.getGamma(), 
+            engine.getDeltat());
     }
 
-    public final void applyVisualChanges(final SimulatorProperties properties) {
-        applyVisualChanges(properties.getMovement(), properties.getDelta(),
-        properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
-        properties.getSnapshot());
-        moveViewPoint();
+    public final void applyChanges(final SimulatorProperties properties) {
+        synchronized (stopped) {
+            if (properties.getStars() != field.getNumberOfStars()) {
+                createField(properties.getStars());
+            }
+            engine.setGamma(properties.getGamma());
+            engine.setDeltat(properties.getDeltat());
+        }
     }
     
-    public final void applyVisualChanges(final String movement,
-            final double delta, final double sensitivity, final double radius, final double zoom,
-            final int snapshot) {
-        if (!this.movement.equals(movement)) {
-            final double[] zero = new double[GravityObject.DIMENSION];
-            if (movement == null) {
-                throw new NullPointerException("movement is null");
-            }
-            if (movement.equals("manual") || movement.equals("manualDelay")) {
-                positionCalculator = new ManualMovement(zero);
-            } else if (movement.equals("linear")) {
-                positionCalculator = new LinearMover(zero);
-            } else if (movement.equals("circularNormale")) {
-                positionCalculator = new CirclularMoverWithChangingViewingDirection(zero);
-            } else if (movement.equals("circular")){
-                positionCalculator = new CircularMover(zero);
-            } else {
-                throw new IllegalArgumentException(
-                    "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
-            }
-            this.movement = movement;
-        }
-        positionCalculator.setDelta(delta);
-        positionCalculator.setRadius(radius);
-        camera.setSensitivity(sensitivity);
-        camera.setZoom(zoom);
-        camera.setSnapshot(snapshot);
-    }
-
-    public final void paintPicture(Graphics g) {
-        if (g != null) {
-            camera.paint(g);
-        }
-    }
-
-    public final void moveViewPoint() {
-        positionCalculator.calculateMovement(camera.getViewPoint());
-    }
-
     public final void applyGravity() {
         engine.calculate(field);
     }
 
-    public final AbstractAutomaticMover getPositionCalculator() {
-        return positionCalculator;
-    }
-
-    public final void takePicture() {
-        camera.takePicture(field);
-    }
-
-    public final Camera getCamera() {
-        return camera;
-    }
-
     public final boolean hasGravity() {
         return engine.hasGravity();
+    }
+
+    public final Field getField() {
+        return field;
     }
 
     public final double getImpulse() {
@@ -195,5 +111,36 @@ public final class Simulator {
         return CalculatorUtility.len(engine.getImpulse());
     }
 
+    public final synchronized void start() {
+        if (!hasGravity()) {
+            return;
+        }
+        thread = new Thread() {
+            public void run() {
+                synchronized (stopped) {
+                    stopped = Boolean.FALSE;
+                }
+                while (thread != null) {
+                    synchronized (stopped) {
+                        applyGravity();
+                    }
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                synchronized (stopped) {
+                    stopped = Boolean.TRUE;
+                }
+            }
+        };
+        thread.start();
+    }
+    
+    public final synchronized void stop() {
+        synchronized (stopped) {
+            thread = null;
+        }
+    }
 }
 

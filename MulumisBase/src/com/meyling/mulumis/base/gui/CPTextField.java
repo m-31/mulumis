@@ -30,7 +30,7 @@
 //     http://www.mulumis.meyling.com
 
 
-package com.meyling.mulumis.base.gui.field;
+package com.meyling.mulumis.base.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

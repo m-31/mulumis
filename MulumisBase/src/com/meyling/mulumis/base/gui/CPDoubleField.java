@@ -30,7 +30,7 @@
 //     http://www.mulumis.meyling.com
 
 
-package com.meyling.mulumis.base.gui.field;
+package com.meyling.mulumis.base.gui;
 
 import java.awt.Toolkit;
 
@@ -59,7 +59,7 @@ public class CPDoubleField extends CPTextField {
 
     private final double maximum;
 
-    private final int len;
+    private final int columns;
 
     /**
      * Constructor with initial value.
@@ -80,7 +80,7 @@ public class CPDoubleField extends CPTextField {
         this.value = value;
         this.minimum = minimum;
         this.maximum = maximum;
-        this.len = len;
+        this.columns = len;
         setText(FormatUtility.toString(value));
     }
 
@@ -99,8 +99,8 @@ public class CPDoubleField extends CPTextField {
         Trace.traceParam(this, "setValue", "value", value);
         setInternValue(value);
         String text = FormatUtility.toString(value);
-        if (text.length() > len) {
-            text = text.substring(0, len);
+        if (text.length() > columns) {
+            text = text.substring(0, columns);
         }
         setText(value == null ? "" : text);
     }
@@ -139,11 +139,11 @@ public class CPDoubleField extends CPTextField {
                 }
             }
             // TODO mime 20060130: + 1???
-            if (buffer.length() + getContent().length() - 1 > len) {
+            if (buffer.length() + getContent().length() - 1 > columns) {
                 Toolkit.getDefaultToolkit().beep();
                 Trace.trace(this, method, "Format Error");
                 Trace.traceParam(this, method, "str", str);
-                Trace.traceParam(this, method, "len", len);
+                Trace.traceParam(this, method, "len", columns);
                 Trace.traceParam(this, method, "buffer.length() + getContent().length - 1",
                     buffer.length() + getContent().length() - 1);
                 return;
@@ -165,4 +165,8 @@ public class CPDoubleField extends CPTextField {
         }
     }
 
+    public int getColumns() {
+        return columns;
+    }
+    
 }

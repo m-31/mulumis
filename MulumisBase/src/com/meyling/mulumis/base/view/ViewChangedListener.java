@@ -29,57 +29,23 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.simulator;
+package com.meyling.mulumis.base.view;
 
 /**
- * Star field simulator properties.
+ * Listener for viewer events.
  *
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class SimulatorProperties {
+public interface ViewChangedListener {
 
-    private int stars;
-    private double gamma;
-    private double deltat;
+    public void zoomChanged();
 
-    public SimulatorProperties(final int stars, 
-            final double gamma, final double deltat) {
-        setStars(stars);
-        setGamma(gamma);
-        setDeltat(deltat);
-    }
+    public void sensitivityChanged();
 
-    public SimulatorProperties() {
-        setStars(4000);
-        setGamma(0);
-        setDeltat(0.001);
-    }
+    public void radiusChanged();
 
-    public final int getStars() {
-        return stars;
-    }
-
-    public final void setStars(int stars) {
-        this.stars = stars;
-    }
-
-    public final double getGamma() {
-        return gamma;
-    }
-
-    public final void setGamma(double gamma) {
-        this.gamma = gamma;
-    }
-
-    public final double getDeltat() {
-        return deltat;
-    }
-
-    public final void setDeltat(double deltat) {
-        this.deltat = deltat;
-    }
-
+    public void snapshotChanged();
 
 }
 

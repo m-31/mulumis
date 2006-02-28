@@ -30,7 +30,7 @@
 //     http://www.mulumis.meyling.com
 
 
-package com.meyling.mulumis.base.gui.field;
+package com.meyling.mulumis.base.gui;
 
 import java.awt.Toolkit;
 
@@ -53,7 +53,7 @@ public class CPIntegerField extends CPTextField {
     private static final long serialVersionUID = 195861153293062811L;
     private final int minimum;
     private final int maximum;
-    private final double len;
+    private final int columns;
     private Integer value;
 
     /**
@@ -65,8 +65,8 @@ public class CPIntegerField extends CPTextField {
         super();
         this.minimum = minimum;
         this.maximum = maximum;
-        this.len = Math.ceil(Math.log(maximum) / Math.log(10));
-        Trace.traceParam(this, "CPIntegerField", "len", len);
+        this.columns = (int) (Math.ceil(Math.log(maximum) / Math.log(10)));
+        Trace.traceParam(this, "CPIntegerField", "len", columns);
         setInternValue(value);
     }
 
@@ -113,10 +113,10 @@ public class CPIntegerField extends CPTextField {
             }
             // TODO mime 20060130: + 1???
             final String method = "insertString";
-            if (buffer.length() + getContent().length() - 1 > len) {
+            if (buffer.length() + getContent().length() - 1 > columns) {
                 Trace.trace(this, method, "Format Error");
                 Trace.traceParam(this, method, "str", str);
-                Trace.traceParam(this, method, "len", len);
+                Trace.traceParam(this, method, "len", columns);
                 Trace.traceParam(this, method, "buffer.length() + getContent().length - 1",
                     buffer.length() + getContent().length() - 1);
                 Toolkit.getDefaultToolkit().beep();
@@ -146,6 +146,10 @@ public class CPIntegerField extends CPTextField {
                 setInternValue(new Integer(getContent().getString(0, getContent().length() - 1)));
             }
         }
+    }
+    
+    public int getColumns() {
+        return columns;
     }
 
 }

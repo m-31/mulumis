@@ -33,6 +33,7 @@ package com.meyling.mulumis.base.application;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -42,18 +43,25 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SpringLayout;
 
 import com.meyling.mulumis.base.config.Parameter;
 import com.meyling.mulumis.base.config.SimulumProperties;
-import com.meyling.mulumis.base.gui.field.CPDoubleField;
-import com.meyling.mulumis.base.gui.field.CPIntegerField;
-import com.meyling.mulumis.base.gui.field.CPTextField;
+import com.meyling.mulumis.base.gui.CPDoubleField;
+import com.meyling.mulumis.base.gui.CPIntegerField;
+import com.meyling.mulumis.base.gui.SpringUtilities;
 import com.meyling.mulumis.base.log.Trace;
+import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.view.ViewChangedListener;
+import com.meyling.mulumis.base.view.ViewerProperties;
 
 /**
  * Show and edit preferences of this application. Start simulation.
@@ -61,7 +69,7 @@ import com.meyling.mulumis.base.simulator.SimulatorProperties;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class MainFrame extends JFrame {
+public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /** String length of double fields. Includes decimal seperator. */
     private static final int DOUBLE_LENGTH = 30;
@@ -71,57 +79,53 @@ public final class MainFrame extends JFrame {
     /** Width for big components inside this dialog. */
     private static final int CONTENTS_WIDTH = 800;
 
-    private int contentsWidth = CONTENTS_WIDTH;
-
-    /** Height for components inside this dialog. */
-    private static final int CONTENT_HEIGHT = 17;
-
     /** X margin. */
     private static final int MARGIN_X = 33;
 
-    private SimulumProperties properties;
+    /** X margin. */
+    private static final int MARGIN_Y = 17;
+    
+    private SimulumProperties simulumProperties;
 
-    private StarApplet applet;
+    private SimulatorProperties simulatorProperties;
 
-    /** Current y height. */
-    private int y;
+    private ViewerProperties viewerProperties;
 
-    private JButton current;
-
-    private JButton copy;
+    private FieldViewer viewer;
+    
+    private Simulator simulator;
 
     private CPIntegerField stars;
-    private JLabel starsCurrent;
 
     private JComboBox movement;
-    private JLabel movementCurrent;
 
     private CPDoubleField sensitivity;
-    private JLabel sensitivityCurrent;
 
     private CPDoubleField zoom;
-    private JLabel zoomCurrent;
 
     private CPDoubleField radius;
-    private JLabel radiusCurrent;
 
     private CPIntegerField snapshot;
-    private JLabel snapshotCurrent;
 
     private CPDoubleField gamma;
-    private JLabel gammaCurrent;
 
     private CPDoubleField deltat;
-    private JLabel deltatCurrent;
 
     private JLabel impulseCurrent;
     
-    private CPTextField message;
-
     boolean started;
+    
+    boolean maximized;
 
     private JButton start;
 
+    private JPanel visual;
+
+    private JPanel simulation;
+
+    private JPanel appletPanel;
+
+    private JButton maximize;
 
     /**
      * Constructor.
@@ -134,8 +138,18 @@ public final class MainFrame extends JFrame {
         final String method = "StarterDialog(String)";
         try {
             Trace.traceBegin(this, method);
+            simulatorProperties = new SimulatorProperties(); 
+            viewerProperties = new ViewerProperties();
+            simulator = new Simulator(simulatorProperties);
+            loadParameters();
+            viewer = new FieldViewer();
+            viewer.init();        
+            copyProperties();
             setSize(2 * MARGIN_X + CONTENTS_WIDTH, 500);
-            setupView(2 * MARGIN_X + CONTENTS_WIDTH, 500);
+            setupView();
+//            simulator.applyChanges(simulatorProperties);
+//            viewer.applyVisualChanges(simulator, viewerProperties);
+//            setSize(2 * MARGIN_X + CONTENTS_WIDTH, 500);
         } catch (Throwable e) {
             Trace.trace(this, method, e);
             e.printStackTrace();
@@ -148,15 +162,7 @@ public final class MainFrame extends JFrame {
     /**
      * Assembles the GUI components of the panel.
      */
-    public final void setupView(int width, int height) {
-        int deltay = 40;
-        int contentsWidth = width - 2 * MARGIN_X;
-        int contentsHight = height - 4 * deltay;
-        final int startY = 21;
-        y = 21;
-
-        properties = new SimulumProperties();
-
+    public final void setupView() {
         final Container contents = getContentPane();
         contents.removeAll();
         contents.setLayout(null);
@@ -166,142 +172,190 @@ public final class MainFrame extends JFrame {
                 shutdown();
             }
         });
+        
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
-                stopApplet();
                 Trace.traceParam(this, "componentResized", "e", e.paramString());
-                setupView(getSize().width, getSize().height);
-                copyCurrentProperties();
+                if (viewer.isRunning()) {
+                    viewer.stop();
+                    setupSize();
+                    viewer.start();
+                } else {
+                    setupSize();
+                }
+            }
+            
+            public void componentShown(ComponentEvent e) {
+                setupSize();
             }
         });
 
-        setupFields(contentsWidth);
+        setupCamera();
+        setupGravity();
 
-        // setup applet
-        applet = new StarApplet();
-        applet.setBounds(4 * MARGIN_X + contentsWidth / 6, startY, contentsWidth - contentsWidth / 6 - 3* MARGIN_X, contentsHight);
-        applet.setBackground(Color.BLACK);
-        contents.add(applet);
+        appletPanel = new JPanel();
+        appletPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        contents.add(appletPanel);
+        appletPanel.setLayout(null);
+        appletPanel.add(viewer);
         fillProperties();
-        y = startY + CONTENT_HEIGHT + contentsHight;
 
         impulseCurrent = new JLabel();
         contents.add(impulseCurrent);
-        impulseCurrent.setBounds(4 * MARGIN_X + contentsWidth / 6, y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
         
-        setupMessageAndButtons(contentsWidth);
+        setupSize();
 
     }
 
-    private void setupFields(int contentsWidth) {
+    public synchronized void restart(ViewerProperties properties) {
+        viewerProperties = properties;
+        viewer.applyVisualChanges(simulator, properties);
+        refreshProperties();
+        copyProperties();
+//        setupSize();
+//        viewer.requestFocus();
+//        startViewer();
+        maximized = false;
+    }
+    
+    private void setupSize() {
+        final int width = getContentPane().getWidth() - getContentPane().getInsets().left - getContentPane().getInsets().right;
+        Trace.traceParam(this, "setupSize", "width", width);
+        final int height = getContentPane().getHeight() - getContentPane().getInsets().top - getContentPane().getInsets().bottom;
+        Trace.traceParam(this, "setupSize", "height", height);
+        visual.setBounds(MARGIN_X, MARGIN_Y, 0, 0);
+        SpringUtilities.makeCompactGrid(visual,
+                visual.getComponentCount() / 2, 2,      //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
+        Dimension size = visual.getPreferredSize();
+        visual.setSize(size);
+        
+        simulation.setBounds(MARGIN_X, visual.getHeight() + visual.getY()
+                + MARGIN_Y, 0, 0);
+        SpringUtilities.makeCompactGrid(simulation,
+                simulation.getComponentCount() / 2, 2,  //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
+        size = simulation.getPreferredSize();
+        simulation.setSize(size);
+        
+        appletPanel.setBounds(2 * MARGIN_X + visual.getSize().width, MARGIN_Y, 
+                width - 3 * MARGIN_X - visual.getSize().width, height - 2 * MARGIN_Y);
+
+        viewer.setBounds(appletPanel.getInsets().left, appletPanel.getInsets().top, appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
+                appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
+// TODO mime 20060223: the following line is neccessary, so something must be wrong with the viewer        
+        viewer.setSize(appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
+                appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
+//        viewer.applyVisualChanges(simulator, viewerProperties);
+        viewer.setBackground(Color.BLACK);
+        
+    }
+    
+    private void setupGravity() {
         final Container contents = getContentPane();
 
-        stars = createIntegerField(properties.get("stars"), 0, 99999999);
-        contents.add(stars);
-        starsCurrent = new JLabel();
-        contents.add(starsCurrent);
-        starsCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
+        simulation = new JPanel(new SpringLayout());
+        simulation.setBorder(BorderFactory.createRaisedBevelBorder());
+        contents.add(simulation);
 
-        movement = createListField(properties.get("movement"));
-        contents.add(movement);
-        movementCurrent = new JLabel();
-        contents.add(movementCurrent);
-        movementCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
+        JLabel panelDescriptionGravity = new JLabel("Gravity");
+        panelDescriptionGravity.setForeground(Color.BLUE);
+        simulation.add(panelDescriptionGravity);
+        simulation.add(new JLabel());
 
-        sensitivity = createDoubleField(properties.get("sensitivity"), 0, 1000000000, DOUBLE_LENGTH);
-        contents.add(sensitivity);
-        sensitivityCurrent = new JLabel();
-        contents.add(sensitivityCurrent);
-        sensitivityCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
+        stars = createIntegerField(simulation, simulumProperties.get("stars"), 0, 99999999);
+        simulation.add(stars);
 
-        zoom = createDoubleField(properties.get("zoom"), 0, 1000000000, DOUBLE_LENGTH);
-        contents.add(zoom);
-        zoomCurrent = new JLabel();
-        contents.add(zoomCurrent);
-        zoomCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
+        gamma = createDoubleField(simulation, simulumProperties.get("gamma"), 0, 1000000000, DOUBLE_LENGTH);
+        simulation.add(gamma);
 
-        radius = createDoubleField(properties.get("radius"), 0, 1000000000, DOUBLE_LENGTH);
-        contents.add(radius);
-        radiusCurrent = new JLabel();
-        contents.add(radiusCurrent);
-        radiusCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
-
-        snapshot = createIntegerField(properties.get("snapshot"), 0, 99999999);
-        contents.add(snapshot);
-        snapshotCurrent = new JLabel();
-        contents.add(snapshotCurrent);
-        snapshotCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
-
-        gamma = createDoubleField(properties.get("gamma"), 0, 1000000000, DOUBLE_LENGTH);
-        contents.add(gamma);
-        gammaCurrent = new JLabel();
-        contents.add(gammaCurrent);
-        gammaCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
-
-        deltat = createDoubleField(properties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
-        contents.add(deltat);
-        deltatCurrent = new JLabel();
-        contents.add(deltatCurrent);
-        deltatCurrent.setBounds((int)(1.2 * MARGIN_X + contentsWidth / 6), y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT * 1.5;
-
+        deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
+        simulation.add(deltat);
+        
+        final JButton gravity = new JButton(viewer != null && viewer.getViewer() != null 
+                && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
+            final String method ="actionPerformed";
+            contents.add(gravity);
+            gravity.setToolTipText("Set gravity on or off.");
+            gravity.addActionListener(new  ActionListener() {
+                public void actionPerformed(final ActionEvent actionEvent) {
+                    try {
+                        fillProperties();
+                        simulator.applyChanges(simulatorProperties);
+                        viewer.applyVisualChanges(simulator, viewerProperties);
+                        viewer.repaint();
+                        saveParameters();
+                        enableGravityFields(viewer.getViewer().isGravityOn());
+                        gravity.setText(viewer != null && viewer.getViewer() != null 
+                                && viewer.getViewer().isGravityOn() ? "Start" : "Stop");
+                        viewer.getViewer().setGravityOn(!viewer.getViewer().isGravityOn());
+                    } catch (final Exception e) {
+                        Trace.trace(this, method, e);
+                        displayErrorMessage(e);
+                    } catch (final Error e) {
+                        Trace.trace(this, method, e);
+                        displayErrorMessage(e);
+                        // seems to be the only solution to deal with this kind of error
+                        if (!(e instanceof OutOfMemoryError)) {
+                            shutdown();
+                        }
+                    }
+                }
+            });
+        simulation.add(gravity);
+        simulation.add(new JLabel(""));
     }
 
-    private void setupMessageAndButtons(int contentsWidth) {
+    private void setupCamera() {
         final Container contents = getContentPane();
 
-        message = new CPTextField();
-        contents.add(message);
-        message.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
-        message.setBorder(null);
-        message.setEditable(false);
-        y += CONTENT_HEIGHT * 1.5;
+        visual = new JPanel(new SpringLayout());
+        visual.setBorder(BorderFactory.createRaisedBevelBorder());
+        contents.add(visual);
 
-        final JButton dflt = new JButton("Maximize");
-        contents.add(dflt);
-        dflt.setBounds(MARGIN_X, y, 90, 21);
-        dflt.setToolTipText("Start full screen mode.");
-        dflt.addActionListener(new  ActionListener() {
-            public void actionPerformed(final ActionEvent actionEvent) {
-                stopApplet();
-                StarScreen screen = new StarScreen(applet);
-                screen.show();
-                screen = null;
-            }
-        });
+        JLabel panelDescriptionCamera = new JLabel("Camera");
+        panelDescriptionCamera.setForeground(Color.BLUE);
+        visual.add(panelDescriptionCamera);
+        visual.add(new JLabel(""));
+        
+        sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"), 0, 1000000000d, DOUBLE_LENGTH);
+        visual.add(sensitivity);
+
+        zoom = createDoubleField(visual, simulumProperties.get("zoom"), 0, 1000000000d, DOUBLE_LENGTH);
+        visual.add(zoom);
+
+        radius = createDoubleField(visual, simulumProperties.get("radius"), 0, 100000000000d, DOUBLE_LENGTH);
+        visual.add(radius);
+
+        snapshot = createIntegerField(visual, simulumProperties.get("snapshot"), 0, 99999999);
+        visual.add(snapshot);
+
+        movement = createListField(visual, simulumProperties.get("movement"));
+        visual.add(movement);
 
         start = new JButton("Start");
-        contents.add(start);
-        start.setBounds(MARGIN_X + 90 + 21, y, 90, 21);
         start.setToolTipText("Starts the application.");
         start.addActionListener(new  ActionListener() {
             
             public void actionPerformed(final ActionEvent actionEvent) {
                 final String method ="actionPerformed";
                 try {
+                    enableCameraFields(started);
                     if (!started) {
-                        setResultMessage(true, "starting..");
                         fillProperties();
-                        startApplet();
+                        startViewer();
                     } else {
-                        setResultMessage(true, "stopping..");
-                        copyCurrentProperties();
-                        stopApplet();
+//                        copyProperties();
+                        stopViewer();
                     }
                 } catch (final Exception e) {
                     Trace.trace(this, method, e);
-                    setResultMessage(false, e.toString());
+                    displayErrorMessage(e);
                 } catch (final Error e) {
                     Trace.trace(this, method, e);
-                    setResultMessage(false, e.toString());
+                    displayErrorMessage(e);
                     // seems to be the only solution to deal with this kind of error
                     if (!(e instanceof OutOfMemoryError)) {
                         shutdown();
@@ -310,212 +364,401 @@ public final class MainFrame extends JFrame {
                 saveParameters();
             }
         });
+        visual.add(start);
 
-        final JButton apply = new JButton("Apply");
-        contents.add(apply);
-        apply.setBounds(MARGIN_X + 2* 90 + 2 * 21, y, 90, 21);
-        apply.setToolTipText("Applies visual changes.");
-        apply.addActionListener(new  ActionListener() {
+        maximize = new JButton("Maximize");
+        maximize.setToolTipText("Change to full screen mode.");
+        maximize.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-                try {
-                    fillProperties();
-                    applet.getSimulator().applyVisualChanges(applet.getProperties());;
-                    applet.getSimulator().takePicture();
-                    applet.repaint();
-                    saveParameters();
-                } catch (final Exception e) {
-                    Trace.trace(this, "actionPerformed", e);
-                    setResultMessage(false, e.toString());
+                if (maximized) {    // we are already maximized
+                    return;
                 }
-            }
-        });
-
-        current = new JButton("Current");
-        contents.add(current);
-        current.setBounds(MARGIN_X + contentsWidth - 290 - 21, y, 90, 21);
-        current.setToolTipText("Display current model properties.");
-        current.addActionListener(new  ActionListener() {
-            public void actionPerformed(final ActionEvent actionEvent) {
-                copyCurrentProperties();
-            }
-        });
-
-        copy = new JButton("Copy");
-        contents.add(copy);
-        copy.setBounds(MARGIN_X + contentsWidth - 290 - 6 * 21, y, 90, 21);
-        copy.setToolTipText("Copy current model properites into start parameters.");
-        copy.addActionListener(new  ActionListener() {
-            public void actionPerformed(final ActionEvent actionEvent) {
+                maximized = true;
+//                viewer.stop();
+//                StarScreen screen = new StarScreen(viewer, MainFrame.this);
+                stopViewer();
+                refreshProperties();
                 copyProperties();
-                copyCurrentProperties();
+                StarScreen screen = new StarScreen(simulator, viewerProperties, MainFrame.this, viewer);
+                screen.show();
+                screen = null;
             }
         });
+/*                
+//                final Window screen = new Window(MainFrame.this);
+                final JFrame maxi = new JFrame();
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                // used for full-screen exclusive mode  
+                GraphicsDevice gd;
+                Graphics gScr;
+                BufferStrategy bufferStrategy;
+                gd = ge.getDefaultScreenDevice();
 
-        final JButton cancel = new JButton("Exit");
-        contents.add(cancel);
-        cancel.setBounds(MARGIN_X + contentsWidth - 90, y, 90, 21);
-        cancel.setToolTipText("Exits the application.");
-        cancel.addActionListener(new  ActionListener() {
-            public void actionPerformed(final ActionEvent actionEvent) {
-                applet.stop();
-                applet.destroy();
-                shutdown();
-            }
-        });
+                maxi.setUndecorated(true);    // no menu bar, borders, etc. or Swing components
+                maxi.setIgnoreRepaint(true);  // turn off all paint events since doing active rendering
+                maxi.setResizable(false);
+
+                if (!gd.isFullScreenSupported()) {
+                  System.out.println("Full-screen exclusive mode not supported");
+                  System.exit(0);
+                }
+                
+                final boolean run = viewer.isRunning();
+                if (run) {
+                    viewer.stop();
+                }
+//                appletPanel.remove(viewer);
+                
+                final Window screen = new Window(maxi);
+//                gd.setFullScreenWindow(screen); // switch on full-screen exclusive mode
+
+                final FieldViewer viewer = new FieldViewer(MainFrame.this.viewer);
+                screen.setSize(getToolkit().getScreenSize());
+                screen.setLayout(null);
+                screen.addNotify();
+
+                viewer.setSize(getToolkit().getScreenSize().width, 
+                        getToolkit().getScreenSize().height);
+                
+//                MainFrame.this.hide();
+//                MainFrame.this.setState(Frame.ICONIFIED);
+                screen.add(viewer);
+                screen.getParent().addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        e.consume();
+                        screen.hide();
+                        maxi.dispose();
+                        System.out.println("helleo1");
+                        System.exit(0);
+                    }
+                });
+                screen.repaint();
+                viewer.applyVisualChanges(simulator, viewerProperties);
+                viewer.init();
+                viewer.start();
+                MainFrame.this.hide();
+//                 MainFrame.this.setState(JFrame.ICONIFIED);
+                screen.show();
+                screen.requestFocus();
+//                screen.requestFocusInWindow();
+                viewer.requestFocus();
+//                viewer.requestFocusInWindow();
+                
+                } catch (Exception  e) {
+                    e.printStackTrace();
+                }
+                 
+                }
+            });
+
+/*                
+                viewer.resize(getToolkit().getScreenSize().width,
+                    getToolkit().getScreenSize().height);
+                maxi.requestFocus();
+                maxi.setFocusableWindowState(true);
+                
+                viewer.getParent().addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        System.out.println("helleo2");
+                        System.exit(0);
+                    }
+                });
+                screen.getParent().addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        System.out.println("helleo3");
+                        System.exit(0);
+                    }
+                });
+/*                
+                screen.addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        System.exit(0);
+                    }
+                });
+                screen.getParent().addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        System.exit(0);
+                    }
+                });
+                MainFrame.this.addKeyListener(new KeyAdapter() {
+                    public void keyPressed(final KeyEvent e) {
+                        System.exit(0);
+                    }
+                });
+                screen.setEnabled(true);
+//                if (run) {
+                    viewer.start();
+//                }
+                maxi.setFocusableWindowState(true);
+                maxi.requestFocus();
+                screen.requestFocus();
+                viewer.requestFocus();
+                getToolkit().addAWTEventListener(new AWTEventListener(){
+
+                    public void eventDispatched(AWTEvent event) {
+                        System.out.println(event);
+                        
+                    }}, AWTEvent.KEY_EVENT_MASK);
+//                getToolkit().getSystemEventQueue();
+
+                
+
+                stopViewer();
+                StarScreen screen = new StarScreen(simulator, viewer.getProperties());
+                screen.show();
+                screen = null;
+*/                
+        visual.add(maximize);
     }
 
-    private void setResultMessage(final boolean ok, final String message) {
-        if (ok) {
-            this.message.setForeground(Color.GREEN);
-        } else {
-            this.message.setForeground(Color.RED);
-        }
-        this.message.setText(message);
+    private void displayErrorMessage(final Throwable e) {
+        Trace.trace(this, "displayErrorMessage", e);
+        JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
      * Add combo box field for list parameter.
-     *
+     * @param contentPane TODO
      * @param   parameter   Add combo box for this parameter.
      */
-    private JComboBox createListField(final Parameter parameter) {
-        final Container contents = getContentPane();
+    private JComboBox createListField(Container contentPane, final Parameter parameter) {
+        final Container contents = contentPane;
         final JLabel label = new JLabel(parameter.getLabel());
         contents.add(label);
-        label.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT;
         final Vector vector = new Vector(parameter.getList());
         final JComboBox comboBox = new JComboBox(vector);
         if (parameter.getStringValue() != null) {
             comboBox.setSelectedItem(parameter.getStringValue());
         }
         contents.add(comboBox);
-        comboBox.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
         comboBox.setToolTipText(parameter.getComment());
+        label.setLabelFor(comboBox);
         return comboBox;
     }
 
     /**
      * Add integer field for string parameter.
-     *
+     * @param contentPane TODO
      * @param   parameter   Add text field selector for this parameter.
      */
-    CPIntegerField createIntegerField(final Parameter parameter, final int minimum, final int maximum) {
-        final Container contents = getContentPane();
+    CPIntegerField createIntegerField(Container contentPane, final Parameter parameter, final int minimum, final int maximum) {
+        final Container contents = contentPane;
         final JLabel label = new JLabel(parameter.getLabel());
         contents.add(label);
-        label.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT;
         final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), minimum, maximum);
         integerField.setValue(parameter.getIntegerValue());
         integerField.setToolTipText(parameter.getComment());
-        integerField.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
+        integerField.setColumns(integerField.getColumns());
+        label.setLabelFor(integerField);
         return integerField;
     }
 
     /**
      * Add double field for double parameter.
-     *
+     * @param contentPane TODO
      * @param   parameter   Add text field selector for this parameter.
      */
-    private CPDoubleField createDoubleField(final Parameter parameter, final double minimum,
-            final double maximum, final int length) {
-        final Container contents = getContentPane();
+    private CPDoubleField createDoubleField(Container contentPane, final Parameter parameter,
+            final double minimum, final double maximum, final int length) {
+        final Container contents = contentPane;
         final JLabel label = new JLabel(parameter.getLabel());
         contents.add(label);
-        label.setBounds(MARGIN_X, y, contentsWidth, CONTENT_HEIGHT);
-        y += CONTENT_HEIGHT;
         final CPDoubleField doubleField = new CPDoubleField(parameter.getDoubleValue(),
             minimum, maximum, length);
         doubleField.setValue(parameter.getDoubleValue());
-        doubleField.setBounds(MARGIN_X, y, contentsWidth / 6, CONTENT_HEIGHT); // TODO mime 20050205: just Q & D
         doubleField.setToolTipText(parameter.getComment());
+        label.setLabelFor(doubleField);
         return doubleField;
     }
 
     private void shutdown() {
         final String method = "shutdown()";
-        stopApplet();
+        stopViewer();
+        viewer.destroy();
+        viewer = null;
         dispose();
         Trace.trace(this, method, "calling System.exit");
         System.exit(0);
     }
 
-    private void startApplet() {
-        stopApplet();
-        applet.init();
-        copyCurrentProperties();
-        applet.start();
-        setResultMessage(true, "viewer started");
+    private synchronized void startViewer() {
+        stopViewer();
+//        simulator.start();
+        simulator.applyChanges(simulatorProperties);
+        viewer.applyVisualChanges(simulator, viewerProperties);
+        viewer.addViewChangedListener(this);
+        viewer.start();
         started = true;
         start.setText(started ? "Stop" : "Start");
     }
-    private void stopApplet() {
+    
+    private synchronized void stopViewer() {
         started = false;
-        if (applet != null) {
-            applet.stop();
-            applet.destroy();
+//        copyProperties();
+        if (simulator != null) {
+            simulator.stop();
         }
-        setResultMessage(true, "viewer stopped");
+        if (viewer != null) {
+            viewer.stop();
+        }
+        saveParameters();
         start.setText(started ? "Stop" : "Start");
     }
 
     /**
-     * Fill applet start parameters with GUI parameters.
+     * Fill model and viewer parameters with GUI parameters.
      */
     private void fillProperties() {
-        final SimulatorProperties properties = applet.getProperties();
         final Integer i = stars.getValue();
         if (i != null) {
-            properties.setStars(i.intValue());
+            simulatorProperties.setStars(i.intValue());
         }
-
         final String m = (String) movement.getSelectedItem();
         if (m != null) {
-            properties.setMovement(m);
+            viewerProperties.setMovement(m);
         }
-
         final Double s = sensitivity.getValue();
         if (s != null) {
-            properties.setSensitivity(s.doubleValue());
+            viewerProperties.setSensitivity(s.doubleValue());
         }
         final Double r = radius.getValue();
         if (r != null) {
-            properties.setRadius(r.doubleValue());
+            viewerProperties.setRadius(r.doubleValue());
         }
         final Double z = zoom.getValue();
         if (z != null) {
-            properties.setZoom(z.doubleValue());
+            viewerProperties.setZoom(z.doubleValue());
         }
-
         final Integer n = snapshot.getValue();
         if (n != null) {
-            properties.setSnapshot(n.intValue());
+            viewerProperties.setSnapshot(n.intValue());
         }
-
         final Double g = gamma.getValue();
         if (g != null) {
-            properties.setGamma(g.doubleValue());
+            simulatorProperties.setGamma(g.doubleValue());
         }
-
         final Double t = deltat.getValue();
         if (t != null) {
-            properties.setDeltat(t.doubleValue());
+            simulatorProperties.setDeltat(t.doubleValue());
         }
     }
 
+    private void enableCameraFields(final boolean enable) {
+        movement.setEnabled(enable);
+        sensitivity.setEnabled(enable);
+        radius.setEnabled(enable);
+        zoom.setEnabled(enable);
+        snapshot.setEnabled(enable);
+    }
+    
+    private void enableGravityFields(final boolean enable) {
+        stars.setEnabled(enable);
+        gamma.setEnabled(enable);
+        deltat.setEnabled(enable);
+    }
+    
+    /**
+     * Init view and model parameters with saved values from file.
+     */
+    private void loadParameters() {
+        simulumProperties = new SimulumProperties();
+        viewerProperties.setMovement(simulumProperties.get("movement").getStringValue());
+        viewerProperties.setSensitivity(simulumProperties.get("sensitivity").getDoubleValue().doubleValue());
+        viewerProperties.setRadius(simulumProperties.get("radius").getDoubleValue().doubleValue());
+        viewerProperties.setZoom(simulumProperties.get("zoom").getDoubleValue().doubleValue());
+        viewerProperties.setSnapshot(simulumProperties.get("snapshot").getIntegerValue().intValue());
+        simulatorProperties.setStars(simulumProperties.get("stars").getIntegerValue().intValue());
+        simulatorProperties.setGamma(simulumProperties.get("gamma").getDoubleValue().doubleValue());
+        simulatorProperties.setDeltat(simulumProperties.get("deltat").getDoubleValue().doubleValue());
+    }
+
+    /**
+     * Save view and model parameters into file.
+     */
+    private void saveParameters() {
+        final String method = "saveParameters";
+        Trace.trace(this, method, "saving parameters");
+        simulumProperties.get("stars").setValue(stars.getValue());
+        simulumProperties.get("movement").setValue((String) movement.getSelectedItem());
+        simulumProperties.get("sensitivity").setValue(sensitivity.getValue());
+        simulumProperties.get("radius").setValue(radius.getValue());
+        simulumProperties.get("zoom").setValue(zoom.getValue());
+        simulumProperties.get("snapshot").setValue(snapshot.getValue());
+        simulumProperties.get("gamma").setValue(gamma.getValue());
+        simulumProperties.get("deltat").setValue(deltat.getValue());
+        try {
+            simulumProperties.save();
+        } catch (IOException e) {
+            Trace.trace(this, method, e);
+        }
+    }
+
+    public void zoomChanged() {
+        final ViewerProperties view = viewer.getProperties();
+        zoom.setValue(new Double(view.getZoom()));
+    }
+
+    public void sensitivityChanged() {
+        final ViewerProperties view = viewer.getProperties();
+        sensitivity.setValue(new Double(view.getSensitivity()));
+    }
+
+    public void radiusChanged() {
+        final ViewerProperties view = viewer.getProperties();
+        radius.setValue(new Double(view.getRadius()));
+    }
+
+    public void snapshotChanged() {
+        final ViewerProperties view = viewer.getProperties();
+        snapshot.setValue(new Integer(view.getSnapshot()));
+    }
+/*
+    private void startSimulator() {
+        stopViewer();
+        viewer.init();
+//        copyProperties();
+        simulator = new Simulator(simulatorProperties);
+        viewer.applyVisualChanges(simulator, viewerProperties);
+        viewer.start();
+        setResultMessage(true, "viewer started");
+        started = true;
+        start.setText(started ? "Stop" : "Start");
+    }
+    
+    private void stopSimulator() {
+        started = false;
+        if (viewer != null) {
+            viewer.stop();
+            viewer.destroy();
+        }
+        setResultMessage(true, "viewer stopped");
+        start.setText(started ? "Stop" : "Start");
+    }
+*/
+    
+    /**
+     * Copy current view and model properties into editable text fields.
+     */
     private void copyProperties() {
         try {
             Trace.traceBegin(this, "copyProperties");
-            final SimulatorProperties properties = applet.getCurrentProperties();
-            stars.setValue(new Integer(properties.getStars()));
-            movement.setSelectedItem(properties.getMovement());
-            sensitivity.setValue(new Double(properties.getSensitivity()));
-            radius.setValue(new Double(properties.getRadius()));
-            zoom.setValue(new Double(properties.getZoom()));
-            snapshot.setValue(new Integer(properties.getSnapshot()));
-            gamma.setValue(new Double(properties.getGamma()));
-            deltat.setValue(new Double(properties.getDeltat()));
+            if (viewer == null) {
+                return;
+            }
+            final ViewerProperties view = viewer.getProperties();
+            if (view == null) {
+                return;
+            }
+            movement.setSelectedItem(view.getMovement());
+            sensitivity.setValue(new Double(view.getSensitivity()));
+            radius.setValue(new Double(view.getRadius()));
+            zoom.setValue(new Double(view.getZoom()));
+            snapshot.setValue(new Integer(view.getSnapshot()));
+            stars.setValue(new Integer(simulatorProperties.getStars()));
+            gamma.setValue(new Double(simulatorProperties.getGamma()));
+            deltat.setValue(new Double(simulatorProperties.getDeltat()));
+//          TODO show current impulse
+//          impulseCurrent.setText("" + applet.getSimulator().getImpulse());
         } catch (RuntimeException e) {
             Trace.trace(this, "copyProperties", e);
             throw e;
@@ -524,39 +767,29 @@ public final class MainFrame extends JFrame {
         }
     }
 
-    private void copyCurrentProperties() {
-        final SimulatorProperties properties = applet.getCurrentProperties();
-        starsCurrent.setText("" + properties.getStars());
-        movementCurrent.setText(properties.getMovement());
-        sensitivityCurrent.setText("" + properties.getSensitivity());
-        radiusCurrent.setText("" + properties.getRadius());
-        zoomCurrent.setText("" + properties.getZoom());
-        snapshotCurrent.setText("" + properties.getSnapshot());
-        gammaCurrent.setText("" + properties.getGamma());
-        deltatCurrent.setText("" + properties.getDeltat());
-        impulseCurrent.setText("" + applet.getSimulator().getImpulse());
-    }
-
+    
     /**
-     * Save parameters.
+     * Get current view properties and fill them in properties.
      */
-    private void saveParameters() {
-        final String method = "saveParameters";
-        Trace.trace(this, method, "saving parameters");
-        properties.get("stars").setValue(stars.getValue());
-        properties.get("movement").setValue((String) movement.getSelectedItem());
-        properties.get("sensitivity").setValue(sensitivity.getValue());
-        properties.get("radius").setValue(radius.getValue());
-        properties.get("zoom").setValue(zoom.getValue());
-        properties.get("snapshot").setValue(snapshot.getValue());
-        properties.get("gamma").setValue(gamma.getValue());
-        properties.get("deltat").setValue(deltat.getValue());
+    private void refreshProperties() {
         try {
-            properties.save();
-        } catch (IOException e) {
-            Trace.trace(this, method, e);
+            Trace.traceBegin(this, "refreshProperties");
+            if (viewer == null) {
+                return;
+            }
+            final ViewerProperties v = viewer.getProperties();
+            if (v == null) {
+                return;
+            }
+            viewerProperties.setMovement(v.getMovement());
+            viewerProperties.setSensitivity(v.getSensitivity());
+            viewerProperties.setRadius(v.getRadius());
+            viewerProperties.setZoom(v.getZoom());
+            viewerProperties.setSnapshot(v.getSnapshot());
+        } finally {
+            Trace.traceEnd(this, "refreshProperties");
         }
     }
 
-
+    
 }

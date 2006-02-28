@@ -40,6 +40,7 @@ import java.util.List;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.util.IoUtility;
+import com.meyling.mulumis.base.view.ViewerProperties;
 
 
 /**
@@ -76,10 +77,11 @@ public final class SimulumProperties {
      * Constructor. Reads previously saved values.
      */
     public SimulumProperties() {
-        final SimulatorProperties properties = new SimulatorProperties();
+        final ViewerProperties view = new ViewerProperties();
+        final SimulatorProperties model = new SimulatorProperties();
         parameterList = new ParameterList();
         stars = new Parameter("stars", "Number of Stars", Integer.class,
-                    "Number of stars in this simulation.", "" + properties.getStars());
+                    "Number of stars in this simulation.", "" + model.getStars());
         parameterList.add(stars);
 
         final List list = new ArrayList();
@@ -88,32 +90,32 @@ public final class SimulumProperties {
         list.add("circular");
         list.add("circularNormale");
         list.add("linear");
-        movement = new Parameter("movement", "Viewpoint Movement", "Method to move viewpoint",
-                properties.getMovement(), properties.getMovement(), list);
+        movement = new Parameter("movement", "Movement", "Method to move viewpoint",
+                view.getMovement(), view.getMovement(), list);
         parameterList.add(movement);
 
         sensitivity = new Parameter("sensitivity", "Sensitivity", Double.class,
-                    "Sensitivity of photo plate.", "" + properties.getSensitivity());
+                    "Sensitivity of photo plate.", "" + view.getSensitivity());
         parameterList.add(sensitivity);
 
         zoom = new Parameter("zoom", "Zoom", Double.class,
-                "Zoom factor for photo plate.", "" + properties.getZoom());
+                "Zoom factor for photo plate.", "" + view.getZoom());
         parameterList.add(zoom);
 
         radius = new Parameter("radius", "Radius", Double.class,
-                "View Point Distance.", "" + properties.getRadius());
+                "View Point Distance.", "" + view.getRadius());
         parameterList.add(radius);
 
         snapshot = new Parameter("snapshot", "Snapshot", Integer.class,
-                "Clear the photo plate after this number of pictures.", "" + properties.getSnapshot());
+                "Clear the photo plate after this number of pictures.", "" + view.getSnapshot());
         parameterList.add(snapshot);
 
         gamma = new Parameter("gamma", "Gamma", Double.class,
-                "Gamma constant. Zero means no gravity at all.", "" + properties.getGamma());
+                "Gamma constant. Zero means no gravity at all.", "" + model.getGamma());
         parameterList.add(gamma);
 
         deltat = new Parameter("deltat", "Delta t", Double.class,
-                "Time unit used to calculate the gravity movement.", "" + properties.getDeltat());
+                "Time unit used to calculate the gravity movement.", "" + model.getDeltat());
         parameterList.add(deltat);
 
         final File configFile = new File(CONFIG_MULUMIS_PROPERTIES);

@@ -29,7 +29,7 @@
 // The hompage of the simulum project is:
 //     http://www.mulumis.meyling.com
 
-package com.meyling.mulumis.base.simulator;
+package com.meyling.mulumis.base.view;
 
 import java.awt.Graphics;
 
@@ -87,6 +87,10 @@ public final class Camera {
 
     public final ViewPoint getViewPoint() {
         return viewpoint;
+    }
+
+    public final PhotoPlate getPhotoPlate() {
+        return photoPlate;
     }
 
 }
