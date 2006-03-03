@@ -153,8 +153,7 @@ public final class FieldViewer extends Applet implements Runnable,
 
     public final void run() {
         try {
-            Thread me = Thread.currentThread();
-            while (runThread == me) { 
+            while (null != runThread) { 
                 viewer.moveViewPoint();
                 viewer.takePicture();
                 paint(getGraphics());

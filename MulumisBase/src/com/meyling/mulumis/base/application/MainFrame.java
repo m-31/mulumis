@@ -113,9 +113,11 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     private JLabel impulseCurrent;
     
-    boolean started;
+    private boolean editCameraFields;
+
+    private boolean editGravityFields;
     
-    boolean maximized;
+    private boolean maximized;
 
     private JButton start;
 
@@ -126,6 +128,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private JPanel appletPanel;
 
     private JButton maximize;
+    
+    private JButton editGravity;
+
 
     /**
      * Constructor.
@@ -159,6 +164,13 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         }
     }
 
+    public void show() {
+        super.show();
+        repaint();
+        editCameraFields();
+        editGravityFields();
+    }
+    
     /**
      * Assembles the GUI components of the panel.
      */
@@ -216,6 +228,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 //        viewer.requestFocus();
 //        startViewer();
         maximized = false;
+        editCameraFields();
+        editCameraFields();
     }
     
     private void setupSize() {
@@ -263,7 +277,18 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         JLabel panelDescriptionGravity = new JLabel("Gravity");
         panelDescriptionGravity.setForeground(Color.BLUE);
         simulation.add(panelDescriptionGravity);
-        simulation.add(new JLabel());
+        final JButton gravity = new JButton(viewer != null && viewer.getViewer() != null 
+                && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
+            contents.add(gravity);
+            gravity.setToolTipText("Set gravity on or off.");
+            gravity.addActionListener(new  ActionListener() {
+            public void actionPerformed(final ActionEvent actionEvent) {
+                gravity.setText(viewer != null && viewer.getViewer() != null 
+                        && viewer.getViewer().isGravityOn() ? "Start" : "Stop");
+                viewer.getViewer().setGravityOn(!viewer.getViewer().isGravityOn());
+            }
+        });
+        simulation.add(gravity);
 
         stars = createIntegerField(simulation, simulumProperties.get("stars"), 0, 99999999);
         simulation.add(stars);
@@ -274,23 +299,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
         simulation.add(deltat);
         
-        final JButton gravity = new JButton(viewer != null && viewer.getViewer() != null 
+        editGravity = new JButton(viewer != null && viewer.getViewer() != null 
                 && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
-            final String method ="actionPerformed";
-            contents.add(gravity);
-            gravity.setToolTipText("Set gravity on or off.");
-            gravity.addActionListener(new  ActionListener() {
+            contents.add(editGravity);
+            editGravity.setToolTipText("Set gravity on or off.");
+            editGravity.addActionListener(new  ActionListener() {
                 public void actionPerformed(final ActionEvent actionEvent) {
+                    final String method ="actionPerformed";
                     try {
-                        fillProperties();
-                        simulator.applyChanges(simulatorProperties);
-                        viewer.applyVisualChanges(simulator, viewerProperties);
-                        viewer.repaint();
-                        saveParameters();
-                        enableGravityFields(viewer.getViewer().isGravityOn());
-                        gravity.setText(viewer != null && viewer.getViewer() != null 
-                                && viewer.getViewer().isGravityOn() ? "Start" : "Stop");
-                        viewer.getViewer().setGravityOn(!viewer.getViewer().isGravityOn());
+                        editGravityFields();
                     } catch (final Exception e) {
                         Trace.trace(this, method, e);
                         displayErrorMessage(e);
@@ -304,7 +321,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                     }
                 }
             });
-        simulation.add(gravity);
+        simulation.add(editGravity);
         simulation.add(new JLabel(""));
     }
 
@@ -318,8 +335,25 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         JLabel panelDescriptionCamera = new JLabel("Camera");
         panelDescriptionCamera.setForeground(Color.BLUE);
         visual.add(panelDescriptionCamera);
-        visual.add(new JLabel(""));
-        
+
+        maximize = new JButton("Maximize");
+        maximize.setToolTipText("Change to full screen mode.");
+        maximize.addActionListener(new  ActionListener() {
+            public void actionPerformed(final ActionEvent actionEvent) {
+                if (maximized) {    // we are already maximized
+                    return;
+                }
+                maximized = true;
+                stopViewer();
+                refreshProperties();
+                copyProperties();
+                StarScreen screen = new StarScreen(simulator, viewerProperties, MainFrame.this, viewer);
+                screen.show();
+                screen = null;
+            }
+        });
+        visual.add(maximize);
+
         sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"), 0, 1000000000d, DOUBLE_LENGTH);
         visual.add(sensitivity);
 
@@ -342,14 +376,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             public void actionPerformed(final ActionEvent actionEvent) {
                 final String method ="actionPerformed";
                 try {
-                    enableCameraFields(started);
-                    if (!started) {
-                        fillProperties();
-                        startViewer();
-                    } else {
-//                        copyProperties();
-                        stopViewer();
-                    }
+                    editCameraFields();
                 } catch (final Exception e) {
                     Trace.trace(this, method, e);
                     displayErrorMessage(e);
@@ -366,151 +393,10 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         });
         visual.add(start);
 
-        maximize = new JButton("Maximize");
-        maximize.setToolTipText("Change to full screen mode.");
-        maximize.addActionListener(new  ActionListener() {
-            public void actionPerformed(final ActionEvent actionEvent) {
-                if (maximized) {    // we are already maximized
-                    return;
-                }
-                maximized = true;
-//                viewer.stop();
-//                StarScreen screen = new StarScreen(viewer, MainFrame.this);
-                stopViewer();
-                refreshProperties();
-                copyProperties();
-                StarScreen screen = new StarScreen(simulator, viewerProperties, MainFrame.this, viewer);
-                screen.show();
-                screen = null;
-            }
-        });
-/*                
-//                final Window screen = new Window(MainFrame.this);
-                final JFrame maxi = new JFrame();
-                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                // used for full-screen exclusive mode  
-                GraphicsDevice gd;
-                Graphics gScr;
-                BufferStrategy bufferStrategy;
-                gd = ge.getDefaultScreenDevice();
-
-                maxi.setUndecorated(true);    // no menu bar, borders, etc. or Swing components
-                maxi.setIgnoreRepaint(true);  // turn off all paint events since doing active rendering
-                maxi.setResizable(false);
-
-                if (!gd.isFullScreenSupported()) {
-                  System.out.println("Full-screen exclusive mode not supported");
-                  System.exit(0);
-                }
-                
-                final boolean run = viewer.isRunning();
-                if (run) {
-                    viewer.stop();
-                }
-//                appletPanel.remove(viewer);
-                
-                final Window screen = new Window(maxi);
-//                gd.setFullScreenWindow(screen); // switch on full-screen exclusive mode
-
-                final FieldViewer viewer = new FieldViewer(MainFrame.this.viewer);
-                screen.setSize(getToolkit().getScreenSize());
-                screen.setLayout(null);
-                screen.addNotify();
-
-                viewer.setSize(getToolkit().getScreenSize().width, 
-                        getToolkit().getScreenSize().height);
-                
-//                MainFrame.this.hide();
-//                MainFrame.this.setState(Frame.ICONIFIED);
-                screen.add(viewer);
-                screen.getParent().addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        e.consume();
-                        screen.hide();
-                        maxi.dispose();
-                        System.out.println("helleo1");
-                        System.exit(0);
-                    }
-                });
-                screen.repaint();
-                viewer.applyVisualChanges(simulator, viewerProperties);
-                viewer.init();
-                viewer.start();
-                MainFrame.this.hide();
-//                 MainFrame.this.setState(JFrame.ICONIFIED);
-                screen.show();
-                screen.requestFocus();
-//                screen.requestFocusInWindow();
-                viewer.requestFocus();
-//                viewer.requestFocusInWindow();
-                
-                } catch (Exception  e) {
-                    e.printStackTrace();
-                }
-                 
-                }
-            });
-
-/*                
-                viewer.resize(getToolkit().getScreenSize().width,
-                    getToolkit().getScreenSize().height);
-                maxi.requestFocus();
-                maxi.setFocusableWindowState(true);
-                
-                viewer.getParent().addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        System.out.println("helleo2");
-                        System.exit(0);
-                    }
-                });
-                screen.getParent().addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        System.out.println("helleo3");
-                        System.exit(0);
-                    }
-                });
-/*                
-                screen.addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        System.exit(0);
-                    }
-                });
-                screen.getParent().addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        System.exit(0);
-                    }
-                });
-                MainFrame.this.addKeyListener(new KeyAdapter() {
-                    public void keyPressed(final KeyEvent e) {
-                        System.exit(0);
-                    }
-                });
-                screen.setEnabled(true);
-//                if (run) {
-                    viewer.start();
-//                }
-                maxi.setFocusableWindowState(true);
-                maxi.requestFocus();
-                screen.requestFocus();
-                viewer.requestFocus();
-                getToolkit().addAWTEventListener(new AWTEventListener(){
-
-                    public void eventDispatched(AWTEvent event) {
-                        System.out.println(event);
-                        
-                    }}, AWTEvent.KEY_EVENT_MASK);
-//                getToolkit().getSystemEventQueue();
-
-                
-
-                stopViewer();
-                StarScreen screen = new StarScreen(simulator, viewer.getProperties());
-                screen.show();
-                screen = null;
-*/                
-        visual.add(maximize);
+        visual.add(new JLabel(""));
     }
-
+        
+        
     private void displayErrorMessage(final Throwable e) {
         Trace.trace(this, "displayErrorMessage", e);
         JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -581,6 +467,36 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         System.exit(0);
     }
 
+    private void editCameraFields() {
+        if (!editCameraFields) {
+            fillProperties();
+            startViewer();
+        } else {
+//            copyProperties();
+            stopViewer();
+        }
+        movement.setEnabled(editCameraFields);
+        sensitivity.setEnabled(editCameraFields);
+        radius.setEnabled(editCameraFields);
+        zoom.setEnabled(editCameraFields);
+        snapshot.setEnabled(editCameraFields);
+        start.setText(editCameraFields ? "Apply" : "Edit");
+        editCameraFields = !editCameraFields;
+    }
+    
+    private void editGravityFields() {
+        fillProperties();
+        simulator.applyChanges(simulatorProperties);
+        viewer.applyVisualChanges(simulator, viewerProperties);
+        viewer.repaint();
+        saveParameters();
+        stars.setEnabled(editGravityFields);
+        gamma.setEnabled(editGravityFields);
+        deltat.setEnabled(editGravityFields);
+        editGravity.setText((editGravityFields ? "Apply" : "Edit"));
+        editGravityFields = !editGravityFields;
+    }
+    
     private synchronized void startViewer() {
         stopViewer();
 //        simulator.start();
@@ -588,12 +504,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         viewer.applyVisualChanges(simulator, viewerProperties);
         viewer.addViewChangedListener(this);
         viewer.start();
-        started = true;
-        start.setText(started ? "Stop" : "Start");
     }
     
     private synchronized void stopViewer() {
-        started = false;
 //        copyProperties();
         if (simulator != null) {
             simulator.stop();
@@ -602,7 +515,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             viewer.stop();
         }
         saveParameters();
-        start.setText(started ? "Stop" : "Start");
     }
 
     /**
@@ -643,20 +555,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         }
     }
 
-    private void enableCameraFields(final boolean enable) {
-        movement.setEnabled(enable);
-        sensitivity.setEnabled(enable);
-        radius.setEnabled(enable);
-        zoom.setEnabled(enable);
-        snapshot.setEnabled(enable);
-    }
-    
-    private void enableGravityFields(final boolean enable) {
-        stars.setEnabled(enable);
-        gamma.setEnabled(enable);
-        deltat.setEnabled(enable);
-    }
-    
     /**
      * Init view and model parameters with saved values from file.
      */
@@ -791,5 +689,135 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         }
     }
 
+
+    private void maximizeNotWorking() {
+        System.out.println("nothing");
+/*                
+//                final Window screen = new Window(MainFrame.this);
+            final JFrame maxi = new JFrame();
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            // used for full-screen exclusive mode  
+            GraphicsDevice gd;
+            Graphics gScr;
+            BufferStrategy bufferStrategy;
+            gd = ge.getDefaultScreenDevice();
+
+            maxi.setUndecorated(true);    // no menu bar, borders, etc. or Swing components
+            maxi.setIgnoreRepaint(true);  // turn off all paint events since doing active rendering
+            maxi.setResizable(false);
+
+            if (!gd.isFullScreenSupported()) {
+              System.out.println("Full-screen exclusive mode not supported");
+              System.exit(0);
+            }
+            
+            final boolean run = viewer.isRunning();
+            if (run) {
+                viewer.stop();
+            }
+//                appletPanel.remove(viewer);
+            
+            final Window screen = new Window(maxi);
+//                gd.setFullScreenWindow(screen); // switch on full-screen exclusive mode
+
+            final FieldViewer viewer = new FieldViewer(MainFrame.this.viewer);
+            screen.setSize(getToolkit().getScreenSize());
+            screen.setLayout(null);
+            screen.addNotify();
+
+            viewer.setSize(getToolkit().getScreenSize().width, 
+                    getToolkit().getScreenSize().height);
+            
+//                MainFrame.this.hide();
+//                MainFrame.this.setState(Frame.ICONIFIED);
+            screen.add(viewer);
+            screen.getParent().addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    e.consume();
+                    screen.hide();
+                    maxi.dispose();
+                    System.out.println("helleo1");
+                    System.exit(0);
+                }
+            });
+            screen.repaint();
+            viewer.applyVisualChanges(simulator, viewerProperties);
+            viewer.init();
+            viewer.start();
+            MainFrame.this.hide();
+//                 MainFrame.this.setState(JFrame.ICONIFIED);
+            screen.show();
+            screen.requestFocus();
+//                screen.requestFocusInWindow();
+            viewer.requestFocus();
+//                viewer.requestFocusInWindow();
+            
+            } catch (Exception  e) {
+                e.printStackTrace();
+            }
+             
+            }
+        });
+
+/*                
+            viewer.resize(getToolkit().getScreenSize().width,
+                getToolkit().getScreenSize().height);
+            maxi.requestFocus();
+            maxi.setFocusableWindowState(true);
+            
+            viewer.getParent().addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    System.out.println("helleo2");
+                    System.exit(0);
+                }
+            });
+            screen.getParent().addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    System.out.println("helleo3");
+                    System.exit(0);
+                }
+            });
+/*                
+            screen.addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    System.exit(0);
+                }
+            });
+            screen.getParent().addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    System.exit(0);
+                }
+            });
+            MainFrame.this.addKeyListener(new KeyAdapter() {
+                public void keyPressed(final KeyEvent e) {
+                    System.exit(0);
+                }
+            });
+            screen.setEnabled(true);
+//                if (run) {
+                viewer.start();
+//                }
+            maxi.setFocusableWindowState(true);
+            maxi.requestFocus();
+            screen.requestFocus();
+            viewer.requestFocus();
+            getToolkit().addAWTEventListener(new AWTEventListener(){
+
+                public void eventDispatched(AWTEvent event) {
+                    System.out.println(event);
+                    
+                }}, AWTEvent.KEY_EVENT_MASK);
+//                getToolkit().getSystemEventQueue();
+
+            
+
+            stopViewer();
+            StarScreen screen = new StarScreen(simulator, viewer.getProperties());
+            screen.show();
+            screen = null;
+*/
+    }
+
+    
     
 }

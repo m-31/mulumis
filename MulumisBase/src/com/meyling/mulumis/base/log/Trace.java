@@ -317,7 +317,7 @@ public final class Trace {
     private static final void printObjectMethod(final Object tracingObject, final String method) {
         out.print(getTimestamp() + " [" + (tracingObject != null
                 ? IoUtility.getClassName(tracingObject.getClass()) + "." : "")
-                + method + "] ");
+                + method + "][" +  System.identityHashCode(tracingObject) + "] ");
     }
 
     /**

@@ -66,6 +66,7 @@ public final class PhotoPlate  {
     private byte[][] paletteTable;
     private int snapshot;
     private int current;
+    private boolean initialized;
 
 
     public PhotoPlate() {
@@ -78,18 +79,19 @@ public final class PhotoPlate  {
      * @param   height  Height.
      * @param   parent  Needed for creation of image to draw on.
      */
-    public void init(final int width, final int height, final Component parent) {
+    public synchronized void init(final int width, final int height, final Component parent) {
         this.width = width;
         this.height = height;
 
         this.halfWidth = width / 2;
         this.halfHeight = height / 2;
 
-        while (width == 0 || height == 0) {
-            System.err.println("waiting");
+        while (width <= 0 || height <= 0) {
+            Trace.trace(this, "init", "waiting");
+            return;
         }
         calculatePaletteTable();
-        Trace.traceParam(this, "init", "width*height", (int) width * height);
+        Trace.traceParam(this, "init", "width*height", "" + width * height);
         Trace.traceParam(this, "init", "width", width);
         Trace.traceParam(this, "init", "height" , height);
         pix = new byte[width * height];
@@ -107,16 +109,22 @@ public final class PhotoPlate  {
         mem.setAnimated(true);
         mem.setFullBufferUpdates(true);
         im = parent.createImage(mem);
+        Trace.trace(this, "init", "successfully ended");
+        initialized = true;
     }
 
     public final void paint(Graphics g) {
-        if (g != null) {
+        if (g != null && initialized) {
             mem.newPixels();
             g.drawImage(im, 0, 0, null);
         }
     }
 
-    public final void generateImage(final ViewPoint viewpoint, final Field field) {
+    public synchronized final void generateImage(final ViewPoint viewpoint, final Field field) {
+//        Trace.traceBegin(this, "generateImage");    // TODO mime 20060302 remove
+        if (!initialized) {
+            return;
+        }
         final double[] position = viewpoint.getPosition();
         final double[] x = viewpoint.getX();
         final double[] y = viewpoint.getY();
@@ -144,6 +152,7 @@ public final class PhotoPlate  {
                 int yir = (int) yr;
                 double brightness = 255;
                 brightness = sensitivity / CalculatorUtility.distanceSquare(field.getStar(i).getPosition(), position);
+//                Trace.trace(this, "generateImage", "bright=" + bright.length); TODO mime 20060302: remove
                 bright[width * yir + xir] += brightness;
                 int hell = (int) bright[width * yir + xir];
                 drawBrightness(xir, yir, hell);
