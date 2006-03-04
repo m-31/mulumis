@@ -51,9 +51,9 @@ public final class SimulatorProperties {
     }
 
     public SimulatorProperties() {
-        setStars(4000);
-        setGamma(0);
-        setDeltat(0.001);
+        setStars(200);
+        setGamma(0.1);
+        setDeltat(0.0002);
     }
 
     public final int getStars() {

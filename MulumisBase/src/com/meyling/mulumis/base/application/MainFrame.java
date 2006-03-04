@@ -62,6 +62,7 @@ import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.simulator.SimulatorProperties;
 import com.meyling.mulumis.base.view.ViewChangedListener;
 import com.meyling.mulumis.base.view.ViewerProperties;
+import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 /**
  * Show and edit preferences of this application. Start simulation.
@@ -131,6 +132,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     
     private JButton editGravity;
 
+    private JLabel help;
+
 
     /**
      * Constructor.
@@ -150,7 +153,10 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             viewer = new FieldViewer();
             viewer.init();        
             copyProperties();
-            setSize(2 * MARGIN_X + CONTENTS_WIDTH, 500);
+            setBounds(getToolkit().getScreenSize().width * 1 / 8,
+                getToolkit().getScreenSize().height * 1 / 16, 
+                getToolkit().getScreenSize().width * 3 / 4, 
+                getToolkit().getScreenSize().height * 6 / 7);
             setupView();
 //            simulator.applyChanges(simulatorProperties);
 //            viewer.applyVisualChanges(simulator, viewerProperties);
@@ -166,9 +172,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     public void show() {
         super.show();
-        repaint();
         editCameraFields();
         editGravityFields();
+        repaint();
     }
     
     /**
@@ -211,8 +217,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         appletPanel.setLayout(null);
         appletPanel.add(viewer);
         fillProperties();
-
-        impulseCurrent = new JLabel();
+        
+        contents.add(help = new JLabel("Drag the Mouse!"));
+        impulseCurrent = new JLabel();  // TODO fill
         contents.add(impulseCurrent);
         
         setupSize();
@@ -239,20 +246,26 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         Trace.traceParam(this, "setupSize", "height", height);
         visual.setBounds(MARGIN_X, MARGIN_Y, 0, 0);
         SpringUtilities.makeCompactGrid(visual,
-                visual.getComponentCount() / 2, 2,      //rows, cols
+//                visual.getComponentCount() / 2, 2,      //rows, cols
+                visual.getComponentCount() / 1, 1,      //rows, cols
                 6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
+                6, 3);       //xPad, yPad
         Dimension size = visual.getPreferredSize();
         visual.setSize(size);
         
         simulation.setBounds(MARGIN_X, visual.getHeight() + visual.getY()
                 + MARGIN_Y, 0, 0);
         SpringUtilities.makeCompactGrid(simulation,
-                simulation.getComponentCount() / 2, 2,  //rows, cols
+//                simulation.getComponentCount() / 2, 2,  //rows, cols
+                simulation.getComponentCount() / 1, 1,  //rows, cols
                 6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
+                6, 3);       //xPad, yPad
         size = simulation.getPreferredSize();
         simulation.setSize(size);
+        
+        
+        help.setLocation(MARGIN_X, simulation.getY() + simulation.getHeight() + MARGIN_Y);
+        help.setSize(help.getPreferredSize());
         
         appletPanel.setBounds(2 * MARGIN_X + visual.getSize().width, MARGIN_Y, 
                 width - 3 * MARGIN_X - visual.getSize().width, height - 2 * MARGIN_Y);
@@ -453,6 +466,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             minimum, maximum, length);
         doubleField.setValue(parameter.getDoubleValue());
         doubleField.setToolTipText(parameter.getComment());
+        doubleField.setColumns(length / 3 + 2);
         label.setLabelFor(doubleField);
         return doubleField;
     }
@@ -471,15 +485,27 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         if (!editCameraFields) {
             fillProperties();
             startViewer();
+            // if it is a manual mover we animate also in the beginning
+            try {
+                final ManualMovement mover = (ManualMovement) viewer.getViewer().getPositionCalculator();
+                mover.setXtheta(-0.007);
+                mover.setYtheta(-0.000);
+            } catch (Exception e) {
+                Trace.trace(this, "MainFrame", e);
+            }
         } else {
 //            copyProperties();
             stopViewer();
         }
         movement.setEnabled(editCameraFields);
         sensitivity.setEnabled(editCameraFields);
+        sensitivity.setCaretPosition(0);
         radius.setEnabled(editCameraFields);
+        radius.setCaretPosition(0);
         zoom.setEnabled(editCameraFields);
+        zoom.setCaretPosition(0);
         snapshot.setEnabled(editCameraFields);
+        snapshot.setCaretPosition(0);
         start.setText(editCameraFields ? "Apply" : "Edit");
         editCameraFields = !editCameraFields;
     }
@@ -507,7 +533,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     }
     
     private synchronized void stopViewer() {
-//        copyProperties();
         if (simulator != null) {
             simulator.stop();
         }
@@ -594,21 +619,25 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     public void zoomChanged() {
         final ViewerProperties view = viewer.getProperties();
         zoom.setValue(new Double(view.getZoom()));
+        zoom.setCaretPosition(0);
     }
 
     public void sensitivityChanged() {
         final ViewerProperties view = viewer.getProperties();
         sensitivity.setValue(new Double(view.getSensitivity()));
+        sensitivity.setCaretPosition(0);
     }
 
     public void radiusChanged() {
         final ViewerProperties view = viewer.getProperties();
         radius.setValue(new Double(view.getRadius()));
+        radius.setCaretPosition(0);
     }
 
     public void snapshotChanged() {
         final ViewerProperties view = viewer.getProperties();
         snapshot.setValue(new Integer(view.getSnapshot()));
+        snapshot.setCaretPosition(0);
     }
 /*
     private void startSimulator() {

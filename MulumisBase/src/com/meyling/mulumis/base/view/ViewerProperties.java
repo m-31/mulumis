@@ -59,8 +59,8 @@ public final class ViewerProperties {
     public ViewerProperties() {
         setMovement("manualDelay");
         setDelta(0.001);
-        setRadius(4);
-        setSensitivity(7);
+        setRadius(2.2);
+        setSensitivity(6.3);
         setZoom(1000);
         setSnapshot(0);
     }

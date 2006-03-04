@@ -1,11 +1,12 @@
 com.meyling.mulumis.base.application
+com.meyling.mulumis.base.common
 com.meyling.mulumis.base.config
-com.meyling.mulumis.base.gui.field
-com.meyling.mulumis.base.gui.window
+com.meyling.mulumis.base.gui
 com.meyling.mulumis.base.log
 com.meyling.mulumis.base.simulator
 com.meyling.mulumis.base.stars
 com.meyling.mulumis.base.util
+com.meyling.mulumis.base.view
 com.meyling.mulumis.base.viewpoint
 
 
