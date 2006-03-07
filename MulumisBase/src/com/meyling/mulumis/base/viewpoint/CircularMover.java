@@ -34,7 +34,7 @@ package com.meyling.mulumis.base.viewpoint;
 
 
 /**
- * Simulates star field.
+ * Circle around the star field.
  *
  * @version     $Revision$
  * @author      Michael Meyling
@@ -47,7 +47,18 @@ public class CircularMover extends AbstractAutomaticMover {
     }
 
     public void calculateMovement(final ViewPoint viewPoint) {
-        // new viewpoint
+        final double[] x = viewPoint.getX();
+        x[0] = 1;
+        x[1] = 0;
+        x[2] = 0;
+        final double[] y = viewPoint.getY();
+        y[0] = 0;
+        y[1] = 1;
+        y[2] = 0;
+        final double[] z = viewPoint.getZ();
+        z[0] = 0;
+        z[1] = 0;
+        z[2] = 1;
         alpha += getDelta();
         final double[] position = viewPoint.getPosition();
         final double[] zero = getZero();

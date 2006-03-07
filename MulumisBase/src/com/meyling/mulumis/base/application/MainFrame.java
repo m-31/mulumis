@@ -56,12 +56,13 @@ import com.meyling.mulumis.base.config.Parameter;
 import com.meyling.mulumis.base.config.SimulumProperties;
 import com.meyling.mulumis.base.gui.CPDoubleField;
 import com.meyling.mulumis.base.gui.CPIntegerField;
-import com.meyling.mulumis.base.gui.SpringUtilities;
+import com.meyling.mulumis.base.gui.SpringUtility;
+import com.meyling.mulumis.base.help.HtmlInfo;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Simulator;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.simulator.SimulatorAttributes;
+import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.view.ViewChangedListener;
-import com.meyling.mulumis.base.view.ViewerProperties;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 /**
@@ -75,22 +76,18 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     /** String length of double fields. Includes decimal seperator. */
     private static final int DOUBLE_LENGTH = 30;
 
-    private static final long serialVersionUID = 9195725908114213914L;
-
-    /** Width for big components inside this dialog. */
-    private static final int CONTENTS_WIDTH = 800;
-
     /** X margin. */
     private static final int MARGIN_X = 33;
 
     /** X margin. */
     private static final int MARGIN_Y = 17;
     
+    /** All saved properties. */
     private SimulumProperties simulumProperties;
 
-    private SimulatorProperties simulatorProperties;
+    private SimulatorAttributes simulatorAttributes;
 
-    private ViewerProperties viewerProperties;
+    private CameraAttributes cameraProperties;
 
     private FieldViewer viewer;
     
@@ -118,6 +115,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     private boolean editGravityFields;
     
+    /** Are we in maximized mode? */
     private boolean maximized;
 
     private JButton start;
@@ -132,23 +130,27 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     
     private JButton editGravity;
 
-    private JLabel help;
+    private JLabel helpLabel;
+    
+    private JButton help;
+
+    /** First time start of application before the animation starts? */
+    private boolean firstTimeStart = true;
 
 
     /**
      * Constructor.
      *
      * @param   title           Dialog title.
-     * @param   configLocation  path of config file.
      */
     public MainFrame(final String title) {
         super(title);
         final String method = "StarterDialog(String)";
         try {
             Trace.traceBegin(this, method);
-            simulatorProperties = new SimulatorProperties(); 
-            viewerProperties = new ViewerProperties();
-            simulator = new Simulator(simulatorProperties);
+            simulatorAttributes = new SimulatorAttributes(); 
+            cameraProperties = new CameraAttributes();
+            simulator = new Simulator(simulatorAttributes);
             loadParameters();
             viewer = new FieldViewer();
             viewer.init();        
@@ -218,16 +220,36 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         appletPanel.add(viewer);
         fillProperties();
         
-        contents.add(help = new JLabel("Drag the Mouse!"));
-        impulseCurrent = new JLabel();  // TODO fill
+        help = new JButton("Help");
+        help.setToolTipText("Some more information.");
+        help.addActionListener(new ActionListener() {
+            private HtmlInfo info;
+
+            public void actionPerformed(final ActionEvent actionEvent) {
+                if (info == null) {
+                    info = new HtmlInfo();
+                }
+                info.show();
+            }
+        });
+        contents.add(help);
+        contents.add(helpLabel = new JLabel("drag mouse fast, roll wheel"));
+        
+        
+        impulseCurrent = new JLabel();  // TODO mime 20060306: fill impulse information
         contents.add(impulseCurrent);
         
         setupSize();
 
     }
 
-    public synchronized void restart(ViewerProperties properties) {
-        viewerProperties = properties;
+    /**
+     * Restart viewer. Called by maximized window to restore the previous stage.
+     * 
+     * @param   properties  Probably changed values.    // TODO mime 20060306: missing: thetax, thetay
+     */
+    public synchronized void restart(CameraAttributes properties) {
+        cameraProperties = properties;
         viewer.applyVisualChanges(simulator, properties);
         refreshProperties();
         copyProperties();
@@ -239,13 +261,18 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         editCameraFields();
     }
     
+    /**
+     * Recalculate the size of the sub components.
+     */
     private void setupSize() {
-        final int width = getContentPane().getWidth() - getContentPane().getInsets().left - getContentPane().getInsets().right;
+        final int width = getContentPane().getWidth() - getContentPane().getInsets().left 
+            - getContentPane().getInsets().right;
         Trace.traceParam(this, "setupSize", "width", width);
-        final int height = getContentPane().getHeight() - getContentPane().getInsets().top - getContentPane().getInsets().bottom;
+        final int height = getContentPane().getHeight() - getContentPane().getInsets().top 
+            - getContentPane().getInsets().bottom;
         Trace.traceParam(this, "setupSize", "height", height);
         visual.setBounds(MARGIN_X, MARGIN_Y, 0, 0);
-        SpringUtilities.makeCompactGrid(visual,
+        SpringUtility.makeCompactGrid(visual,
 //                visual.getComponentCount() / 2, 2,      //rows, cols
                 visual.getComponentCount() / 1, 1,      //rows, cols
                 6, 6,        //initX, initY
@@ -255,7 +282,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         
         simulation.setBounds(MARGIN_X, visual.getHeight() + visual.getY()
                 + MARGIN_Y, 0, 0);
-        SpringUtilities.makeCompactGrid(simulation,
+        SpringUtility.makeCompactGrid(simulation,
 //                simulation.getComponentCount() / 2, 2,  //rows, cols
                 simulation.getComponentCount() / 1, 1,  //rows, cols
                 6, 6,        //initX, initY
@@ -266,11 +293,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         
         help.setLocation(MARGIN_X, simulation.getY() + simulation.getHeight() + MARGIN_Y);
         help.setSize(help.getPreferredSize());
+
+        helpLabel.setLocation(MARGIN_X, help.getY() + help.getHeight() + MARGIN_Y);
+        helpLabel.setSize(helpLabel.getPreferredSize());
         
         appletPanel.setBounds(2 * MARGIN_X + visual.getSize().width, MARGIN_Y, 
                 width - 3 * MARGIN_X - visual.getSize().width, height - 2 * MARGIN_Y);
 
-        viewer.setBounds(appletPanel.getInsets().left, appletPanel.getInsets().top, appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
+        viewer.setBounds(appletPanel.getInsets().left, appletPanel.getInsets().top, 
+                appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
                 appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
 // TODO mime 20060223: the following line is neccessary, so something must be wrong with the viewer        
         viewer.setSize(appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
@@ -280,6 +311,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         
     }
     
+    /**
+     * Setup gravity parameter panel.
+     */
     private void setupGravity() {
         final Container contents = getContentPane();
 
@@ -292,9 +326,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         simulation.add(panelDescriptionGravity);
         final JButton gravity = new JButton(viewer != null && viewer.getViewer() != null 
                 && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
-            contents.add(gravity);
-            gravity.setToolTipText("Set gravity on or off.");
-            gravity.addActionListener(new  ActionListener() {
+        contents.add(gravity);
+        gravity.setToolTipText("Set gravity on or off.");
+        gravity.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 gravity.setText(viewer != null && viewer.getViewer() != null 
                         && viewer.getViewer().isGravityOn() ? "Start" : "Stop");
@@ -312,10 +346,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
         simulation.add(deltat);
         
-        editGravity = new JButton(viewer != null && viewer.getViewer() != null 
-                && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
+        editGravity = new JButton("Edit");
             contents.add(editGravity);
-            editGravity.setToolTipText("Set gravity on or off.");
+            editGravity.setToolTipText("Edit or apply gravity parameters.");
             editGravity.addActionListener(new  ActionListener() {
                 public void actionPerformed(final ActionEvent actionEvent) {
                     final String method ="actionPerformed";
@@ -338,6 +371,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         simulation.add(new JLabel(""));
     }
 
+    /**
+     * Setup camera parameter panel.
+     */
     private void setupCamera() {
         final Container contents = getContentPane();
 
@@ -360,30 +396,35 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                 stopViewer();
                 refreshProperties();
                 copyProperties();
-                StarScreen screen = new StarScreen(simulator, viewerProperties, MainFrame.this, viewer);
+                StarScreen screen = new StarScreen(simulator, cameraProperties, 
+                    MainFrame.this, viewer);
                 screen.show();
                 screen = null;
             }
         });
         visual.add(maximize);
 
-        sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"), 0, 1000000000d, DOUBLE_LENGTH);
+        sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"), 
+            0, 1000000000d, DOUBLE_LENGTH);
         visual.add(sensitivity);
 
-        zoom = createDoubleField(visual, simulumProperties.get("zoom"), 0, 1000000000d, DOUBLE_LENGTH);
+        zoom = createDoubleField(visual, simulumProperties.get("zoom"), 
+            0, 1000000000d, DOUBLE_LENGTH);
         visual.add(zoom);
 
-        radius = createDoubleField(visual, simulumProperties.get("radius"), 0, 100000000000d, DOUBLE_LENGTH);
+        radius = createDoubleField(visual, simulumProperties.get("radius"), 
+            0, 100000000000d, DOUBLE_LENGTH);
         visual.add(radius);
 
-        snapshot = createIntegerField(visual, simulumProperties.get("snapshot"), 0, 99999999);
+        snapshot = createIntegerField(visual, simulumProperties.get("snapshot"), 
+            0, 99999999);
         visual.add(snapshot);
 
         movement = createListField(visual, simulumProperties.get("movement"));
         visual.add(movement);
 
-        start = new JButton("Start");
-        start.setToolTipText("Starts the application.");
+        start = new JButton("Edit");
+        start.setToolTipText("Edit or apply camera parameters.");
         start.addActionListener(new  ActionListener() {
             
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -409,7 +450,11 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         visual.add(new JLabel(""));
     }
         
-        
+    /**
+     * Display an error message.
+     * 
+     * @param   e   Error.
+     */    
     private void displayErrorMessage(final Throwable e) {
         Trace.trace(this, "displayErrorMessage", e);
         JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -437,13 +482,14 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /**
      * Add integer field for string parameter.
-     * @param contentPane TODO
+     * 
+     * @param   contentPane Put new field here.
      * @param   parameter   Add text field selector for this parameter.
      */
-    CPIntegerField createIntegerField(Container contentPane, final Parameter parameter, final int minimum, final int maximum) {
-        final Container contents = contentPane;
+    CPIntegerField createIntegerField(final Container contentPane, final Parameter parameter, 
+            final int minimum, final int maximum) {
         final JLabel label = new JLabel(parameter.getLabel());
-        contents.add(label);
+        contentPane.add(label);
         final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), minimum, maximum);
         integerField.setValue(parameter.getIntegerValue());
         integerField.setToolTipText(parameter.getComment());
@@ -454,23 +500,26 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /**
      * Add double field for double parameter.
-     * @param contentPane TODO
+     * 
+     * @param   contentPane Put new field here.
      * @param   parameter   Add text field selector for this parameter.
      */
-    private CPDoubleField createDoubleField(Container contentPane, final Parameter parameter,
+    private CPDoubleField createDoubleField(final Container contentPane, final Parameter parameter,
             final double minimum, final double maximum, final int length) {
-        final Container contents = contentPane;
         final JLabel label = new JLabel(parameter.getLabel());
-        contents.add(label);
+        contentPane.add(label);
         final CPDoubleField doubleField = new CPDoubleField(parameter.getDoubleValue(),
             minimum, maximum, length);
         doubleField.setValue(parameter.getDoubleValue());
         doubleField.setToolTipText(parameter.getComment());
-        doubleField.setColumns(length / 3 + 2);
+        doubleField.setColumns(length / 3 + 2); // don't show all columns
         label.setLabelFor(doubleField);
         return doubleField;
     }
 
+    /**
+     * Exit application.
+     */
     private void shutdown() {
         final String method = "shutdown()";
         stopViewer();
@@ -481,17 +530,25 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         System.exit(0);
     }
 
+    /**
+     * Make camera fields editable or disable them.
+     */
     private void editCameraFields() {
         if (!editCameraFields) {
             fillProperties();
             startViewer();
-            // if it is a manual mover we animate also in the beginning
-            try {
-                final ManualMovement mover = (ManualMovement) viewer.getViewer().getPositionCalculator();
-                mover.setXtheta(-0.007);
-                mover.setYtheta(-0.000);
-            } catch (Exception e) {
-                Trace.trace(this, "MainFrame", e);
+            // if it is a manual mover we animate also in the beginning, if it is the first time
+            if (firstTimeStart) {
+                try {
+                    final ManualMovement mover = (ManualMovement) viewer.getViewer().getPositionCalculator();
+                    if (!"manual".equals(viewer.getViewer().getMovement())) {    // TODO mime 20060306: move constant declaration
+                        mover.setXtheta(-0.007);
+                        mover.setYtheta(-0.000);
+                    }
+                } catch (Exception e) {
+                    Trace.trace(this, "MainFrame", e);
+                }
+                firstTimeStart = false;
             }
         } else {
 //            copyProperties();
@@ -512,8 +569,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     
     private void editGravityFields() {
         fillProperties();
-        simulator.applyChanges(simulatorProperties);
-        viewer.applyVisualChanges(simulator, viewerProperties);
+        simulator.applyChanges(simulatorAttributes);
+        viewer.applyVisualChanges(simulator, cameraProperties);
         viewer.repaint();
         saveParameters();
         stars.setEnabled(editGravityFields);
@@ -526,8 +583,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private synchronized void startViewer() {
         stopViewer();
 //        simulator.start();
-        simulator.applyChanges(simulatorProperties);
-        viewer.applyVisualChanges(simulator, viewerProperties);
+        simulator.applyChanges(simulatorAttributes);
+        viewer.applyVisualChanges(simulator, cameraProperties);
         viewer.addViewChangedListener(this);
         viewer.start();
     }
@@ -548,35 +605,35 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private void fillProperties() {
         final Integer i = stars.getValue();
         if (i != null) {
-            simulatorProperties.setStars(i.intValue());
+            simulatorAttributes.setStars(i.intValue());
         }
         final String m = (String) movement.getSelectedItem();
         if (m != null) {
-            viewerProperties.setMovement(m);
+            cameraProperties.setMovement(m);
         }
         final Double s = sensitivity.getValue();
         if (s != null) {
-            viewerProperties.setSensitivity(s.doubleValue());
+            cameraProperties.setSensitivity(s.doubleValue());
         }
         final Double r = radius.getValue();
         if (r != null) {
-            viewerProperties.setRadius(r.doubleValue());
+            cameraProperties.setRadius(r.doubleValue());
         }
         final Double z = zoom.getValue();
         if (z != null) {
-            viewerProperties.setZoom(z.doubleValue());
+            cameraProperties.setZoom(z.doubleValue());
         }
         final Integer n = snapshot.getValue();
         if (n != null) {
-            viewerProperties.setSnapshot(n.intValue());
+            cameraProperties.setSnapshot(n.intValue());
         }
         final Double g = gamma.getValue();
         if (g != null) {
-            simulatorProperties.setGamma(g.doubleValue());
+            simulatorAttributes.setGamma(g.doubleValue());
         }
         final Double t = deltat.getValue();
         if (t != null) {
-            simulatorProperties.setDeltat(t.doubleValue());
+            simulatorAttributes.setDeltat(t.doubleValue());
         }
     }
 
@@ -585,14 +642,14 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
      */
     private void loadParameters() {
         simulumProperties = new SimulumProperties();
-        viewerProperties.setMovement(simulumProperties.get("movement").getStringValue());
-        viewerProperties.setSensitivity(simulumProperties.get("sensitivity").getDoubleValue().doubleValue());
-        viewerProperties.setRadius(simulumProperties.get("radius").getDoubleValue().doubleValue());
-        viewerProperties.setZoom(simulumProperties.get("zoom").getDoubleValue().doubleValue());
-        viewerProperties.setSnapshot(simulumProperties.get("snapshot").getIntegerValue().intValue());
-        simulatorProperties.setStars(simulumProperties.get("stars").getIntegerValue().intValue());
-        simulatorProperties.setGamma(simulumProperties.get("gamma").getDoubleValue().doubleValue());
-        simulatorProperties.setDeltat(simulumProperties.get("deltat").getDoubleValue().doubleValue());
+        cameraProperties.setMovement(simulumProperties.get("movement").getStringValue());
+        cameraProperties.setSensitivity(simulumProperties.get("sensitivity").getDoubleValue().doubleValue());
+        cameraProperties.setRadius(simulumProperties.get("radius").getDoubleValue().doubleValue());
+        cameraProperties.setZoom(simulumProperties.get("zoom").getDoubleValue().doubleValue());
+        cameraProperties.setSnapshot(simulumProperties.get("snapshot").getIntegerValue().intValue());
+        simulatorAttributes.setStars(simulumProperties.get("stars").getIntegerValue().intValue());
+        simulatorAttributes.setGamma(simulumProperties.get("gamma").getDoubleValue().doubleValue());
+        simulatorAttributes.setDeltat(simulumProperties.get("deltat").getDoubleValue().doubleValue());
     }
 
     /**
@@ -617,25 +674,25 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     }
 
     public void zoomChanged() {
-        final ViewerProperties view = viewer.getProperties();
+        final CameraAttributes view = viewer.getProperties();
         zoom.setValue(new Double(view.getZoom()));
         zoom.setCaretPosition(0);
     }
 
     public void sensitivityChanged() {
-        final ViewerProperties view = viewer.getProperties();
+        final CameraAttributes view = viewer.getProperties();
         sensitivity.setValue(new Double(view.getSensitivity()));
         sensitivity.setCaretPosition(0);
     }
 
     public void radiusChanged() {
-        final ViewerProperties view = viewer.getProperties();
+        final CameraAttributes view = viewer.getProperties();
         radius.setValue(new Double(view.getRadius()));
         radius.setCaretPosition(0);
     }
 
     public void snapshotChanged() {
-        final ViewerProperties view = viewer.getProperties();
+        final CameraAttributes view = viewer.getProperties();
         snapshot.setValue(new Integer(view.getSnapshot()));
         snapshot.setCaretPosition(0);
     }
@@ -672,7 +729,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             if (viewer == null) {
                 return;
             }
-            final ViewerProperties view = viewer.getProperties();
+            final CameraAttributes view = viewer.getProperties();
             if (view == null) {
                 return;
             }
@@ -681,9 +738,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             radius.setValue(new Double(view.getRadius()));
             zoom.setValue(new Double(view.getZoom()));
             snapshot.setValue(new Integer(view.getSnapshot()));
-            stars.setValue(new Integer(simulatorProperties.getStars()));
-            gamma.setValue(new Double(simulatorProperties.getGamma()));
-            deltat.setValue(new Double(simulatorProperties.getDeltat()));
+            stars.setValue(new Integer(simulatorAttributes.getStars()));
+            gamma.setValue(new Double(simulatorAttributes.getGamma()));
+            deltat.setValue(new Double(simulatorAttributes.getDeltat()));
 //          TODO show current impulse
 //          impulseCurrent.setText("" + applet.getSimulator().getImpulse());
         } catch (RuntimeException e) {
@@ -704,15 +761,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             if (viewer == null) {
                 return;
             }
-            final ViewerProperties v = viewer.getProperties();
+            final CameraAttributes v = viewer.getProperties();
             if (v == null) {
                 return;
             }
-            viewerProperties.setMovement(v.getMovement());
-            viewerProperties.setSensitivity(v.getSensitivity());
-            viewerProperties.setRadius(v.getRadius());
-            viewerProperties.setZoom(v.getZoom());
-            viewerProperties.setSnapshot(v.getSnapshot());
+            cameraProperties.setMovement(v.getMovement());
+            cameraProperties.setSensitivity(v.getSensitivity());
+            cameraProperties.setRadius(v.getRadius());
+            cameraProperties.setZoom(v.getZoom());
+            cameraProperties.setSnapshot(v.getSnapshot());
         } finally {
             Trace.traceEnd(this, "refreshProperties");
         }

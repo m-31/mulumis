@@ -112,7 +112,7 @@ public final class Viewer {
         camera = new Camera(photoPlate, viewPoint);
     }
 
-    public Viewer(final Simulator simulator, final ViewerProperties properties, final int width, final int height,
+    public Viewer(final Simulator simulator, final CameraAttributes properties, final int width, final int height,
             final Component parent) {
         this(simulator, properties.getMovement(), properties.getDelta(), properties.getSensitivity(), 
             properties.getRadius(), properties.getZoom(), properties.getSnapshot(),
@@ -138,13 +138,13 @@ public final class Viewer {
         positionCalculator = null;
     }
     
-    public final ViewerProperties getProperties() {
-        return new ViewerProperties(movement, positionCalculator.getDelta(),
+    public final CameraAttributes getProperties() {
+        return new CameraAttributes(movement, positionCalculator.getDelta(),
             camera.getSensitivity(), positionCalculator.getRadius(), camera.getZoom(),
             camera.getSnapshot());
     }
 
-    public final void applyVisualChanges(final Simulator simulator, final ViewerProperties properties) {
+    public final void applyVisualChanges(final Simulator simulator, final CameraAttributes properties) {
         applyVisualChanges(simulator, properties.getMovement(), properties.getDelta(),
         properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
         properties.getSnapshot());
@@ -224,6 +224,10 @@ public final class Viewer {
         }
     }
     
+    public final double getRadius() {
+        return positionCalculator.getRadius();
+    }
+    
     public final void setSensitivity(final double sensitivity) {
         camera.setSensitivity(sensitivity);
         for (int i = 0; i < listener.size(); i++) {
@@ -242,6 +246,10 @@ public final class Viewer {
         }
     } 
    
+    public final double getZoom() {
+        return camera.getZoom();
+    }
+    
     public final void setSnapshot(final int snapshot) {
         camera.setSnapshot(snapshot);
         for (int i = 0; i < listener.size(); i++) {
@@ -249,6 +257,10 @@ public final class Viewer {
         }
     }
 
+    public final String getMovement() {
+        return movement;
+    }
+    
     public void removeAllViewChangedListeners() {
         listener.clear();
         

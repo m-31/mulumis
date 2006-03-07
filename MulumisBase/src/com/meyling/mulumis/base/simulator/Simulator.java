@@ -39,8 +39,6 @@ import com.meyling.mulumis.base.config.MulumisContext;
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.stars.StarField;
 import com.meyling.mulumis.base.util.CalculatorUtility;
-import com.meyling.mulumis.base.view.PhotoPlate;
-import com.meyling.mulumis.base.viewpoint.ViewPoint;
 
 /**
  * Star field simulator.
@@ -66,22 +64,27 @@ public final class Simulator {
         engine.setDeltat(deltat);
     }
 
+    /**
+     * Create new star field.
+     * 
+     * @param   stars   Number of stars.
+     */
     private void createField(final int stars) {
         field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         ((StarField) field).fillBall(0.5, zero);
     }
 
-    public Simulator(final SimulatorProperties properties) {
+    public Simulator(final SimulatorAttributes properties) {
         this(properties.getStars(), properties.getGamma(), properties.getDeltat());
     }
 
-    public final SimulatorProperties getProperties() {
-        return new SimulatorProperties(field.getNumberOfStars(), engine.getGamma(), 
+    public final SimulatorAttributes getProperties() {
+        return new SimulatorAttributes(field.getNumberOfStars(), engine.getGamma(), 
             engine.getDeltat());
     }
 
-    public final void applyChanges(final SimulatorProperties properties) {
+    public final void applyChanges(final SimulatorAttributes properties) {
         synchronized (stopped) {
             if (properties.getStars() != field.getNumberOfStars()) {
                 createField(properties.getStars());

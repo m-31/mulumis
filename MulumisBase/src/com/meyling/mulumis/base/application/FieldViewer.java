@@ -45,7 +45,7 @@ import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.view.ViewChangedListener;
 import com.meyling.mulumis.base.view.Viewer;
-import com.meyling.mulumis.base.view.ViewerProperties;
+import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
@@ -104,7 +104,7 @@ public final class FieldViewer extends Applet implements Runnable,
         }
     }
 
-    public final void applyVisualChanges(final Simulator simulator, final ViewerProperties properties) {
+    public final void applyVisualChanges(final Simulator simulator, final CameraAttributes properties) {
         if (viewer == null) {
             viewer = new Viewer(simulator, properties, getWidth(), getHeight(), this);
         }
@@ -217,15 +217,23 @@ public final class FieldViewer extends Applet implements Runnable,
         final ManualMovement positionCalculator = (ManualMovement) viewer.getPositionCalculator();
         int x = e.getX();
         int y = e.getY();
-        final double pi_fraction = Math.PI / 10;
-//        final double pi_fraction = Math.PI / 5;
-        final double max = Math.max(getSize().width, getSize().height);
+        final double pi_fraction;
+        if ("manual".equals(viewer.getMovement())) {    // TODO mime 20060306: move constant declaration
+            pi_fraction = Math.PI / 2;
+        } else {
+            pi_fraction = Math.PI / 10;
+        }
+        final double max = Math.max(getToolkit().getScreenSize().width, getToolkit().getScreenSize().height);
         ytheta = (prevy - y) * (pi_fraction / max);
         xtheta = (prevx - x) * (pi_fraction / max);
         positionCalculator.setXtheta(xtheta);
         positionCalculator.setYtheta(ytheta);
         viewer.moveViewPoint();
         viewer.takePicture();
+        if ("manual".equals(viewer.getMovement())) {    // TODO mime 20060306: move constant declaration
+            positionCalculator.setXtheta(0);
+            positionCalculator.setYtheta(0);
+        }
         prevx = x;
         prevy = y;
         e.consume();
@@ -260,7 +268,7 @@ public final class FieldViewer extends Applet implements Runnable,
         e.consume();
     }
 
-    public final ViewerProperties getProperties() {
+    public final CameraAttributes getProperties() {
         if (viewer == null) {
             return null;
         }

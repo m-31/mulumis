@@ -42,11 +42,10 @@ import java.awt.event.MouseWheelListener;
 
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Simulator;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.simulator.SimulatorAttributes;
 import com.meyling.mulumis.base.util.IoUtility;
-import com.meyling.mulumis.base.view.Camera;
 import com.meyling.mulumis.base.view.Viewer;
-import com.meyling.mulumis.base.view.ViewerProperties;
+import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
@@ -61,8 +60,8 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     private static final long serialVersionUID = -3554962680447033507L;
     private Thread runThread;
     private Boolean stopped = Boolean.TRUE;
-    private ViewerProperties viewerProperties = new ViewerProperties();
-    private SimulatorProperties simulatorProperties = new SimulatorProperties();
+    private CameraAttributes viewerProperties = new CameraAttributes();
+    private SimulatorAttributes simulatorProperties = new SimulatorAttributes();
 
     private Simulator simulator;
     private Viewer viewer;
@@ -271,19 +270,19 @@ public final class StarApplet extends Applet implements Runnable, MouseListener,
     public void mouseMoved(MouseEvent e) {
     }
 
-    public final SimulatorProperties getSimulatorProperties() {
+    public final SimulatorAttributes getSimulatorProperties() {
         return simulatorProperties;
     }
 
-    public final ViewerProperties getViewerProperties() {
+    public final CameraAttributes getViewerProperties() {
         return viewerProperties;
     }
 
-    public final void setSimulatorProperties(final SimulatorProperties properties) {
+    public final void setSimulatorProperties(final SimulatorAttributes properties) {
         this.simulatorProperties = properties;
     }
     
-    public final SimulatorProperties getCurrentProperties() {
+    public final SimulatorAttributes getCurrentProperties() {
         return simulator.getProperties();
     }
 

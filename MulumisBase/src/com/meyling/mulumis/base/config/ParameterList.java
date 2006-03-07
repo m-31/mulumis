@@ -114,7 +114,9 @@ public final class ParameterList {
         properties.load(new FileInputStream(file));
         for (int i = 0; i < size(); i++) {
             Parameter parameter = get(i);
-            parameter.setStringValue(properties.getProperty(parameter.getName()));
+            if (properties.getProperty(parameter.getName()) != null) {
+                parameter.setStringValue(properties.getProperty(parameter.getName()));
+            }
         }
     }
 

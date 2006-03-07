@@ -41,8 +41,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.meyling.mulumis.base.simulator.Simulator;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
-import com.meyling.mulumis.base.view.ViewerProperties;
+import com.meyling.mulumis.base.simulator.SimulatorAttributes;
+import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
@@ -55,7 +55,6 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
  */
 public class StarScreen extends Window {
 
-    private static final long serialVersionUID = 2563504527447287674L;
     private static Frame frame;
     private Simulator simulator;
     private FieldViewer visualizer;
@@ -68,7 +67,7 @@ public class StarScreen extends Window {
         this.setLayout(null);
         
         {
-            final SimulatorProperties properties = new SimulatorProperties();
+            final SimulatorAttributes properties = new SimulatorAttributes();
             properties.setStars(10000);
             properties.setGamma(0);
             properties.setDeltat(0.01);
@@ -76,7 +75,7 @@ public class StarScreen extends Window {
         }
         {
             visualizer = new FieldViewer();
-            final ViewerProperties properties = new ViewerProperties();
+            final CameraAttributes properties = new CameraAttributes();
             properties.setMovement("manualDelay");
             properties.setZoom(1000);
             properties.setRadius(0.8);
@@ -116,7 +115,7 @@ public class StarScreen extends Window {
         visualizer.start();
     }
 
-    public StarScreen(final Simulator model, final ViewerProperties view, final MainFrame base, final FieldViewer viewer) {
+    public StarScreen(final Simulator model, final CameraAttributes view, final MainFrame base, final FieldViewer viewer) {
         super(frame = new Frame("mulumis"));
         this.simulator = model;
         this.base = base;
@@ -139,7 +138,7 @@ public class StarScreen extends Window {
 //                visualizer = null;
                     synchronized (visualizer) {
                         visualizer.stop();
-                        final ViewerProperties properties = visualizer.getViewer().getProperties();
+                        final CameraAttributes properties = visualizer.getViewer().getProperties();
                         frame.dispose();
                         StarScreen.this.base.restart(properties);
                         StarScreen.this.base = null;

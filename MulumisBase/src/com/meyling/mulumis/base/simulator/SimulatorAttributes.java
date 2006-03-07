@@ -37,20 +37,20 @@ package com.meyling.mulumis.base.simulator;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class SimulatorProperties {
+public final class SimulatorAttributes {
 
     private int stars;
     private double gamma;
     private double deltat;
 
-    public SimulatorProperties(final int stars, 
+    public SimulatorAttributes(final int stars, 
             final double gamma, final double deltat) {
         setStars(stars);
         setGamma(gamma);
         setDeltat(deltat);
     }
 
-    public SimulatorProperties() {
+    public SimulatorAttributes() {
         setStars(200);
         setGamma(0.1);
         setDeltat(0.0002);

@@ -46,6 +46,18 @@ public final class LinearMover extends AbstractAutomaticMover {
     }
 
     public final void calculateMovement(final ViewPoint viewPoint) {
+        final double[] x = viewPoint.getX();
+        x[0] = 1;
+        x[1] = 0;
+        x[2] = 0;
+        final double[] y = viewPoint.getY();
+        y[0] = 0;
+        y[1] = 1;
+        y[2] = 0;
+        final double[] z = viewPoint.getZ();
+        z[0] = 0;
+        z[1] = 0;
+        z[2] = 1;
         final double[] position = viewPoint.getPosition();
         final double[] zero = getZero();
         double d;

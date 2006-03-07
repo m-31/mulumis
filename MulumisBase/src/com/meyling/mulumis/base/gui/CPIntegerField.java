@@ -57,9 +57,11 @@ public class CPIntegerField extends CPTextField {
     private Integer value;
 
     /**
-     * Constructor with initial text.
-     *
-     * @param   initialText Initial value.
+     * Constructor.
+     * 
+     * @param   value   Initial value.
+     * @param   minimum Minimum value.
+     * @param   maximum Maximum value.
      */
     public CPIntegerField(final Integer value, final int minimum, final int maximum) {
         super();

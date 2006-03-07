@@ -34,7 +34,7 @@ package com.meyling.mulumis.base.viewpoint;
 
 
 /**
- * Simulates star field.
+ * Circle around the star field and look to zero point.
  *
  * @version     $Revision$
  * @author      Michael Meyling
@@ -52,15 +52,15 @@ public final class CirclularMoverWithChangingViewingDirection extends CircularMo
         z[0] = -Math.sin(getAlpha());
         z[1] = -Math.cos(getAlpha());
         z[2] = 0;
-        final double[] x = viewPoint.getX();
-        x[0] = 0;
-        x[1] = 0;
-        x[2] = 1;
-        // cross product
         final double[] y = viewPoint.getY();
-        y[0] = z[1]*x[2] - z[2]*x[1];
-        y[1] = -(z[0]*x[2] - z[2]*x[0]);
-        y[2] = z[0]*x[1] - z[1]*x[0];
+        y[0] = 0;
+        y[1] = 0;
+        y[2] = 1;
+        // cross product
+        final double[] x = viewPoint.getX();
+        x[0] =   z[1]*y[2] - z[2]*y[1];
+        x[1] = -(z[0]*y[2] - z[2]*y[0]);
+        x[2] =   z[0]*y[1] - z[1]*y[0];
     }
 
 }

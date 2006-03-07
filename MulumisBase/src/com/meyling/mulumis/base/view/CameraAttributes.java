@@ -37,7 +37,7 @@ package com.meyling.mulumis.base.view;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class ViewerProperties {
+public final class CameraAttributes {
 
     private String movement;
     private double delta;
@@ -46,7 +46,7 @@ public final class ViewerProperties {
     private double zoom;
     private int snapshot;
 
-    public ViewerProperties(final String movement, final double delta, final double sensitivity, 
+    public CameraAttributes(final String movement, final double delta, final double sensitivity, 
             final double radius, final double zoom, final int snapshot) {
         setMovement(movement);
         setDelta(delta);
@@ -56,12 +56,12 @@ public final class ViewerProperties {
         setSnapshot(snapshot);
     }
 
-    public ViewerProperties() {
+    public CameraAttributes() {
         setMovement("manualDelay");
         setDelta(0.001);
-        setRadius(2.2);
-        setSensitivity(6.3);
-        setZoom(1000);
+        setRadius(5.3);
+        setSensitivity(8.6);
+        setZoom(2500);
         setSnapshot(0);
     }
 

@@ -38,9 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.meyling.mulumis.base.log.Trace;
-import com.meyling.mulumis.base.simulator.SimulatorProperties;
+import com.meyling.mulumis.base.simulator.SimulatorAttributes;
 import com.meyling.mulumis.base.util.IoUtility;
-import com.meyling.mulumis.base.view.ViewerProperties;
+import com.meyling.mulumis.base.view.CameraAttributes;
 
 
 /**
@@ -77,8 +77,8 @@ public final class SimulumProperties {
      * Constructor. Reads previously saved values.
      */
     public SimulumProperties() {
-        final ViewerProperties view = new ViewerProperties();
-        final SimulatorProperties model = new SimulatorProperties();
+        final CameraAttributes view = new CameraAttributes();
+        final SimulatorAttributes model = new SimulatorAttributes();
         parameterList = new ParameterList();
         stars = new Parameter("stars", "Number of Stars", Integer.class,
                     "Number of stars in this simulation.", "" + model.getStars());
@@ -90,7 +90,7 @@ public final class SimulumProperties {
         list.add("circular");
         list.add("circularNormale");
         list.add("linear");
-        movement = new Parameter("movement", "Movement", "Method to move viewpoint",
+        movement = new Parameter("movement", "Movement", "Method to move viewpoint.",
                 view.getMovement(), view.getMovement(), list);
         parameterList.add(movement);
 
@@ -111,7 +111,7 @@ public final class SimulumProperties {
         parameterList.add(snapshot);
 
         gamma = new Parameter("gamma", "Gamma", Double.class,
-                "Gamma constant. Zero means no gravity at all.", "" + model.getGamma());
+                "Gravity constant (gamma).", "" + model.getGamma());
         parameterList.add(gamma);
 
         deltat = new Parameter("deltat", "Delta t", Double.class,

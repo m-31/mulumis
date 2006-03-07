@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Information</title>
+<style type="text/css">
+  body { background-color:#CDD7E5; color:#4119C8; font-family: Arial,Helvetica,sans-serif; }
+  A:link { color: #6600cc; }
+  A:hover { color : #EEAF3F; background: #ffffff; text-decoration: underline;}
+  A:active { color: #6600ff; background: #ffffcc; text-decoration: none;}
+  A:visited { color: #330099; }
+  h1, h2, h3 { font-family: Arial,Helvetica,sans-serif; color:#7d49d9; }
+  h4, h5 { font-family: Arial,Helvetica,sans-serif; color:#7d49d9; }
+  p, div { font-family: Arial,Helvetica,sans-serif; color:#7d49d9; }
+  td, th { font-family: Arial,Helvetica,sans-serif; color:#7d49d9; }
+</style>
+</head>
+<body text="#4119C8" bgcolor="#CDD7E5" link="#6600cc" vlink="#330099" alink="#6600ff">
+
+<h1>Information</h1>
+
+<h2>Mouse Actions</h2>
+The viewer parameters can be changed by mouse actions:
+<ul>
+<li><em>Rolling the mouse wheel</em> changes the distance.</li>
+<li><em>Rolling the mouse wheel</em> while pressing the <em>right mouse button</em> changes the star brightness.</li>
+<li>For the <em>manual</em> movement methods <em>dragging the mouse</em> moves the viewpoint. If the movement method is <em>manualDelay</em> a fast drag  gives the camera an appropriate angular momentum.</li>
+</ul>
+
+<h2>Camera Parameters</h2>
+<table>
+<tr>
+<td valign="top">Sensitivity<td><td>Sensitivity of photo plate. If a star is too far away it's brightness might not be high enough to create a dot on the photo plate. Increasing the sensitivity of the photo plate helps to solve the problem.</td>
+</tr>
+<tr>
+<td valign="top">Zoom<td><td>Zoom factor for photo plate. The projection size on the photo plate can be changed with the value of this parameter. The optimal value for this parameter depends on the screen resolution and your distance from the monitor. A projection size of 1 should be seen in an 45 degree angle.
+If we assume that you see your monitor (height) in an 20 degree angle, we can calculate as follows:<br>
+<code>zoom = screen height in pixel / 2 / tan(10)</code><br>
+That means zoom should have a value between 2000 and 3500. Other values are possible but create a nonnatural perspective.
+</td>
+</tr>
+<tr>
+<td valign="top">Radius<td><td>Distance of camera.</td>
+</tr>
+<tr>
+<td valign="top">Snapshot<td><td>Number of exposure. Before that number of pictures the photo plate is cleared again. If this parameter has an value greater than zero one can see the orbits. If the movement is slow the <em>sensitivity</em> parameter should be low.</td>
+</tr>
+<tr>
+<td valign="top">Movement<td><td>Camera movement mode. The first two <em>manual</em> and <em>manualDelay</em> are the major ones. Look above for a description how to interact with this mode. The <em>circular</em> movement circles around the Z-axis and in addition <em>circularNormale</em> changes the viewing direction to the star field center. The <em>linear</em> movement changes the Z coordinate until it reaches the zero point.</td>
+</tr>
+</table>
+
+<h2>Gravity Parameters</h2>
+<table>
+<tr>
+<td valign="top">Number of Stars<td><td>These number of stars are generated. If the number is other than before a new star field is generated. The stars are randomly placed within a sphere of radius <code>0.5</code> by an uniform distribution. Their initial velocity is <code>0</code>, their mass is <code>1</code>. Although you can enter a great number here, the program might not be able to deal with this big number. My computer can deal with <code>1,000,000</code> stars if gravitation is off. Otherwise a number of <code>1,000</code> stars is a maximum for me.</td>
+</tr>
+<tr>
+<td valign="top">Gamma<td><td>The gravity constant.</td>
+</tr>
+<tr>
+<td valign="top">Delta t<td><td>Currently we just use <a href="http://en.wikipedia.org/wiki/Euler_integration">Euler's method</a> to calculate star positions and velocities. The following formulas are used:
+<p>
+<code>star.velocity[i] = star.velocity[i] - deltat * gamma * sum(j, star[j].mass * (star[i].position - star[j].position) / |(star[i].position - star[j].position| ^ 3)</code>
+<p>
+<code>star[i].position = star[i].position[k] + deltat * star.velocity[i]</code>
+<p>
+This is a very simple single step method. Some more information about better approximation methods to solve the <a href="http://en.wikipedia.org/wiki/N-body_problem">N-body problem</a> can be found at <a href="http://burtleburtle.net/bob/math/multistep.html">Bob Jenkins' web site</a> and <a href="http://www.cs.cmu.edu/~scandal/alg/nbody.html">parallel N-body simulations</a>.
+<p>
+But you could plug in your own better <code>Gravity</code> engine just by setting the <code>-Dmulumis.GravityFactory=&lt;new AbstractGravityFactory&gt;</code> parameter during the VM start.
+</td>
+</tr>
+</table>
+
+<p>
+Further informations about <b>Simulum</b> can be found at the web site:
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.mulumis.meyling.com/">http://www.mulumis.meyling.com</a>.
+<br>
+<br>
+<br>
+<br>
+
+</body></html>

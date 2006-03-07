@@ -39,8 +39,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import com.meyling.mulumis.base.common.GravityObject;
-import com.meyling.mulumis.base.simulator.PhotoPlate;
 import com.meyling.mulumis.base.stars.StarField;
+import com.meyling.mulumis.base.view.PhotoPlate;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 import com.meyling.mulumis.base.viewpoint.ViewPoint;
 

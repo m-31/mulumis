@@ -90,7 +90,6 @@ public class ManualMovement extends AbstractAutomaticMover {
      * @param xtheta The xtheta to set.
      */
     public final void setXtheta(double xtheta) {
-//        System.out.println("setXtheta :" + xtheta);
         this.xtheta = xtheta;
     }
 
@@ -98,7 +97,6 @@ public class ManualMovement extends AbstractAutomaticMover {
      * @param ytheta The ytheta to set.
      */
     public final void setYtheta(double ytheta) {
-//        System.out.println("setYtheta :" + ytheta);
         this.ytheta = ytheta;
     }
 

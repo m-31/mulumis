@@ -122,7 +122,7 @@ public final class PhotoPlate  {
 
     public synchronized final void generateImage(final ViewPoint viewpoint, final Field field) {
 //        Trace.traceBegin(this, "generateImage");    // TODO mime 20060302 remove
-        if (!initialized) {
+        if (!initialized || field == null) {
             return;
         }
         final double[] position = viewpoint.getPosition();
@@ -138,13 +138,13 @@ public final class PhotoPlate  {
             current = 0;
         }
         for (int i = 0; i < field.getNumberOfStars(); i++) {
-            final double d = CalculatorUtility.minusscalar(field.getStar(i).getPosition(), position, z);
+            final double d = CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, z);
             if (d > 0) {
-                double xr = zoom * CalculatorUtility.minusscalar(field.getStar(i).getPosition(), position, x) / d + halfWidth;
+                double xr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, x) / d + halfWidth;
                 if (xr < 0 ||  xr >= width) {
                     continue;
                 }
-                double yr = zoom * CalculatorUtility.minusscalar(field.getStar(i).getPosition(), position, y) / d + halfHeight;
+                double yr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, y) / d + halfHeight;
                 if (yr < 0 || yr >= height) {
                     continue;
                 }

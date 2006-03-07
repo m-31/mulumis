@@ -36,8 +36,8 @@ import java.applet.Applet;
 import java.awt.Graphics;
 
 import com.meyling.mulumis.base.common.GravityObject;
-import com.meyling.mulumis.base.simulator.PhotoPlate;
 import com.meyling.mulumis.base.stars.StarField;
+import com.meyling.mulumis.base.view.PhotoPlate;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.CirclularMoverWithChangingViewingDirection;
 import com.meyling.mulumis.base.viewpoint.CircularMover;
