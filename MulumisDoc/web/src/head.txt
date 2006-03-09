@@ -58,6 +58,12 @@
 <td valign="top"@width@>
 
 <!-- begin  -->
-
+<table width="100%">
+<tr>
+<td width="100%">
 <font color="#7d49d9" size="+2"><b>@title@</b></font>
-
+</td>
+<td valign="top"><a href="@previous@">&lt;previous&nbsp;</a></td>
+<td valign="top"><a href="@next@">&nbsp;next&gt;</a></td>
+</tr>
+</table>

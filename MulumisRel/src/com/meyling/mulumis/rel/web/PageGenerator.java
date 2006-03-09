@@ -194,7 +194,7 @@ public class PageGenerator {
         for (int i = 0; i < this.site.size(); i++) {
             generate(((Entry) this.site.get(i)).getFile());
         }
-        generateSitemap();
+        generateSitemap(((Entry) fullsite.get(fullsite.size() - 1)).getFile());
     }
 
 
@@ -301,6 +301,29 @@ public class PageGenerator {
         }
         final Entry entryIndex = (Entry) site.get(index);
         final String subtitle = entryIndex.getTitle();
+        String previous = null;
+        String next = null;
+        int fullIndex = -1;
+        for (int i = 0; i < fullsite.size(); i++) {
+            if (((Entry) fullsite.get(i)).getFile().equals(fileName)) {
+                fullIndex = i;
+                break;
+            }
+        }
+        if (fullIndex < 0) {
+            System.err.println("File " + fileName + " not found in csv file");
+            return;
+        }
+        try {
+            previous = ((Entry) fullsite.get(fullIndex - 1)).getFile();
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            next = ((Entry) fullsite.get(fullIndex + 1)).getFile();
+        } catch (Exception e) {
+            // ignore
+        }
         {
             int i = index;
             for ( ;i >= 0; i = ((Entry) site.get(i)).getMother()) {
@@ -355,15 +378,16 @@ public class PageGenerator {
             tab.append("</td>\n</tr>\n");
         }
         saveFile(new File(writeDir, fileName),
-            addFrame(title, subtitle, tab, data, file, replace(fileName, ".html", "")));
+            addFrame(title, subtitle, tab, data, file, replace(fileName, ".html", ""), previous, next));
 
     }
 
 
     /**
+     * @param string 
      * @throws  IOException if a reading or writing exception occurs
      */
-    private final void generateSitemap() throws IOException {
+    private final void generateSitemap(String previous) throws IOException {
 
         final StringBuffer tab = new StringBuffer();
 //      tab.append("<table cellspacing=2 cellpadding=2 bgcolor=\"#c0c0c0\""
@@ -451,7 +475,8 @@ public class PageGenerator {
         final String fileName;
         fileName = "sitemap.html";
         try {
-            saveFile(new File(writeDir, fileName), replace(addFrame("Site Map", "Site Map", tab, data.toString(), null, "sitemap"),
+            saveFile(new File(writeDir, fileName), replace(addFrame("Site Map", "Site Map", tab, data.toString(), null, 
+                    "sitemap", previous, null),
                 "<td><font face=\"Arial,Helvetica\"><a href=\"sitemap",                "<td bgcolor=\"" + selectionBackground + "\"><font face=\"Arial,Helvetica\"><a href=\"sitemap"));   // TODO Q & D!!!
         } catch (IOException e) {
             System.out.println(e);
@@ -461,7 +486,8 @@ public class PageGenerator {
 
 
     private final String addFrame(final String title, final String subtitle,
-            final StringBuffer tab, final String data, final File file, final String link) {
+            final StringBuffer tab, final String data, final File file, final String link, 
+            final String previous, final String next) {
         String result = new String(head);
         // Format the current time.
         final SimpleDateFormat formatter
@@ -471,6 +497,8 @@ public class PageGenerator {
         result = replace(result, "@generator@", this.getClass().getName());
         result = replace(result, "@select@", tab.toString());
         result = replace(result, "@title@",  title);
+        result = replace(result, "@previous@", (previous != null ? previous : "#"));
+        result = replace(result, "@next@", (next != null ? next : "sitemap.html"));
         if (title.length() > 0) {
             result = replace(result, "@subtitle@", " - " + subtitle);
         } else {

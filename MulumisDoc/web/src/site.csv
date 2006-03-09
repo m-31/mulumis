@@ -1,7 +1,10 @@
 ;index.html;introduction;Introduction;Simulum is introduced
 ;screenshots.html;screen shots;Screen Shots
-;smp01.html;samples;Sample Animation;examples to view
-;samples.html;old samples;OldSample Animations;examples to view created with the old version
+;samples.html;samples;Sample Animation;examples to view
++;smp01.html;smp01;Circular Movement;;
++;smp02.html;smp02;Linear Movement;;
++;smp03.html;smp03;Gravity;;
+;osamples.html;old samples;Old Example Animations;examples to view created with the old version
 +;circular.html;circular;Circular Movement
 ++;sample1.html;sample1;;;n
 ++;sample2.html;sample2;;;n

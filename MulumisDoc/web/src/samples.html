@@ -1,36 +1,35 @@
 <!-- $Revision$ -->
+<table border=0 cellspacing=2 cellpadding=4>
+<tr>
+<td valign="top">
+<br>
+This is an applet example.
 <p>
-<!-- begin  -->
-<noscript><applet code="com.meyling.mulumis.Stars.class" width="870" height="410"></applet></noscript>
-<script language="JavaScript">
-<!--
-	function WindowWidth()
-	{
-		if (window.innerWidth)
-			return window.innerWidth;
-		else
-			if (document.body && document.body.offsetWidth)
-				return document.body.offsetWidth;
-			else
-				return 800;
-	}
-
-	function WindowHeight()
-	{
-		if (window.innerHeight)
-			return window.innerHeight;
-		else
-			if (document.body && document.body.offsetHeight)
-				return document.body.offsetHeight;
-			else
-				return 600;
-	}
-//-->
-</script>
-<script language="JavaScript">
-<!--
-	document.write('<applet code="com.meyling.mulumis.Stars.class" width="'+ (WindowWidth() - 150) + '" height="' + (WindowHeight()-200) + '"></applet>');
-//-->
-</script>
-This page uses javascript to calculate the applet size. See <a href="circular.html">circular</a>, <a href="linear.html">linear<a> or <a href="wild.html">wild</a> for other examples.
- </p>
+100 stars are distributed in a sphere. The viewpoint circles around the sphere and creates the impression of a rotating sphere. Gravity works on those stars and makes them move. Watch them getting closer and escaping the centrum.
+<p>
+Activate the star panel by clicking it. Rolling the mouse wheel changes the viewpoint distance. Rolling the mouse wheel while pressing the right mouse button changes the star brightness. <br>
+Dragging the mouse moves the viewpoint. A fast drag  gives the camera an appropriate angular momentum.
+<p>
+Here are other examples to look at.
+<table>
+<tr><td><a href="smp01.html">smp01</a></td><td>circular movement</td></tr>
+<tr><td><a href="smp02.html">smp02</a></td><td>linear movement</td></tr>
+<tr><td><a href="smp03.html">smp03</a></td><td>gravity</td></tr>
+</table><p>
+You can easily experiment with other parameters by starting the <a href=webstart.html>webstart</a> version or by <a href=download.html>downloading</a> the program and running the common java program.
+</td>
+<td>
+<applet code="com.meyling.mulumis.base.application.StarApplet" archive="lib/mulumis_0.04.44_u.jar" id="StarApplet" width="400" height="400">
+<param name="stars" value="100"/>
+<param name="delta" value="0.01"/>
+<param name="radius" value="9"/>
+<param name="sensitivity" value="10"/>
+<param name="xtheta" value="-0.007"/>
+<param name="movement" value="manualDelay"/>
+<param name="gravity" value="on"/>
+<param name="gamma" value="0.01"/>
+<param name="deltat" value="0.00005"/>
+</applet>
+</td>
+</tr>
+</table>
