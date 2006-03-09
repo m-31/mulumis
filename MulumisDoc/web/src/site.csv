@@ -1,16 +1,31 @@
 ;index.html;introduction;Introduction;Simulum is introduced
 ;screenshots.html;screen shots;Screen Shots
-;samples.html;samples;Sample Animation;examples to view
+;smp01.html;samples;Sample Animation;examples to view
+;samples.html;old samples;OldSample Animations;examples to view created with the old version
 +;circular.html;circular;Circular Movement
-++;sample1.html;sample1;;
-++;sample2.html;sample2;;
-++;sample3.html;sample3;;
-++;sample4.html;sample4;;
+++;sample1.html;sample1;;;n
+++;sample2.html;sample2;;;n
+++;sample3.html;sample3;;;n
+++;sample4.html;sample4;;;n
 +;linear.html;linear;Linear Movement
-++;sample5.html;sample5;;
-++;sample6.html;sample6;;
-++;sample7.html;sample7;;
-++;sample8.html;sample8;;
+++;sample5.html;sample5;;;n
+++;sample6.html;sample6;;;n
+++;sample7.html;sample7;;;n
+++;sample8.html;sample8;;;n
++;wild.html;wild;Some wild samples
+++;sample11.html;sample11;;;n
+++;sample12.html;sample12;;;n
+++;sample13.html;sample13;;;n
+++;sample14.html;sample14;;;n
+++;sample15.html;sample15;;;n
+++;sample16.html;sample16;;;n
+++;sample17.html;sample17;;;n
+++;sample18.html;sample18;;;n
+++;sample19.html;sample19;;;n
+++;sample20.html;sample20;;;n
+++;sample21.html;sample21;;;n
+++;sample22.html;sample22;;;n
+++;sample23.html;sample23;;;n
 ;physics.html;physics;Physical Modeling;a little bit physical background
 ;news.html;news;News;what is new;
 ;download.html;download;Download;get the source and executables

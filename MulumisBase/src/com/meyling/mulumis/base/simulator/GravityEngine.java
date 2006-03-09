@@ -59,17 +59,24 @@ public final class GravityEngine implements Gravity {
     /** Total impulse. */
     private double[] impulse;
 
+    /** Star field to work on. */
+    private Field field;
+
     public GravityEngine() {
         impulse = new double[GravityObject.DIMENSION];
     }
 
     /* (non-Javadoc)
-     * @see com.meyling.mulumis.base.simulator.Gravity#calculate(com.meyling.mulumis.base.stars.Field)
+     * @see com.meyling.mulumis.base.simulator.Gravity#init(com.meyling.mulumis.base.stars.Field)
      */
-    public synchronized final void calculate(final Field field) {
-        if (!hasGravity()) {
-            return;
-        }
+    public final void init(final Field field) {
+        this.field = field;
+    }
+
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#calculate()
+     */
+    public synchronized final void calculate() {
         if (vn == null || field.getNumberOfStars() != vn.length / GravityObject.DIMENSION) {
             vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
         }
@@ -170,21 +177,12 @@ public final class GravityEngine implements Gravity {
     }
 
     /* (non-Javadoc)
-     * @see com.meyling.mulumis.base.simulator.Gravity#hasGravity()
-     */
-    public boolean hasGravity() {
-        if (gamma == 0 || deltat == 0) {
-            return false;
-        }
-        return true;
-    }
-    
-    /* (non-Javadoc)
      * @see com.meyling.mulumis.base.simulator.Gravity#getImpulse()
      */
     public synchronized double[] getImpulse() {
         return impulse;
     }
+
 
 }
 

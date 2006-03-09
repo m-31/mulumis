@@ -17,8 +17,8 @@
   <property name="mulumis.base.temp"         value="${basedir}/../release/base/temp" />
   <property name="mulumis.base.doc"          value="${basedir}/MulumisRel/doc" />
   <property name="mulumis.base.inc"          value="${basedir}/MulumisRel/inc" />
-  <property name="mulumis.web.src"         value="${basedir}/MulumisDoc/web/src" />
-  <property name="mulumis.web.inc"         value="${basedir}/MulumisDoc/web/inc" />
+  <property name="mulumis.web.src"           value="${basedir}/MulumisDoc/web/src" />
+  <property name="mulumis.web.inc"           value="${basedir}/MulumisDoc/web/inc" />
 
   <path id="classpath.common">
       <pathelement location="${mulumis.base.lib}/junit.jar"/>
@@ -46,7 +46,7 @@
     />
     <copy todir="${mulumis.base.dest}/classes">
       <fileset dir="${mulumis.base.src}"
-	       includes="com/meyling/mulumis/resources/*"
+	       includes="com/meyling/mulumis/base/help/*.html"
        />
     </copy>
     
@@ -129,7 +129,7 @@
     <copy todir="${mulumis.base.dest}">
       <fileset dir="${mulumis.base.inc}" includes="simulum,simulum.bat"/>
       <filterset begintoken="@" endtoken="@">
-        <filter token="MULUMIS_JAVA"        value="java" />
+        <filter token="MULUMIS_JAVA" value="java" />
       </filterset>
     </copy>
 
@@ -137,7 +137,7 @@
   	
     <mkdir dir="${mulumis.base.dist}"/>
     <jar
-     jarfile="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar"
+     jarfile="${mulumis.base.dist}/mulumis_${mulumis.working.version}_u.jar"
      manifest="${mulumis.base.temp}/manifest.txt"
     >
       <fileset dir="${mulumis.base.dest}/classes"
@@ -147,11 +147,15 @@
       />
       <fileset dir="${mulumis.base.dest}" includes="readme.txt"/>
     </jar>
-	<signjar jar="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar" alias="mulumiskey" storepass="tK8dAfj2QafTf8" keystore="${mulumis.base.inc}/mulumis.bin"/>
+	<signjar jar="${mulumis.base.dist}/mulumis_${mulumis.working.version}_u.jar" 
+	  alias="mulumiskey" storepass="tK8dAfj2QafTf8" keystore="${mulumis.base.inc}/mulumis.bin"
+	  signedjar="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar" />
 
     <mkdir dir="${mulumis.base.dist}"/>
 
     <copy file="${mulumis.base.dist}/mulumis_${mulumis.working.version}.jar" tofile="${mulumis.base.dest}/lib/mulumis.jar"/>
+
+    <copy file="${mulumis.base.dist}/mulumis_${mulumis.working.version}_u.jar" tofile="${mulumis.base.dest}/lib/mulumis_u.jar"/>
 
     <mkdir dir="${mulumis.base.dist}"/>
     <zip

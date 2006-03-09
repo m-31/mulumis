@@ -281,6 +281,32 @@ public final class Trace {
     }
 
     /**
+     * Trace parameter.
+     *
+     * @param   tracingObject   Instance that wants to make a trace entry.
+     * @param   method          Method of that object.
+     * @param   param           Parameter to trace.
+     * @param   value           Value of parameter.
+     */
+    public static void traceParam(final Object tracingObject, final String method,
+            final String param, final boolean value) {
+        trace(tracingObject, method, param + "=" + value);
+    }
+
+    /**
+     * Trace parameter.
+     *
+     * @param   tracingClass    Class that wants to make a trace entry.
+     * @param   method          Method of that class.
+     * @param   param           Parameter to trace.
+     * @param   value           Value of parameter.
+     */
+    public static void traceParam(final Class tracingClass, final String method,
+            final String param, final boolean value) {
+        trace(tracingClass, method, param + "=" + value);
+    }
+
+    /**
      * Write stacktrace into trace.
      *
      * @param   tracingObject   Instance that wants to make a trace entry.

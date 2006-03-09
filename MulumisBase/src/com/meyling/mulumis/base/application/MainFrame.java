@@ -141,7 +141,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     /**
      * Constructor.
      *
-     * @param   title           Dialog title.
+     * @param   title   Dialog title.
      */
     public MainFrame(final String title) {
         super(title);
@@ -152,14 +152,14 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             cameraProperties = new CameraAttributes();
             simulator = new Simulator(simulatorAttributes);
             loadParameters();
-            viewer = new FieldViewer();
+            viewer = new FieldViewer(simulator, cameraProperties);
             viewer.init();        
-            copyProperties();
             setBounds(getToolkit().getScreenSize().width * 1 / 8,
                 getToolkit().getScreenSize().height * 1 / 16, 
                 getToolkit().getScreenSize().width * 3 / 4, 
                 getToolkit().getScreenSize().height * 6 / 7);
             setupView();
+            copyProperties();
 //            simulator.applyChanges(simulatorProperties);
 //            viewer.applyVisualChanges(simulator, viewerProperties);
 //            setSize(2 * MARGIN_X + CONTENTS_WIDTH, 500);
@@ -235,12 +235,10 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         contents.add(help);
         contents.add(helpLabel = new JLabel("drag mouse fast, roll wheel"));
         
-        
         impulseCurrent = new JLabel();  // TODO mime 20060306: fill impulse information
         contents.add(impulseCurrent);
         
         setupSize();
-
     }
 
     /**
@@ -290,7 +288,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         size = simulation.getPreferredSize();
         simulation.setSize(size);
         
-        
         help.setLocation(MARGIN_X, simulation.getY() + simulation.getHeight() + MARGIN_Y);
         help.setSize(help.getPreferredSize());
 
@@ -324,15 +321,13 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         JLabel panelDescriptionGravity = new JLabel("Gravity");
         panelDescriptionGravity.setForeground(Color.BLUE);
         simulation.add(panelDescriptionGravity);
-        final JButton gravity = new JButton(viewer != null && viewer.getViewer() != null 
-                && viewer.getViewer().isGravityOn() ? "Stop" : "Start");
+        final JButton gravity = new JButton(viewer.isGravityOn() ? "Stop" : "Start");
         contents.add(gravity);
         gravity.setToolTipText("Set gravity on or off.");
         gravity.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-                gravity.setText(viewer != null && viewer.getViewer() != null 
-                        && viewer.getViewer().isGravityOn() ? "Start" : "Stop");
-                viewer.getViewer().setGravityOn(!viewer.getViewer().isGravityOn());
+                gravity.setText(viewer.isGravityOn() ? "Start" : "Stop");
+                viewer.setGravityOn(!viewer.isGravityOn());
             }
         });
         simulation.add(gravity);
@@ -340,10 +335,12 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         stars = createIntegerField(simulation, simulumProperties.get("stars"), 0, 99999999);
         simulation.add(stars);
 
-        gamma = createDoubleField(simulation, simulumProperties.get("gamma"), 0, 1000000000, DOUBLE_LENGTH);
+        gamma = createDoubleField(simulation, simulumProperties.get("gamma"), 0, 1000000000, 
+            DOUBLE_LENGTH);
         simulation.add(gamma);
 
-        deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000, DOUBLE_LENGTH);
+        deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000,
+            DOUBLE_LENGTH);
         simulation.add(deltat);
         
         editGravity = new JButton("Edit");
@@ -426,7 +423,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         start = new JButton("Edit");
         start.setToolTipText("Edit or apply camera parameters.");
         start.addActionListener(new  ActionListener() {
-            
             public void actionPerformed(final ActionEvent actionEvent) {
                 final String method ="actionPerformed";
                 try {
@@ -462,19 +458,19 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /**
      * Add combo box field for list parameter.
-     * @param contentPane TODO
+     * 
+     * @param   contentPane TODO
      * @param   parameter   Add combo box for this parameter.
      */
-    private JComboBox createListField(Container contentPane, final Parameter parameter) {
-        final Container contents = contentPane;
+    private JComboBox createListField(final Container contentPane, final Parameter parameter) {
         final JLabel label = new JLabel(parameter.getLabel());
-        contents.add(label);
+        contentPane.add(label);
         final Vector vector = new Vector(parameter.getList());
         final JComboBox comboBox = new JComboBox(vector);
         if (parameter.getStringValue() != null) {
             comboBox.setSelectedItem(parameter.getStringValue());
         }
-        contents.add(comboBox);
+        contentPane.add(comboBox);
         comboBox.setToolTipText(parameter.getComment());
         label.setLabelFor(comboBox);
         return comboBox;
@@ -486,11 +482,12 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
      * @param   contentPane Put new field here.
      * @param   parameter   Add text field selector for this parameter.
      */
-    CPIntegerField createIntegerField(final Container contentPane, final Parameter parameter, 
+    private CPIntegerField createIntegerField(final Container contentPane, final Parameter parameter, 
             final int minimum, final int maximum) {
         final JLabel label = new JLabel(parameter.getLabel());
         contentPane.add(label);
-        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), minimum, maximum);
+        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), 
+            minimum, maximum);
         integerField.setValue(parameter.getIntegerValue());
         integerField.setToolTipText(parameter.getComment());
         integerField.setColumns(integerField.getColumns());
@@ -539,14 +536,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             startViewer();
             // if it is a manual mover we animate also in the beginning, if it is the first time
             if (firstTimeStart) {
-                try {
-                    final ManualMovement mover = (ManualMovement) viewer.getViewer().getPositionCalculator();
-                    if (!"manual".equals(viewer.getViewer().getMovement())) {    // TODO mime 20060306: move constant declaration
-                        mover.setXtheta(-0.007);
-                        mover.setYtheta(-0.000);
-                    }
-                } catch (Exception e) {
-                    Trace.trace(this, "MainFrame", e);
+                // TODO mime 20060306: move constant declaration
+                if (!"manual".equals(viewer.getMovement())) {
+                    viewer.setXtheta(-0.007);
                 }
                 firstTimeStart = false;
             }
@@ -750,7 +742,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             Trace.traceEnd(this, "copyProperties");
         }
     }
-
     
     /**
      * Get current view properties and fill them in properties.
@@ -774,7 +765,6 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             Trace.traceEnd(this, "refreshProperties");
         }
     }
-
 
     private void maximizeNotWorking() {
         System.out.println("nothing");

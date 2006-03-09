@@ -471,6 +471,7 @@ public final class IoUtility {
 
     public static final double parseDouble(final String value) throws NumberFormatException {
         final String v = value.trim();
+        int factor = 1;
         double result = 0;
         int position = 0;
         boolean isDecimal = false;
@@ -479,7 +480,7 @@ public final class IoUtility {
             throw new NumberFormatException("empty String");
         }
         if (v.charAt(position) == '-') {
-            result = -1;
+            factor = -1;
             position++;
         } else {
             if (v.charAt(position) == '+') {
@@ -515,7 +516,7 @@ public final class IoUtility {
             position++;
         }
         System.out.println(v + " -> " + (result / decimal));
-        return result / decimal;
+        return result * factor / decimal;
     }
 
 }

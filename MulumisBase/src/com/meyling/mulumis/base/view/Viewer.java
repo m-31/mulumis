@@ -188,7 +188,10 @@ public final class Viewer {
         }
     }
 
-    public final void moveViewPoint() {
+    /**
+     * Move viewpoint and apply gravity (if gravity is on).
+     */
+    public final void move() {
         positionCalculator.calculateMovement(camera.getViewPoint());
         // here the simulator is explicitly called
         // this is done to synchronize the view with the calculation

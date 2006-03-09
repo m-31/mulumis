@@ -43,9 +43,10 @@ import java.awt.event.MouseWheelListener;
 
 import com.meyling.mulumis.base.log.Trace;
 import com.meyling.mulumis.base.simulator.Simulator;
+import com.meyling.mulumis.base.simulator.SimulatorAttributes;
+import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.view.ViewChangedListener;
 import com.meyling.mulumis.base.view.Viewer;
-import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
@@ -56,19 +57,19 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class FieldViewer extends Applet implements Runnable, 
+public class FieldViewer extends Applet implements Runnable, 
         MouseListener, MouseMotionListener, MouseWheelListener {
-    private static final long serialVersionUID = -3554962680447033507L;
     private Thread runThread;
-    int prevx, prevy;
+    private int prevx, prevy;
     private double ytheta;
     private double xtheta;
 
-    private Viewer viewer;
+    private final Viewer viewer;
     private boolean threadSuspended;
 
 
-    public FieldViewer() {
+    public FieldViewer(final Simulator simulator, final CameraAttributes properties) {
+        viewer = new Viewer(simulator, properties, getWidth(), getHeight(), this);
     }
     
     public FieldViewer(final FieldViewer v, final int width, final int height, final Component parent) {
@@ -76,6 +77,11 @@ public final class FieldViewer extends Applet implements Runnable,
         this.prevx = v.prevx;
         this.prevy = v.prevy;
         super.resize(width, height);
+    }
+
+    public FieldViewer() {
+        viewer = new Viewer(new Simulator(new SimulatorAttributes()), new CameraAttributes(), 
+            getWidth(), getHeight(), this);
     }
 
     public void init() {
@@ -87,17 +93,14 @@ public final class FieldViewer extends Applet implements Runnable,
         threadSuspended = false;
     }
     
-    public void destroy() {
+    public final void destroy() {
         super.destroy();
         removeMouseListener(this);
         removeMouseMotionListener(this);
-        if (viewer != null) {
-            viewer.close();
-            viewer = null;
-        }
+        viewer.close();
     }
 
-    public void resize(int width, int height) {
+    public final void resize(int width, int height) {
         super.resize(width, height);
         if (viewer != null) {
             viewer.resize(width, height, this);
@@ -105,9 +108,6 @@ public final class FieldViewer extends Applet implements Runnable,
     }
 
     public final void applyVisualChanges(final Simulator simulator, final CameraAttributes properties) {
-        if (viewer == null) {
-            viewer = new Viewer(simulator, properties, getWidth(), getHeight(), this);
-        }
         viewer.applyVisualChanges(simulator, properties);
         paint(getGraphics());
     }
@@ -154,7 +154,7 @@ public final class FieldViewer extends Applet implements Runnable,
     public final void run() {
         try {
             while (null != runThread) { 
-                viewer.moveViewPoint();
+                viewer.move();
                 viewer.takePicture();
                 paint(getGraphics());
                 try {
@@ -175,7 +175,7 @@ public final class FieldViewer extends Applet implements Runnable,
     }
 
     /* event handling */
-    public void mouseClicked(MouseEvent e) {
+    public final void mouseClicked(MouseEvent e) {
         if (e.getButton() != 1) {
             return;
         }
@@ -188,25 +188,25 @@ public final class FieldViewer extends Applet implements Runnable,
         positionCalculator.setYtheta(0);
     }
 
-    public void mousePressed(MouseEvent e) {
+    public final void mousePressed(MouseEvent e) {
         prevx = e.getX();
         prevy = e.getY();
         e.consume();
     }
     
-    public void mouseReleased(MouseEvent e) {
+    public final void mouseReleased(MouseEvent e) {
         e.consume();
     }
 
-    public void mouseEntered(MouseEvent e) {
+    public final void mouseEntered(MouseEvent e) {
         e.consume();
     }
 
-    public void mouseExited(MouseEvent e) {
+    public final void mouseExited(MouseEvent e) {
         e.consume();
     }
 
-    public void mouseDragged(MouseEvent e) {
+    public final void mouseDragged(MouseEvent e) {
         e.consume();
         if (InputEvent.BUTTON1_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK)) {
             return;
@@ -228,7 +228,7 @@ public final class FieldViewer extends Applet implements Runnable,
         xtheta = (prevx - x) * (pi_fraction / max);
         positionCalculator.setXtheta(xtheta);
         positionCalculator.setYtheta(ytheta);
-        viewer.moveViewPoint();
+        viewer.move();
         viewer.takePicture();
         if ("manual".equals(viewer.getMovement())) {    // TODO mime 20060306: move constant declaration
             positionCalculator.setXtheta(0);
@@ -239,10 +239,10 @@ public final class FieldViewer extends Applet implements Runnable,
         e.consume();
     }
 
-    public void mouseMoved(MouseEvent e) {
+    public final void mouseMoved(MouseEvent e) {
     }
 
-    public void mouseWheelMoved(MouseWheelEvent e) {
+    public final void mouseWheelMoved(MouseWheelEvent e) {
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             AbstractAutomaticMover r = viewer.getPositionCalculator();
             if (InputEvent.BUTTON3_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK)) {
@@ -269,16 +269,34 @@ public final class FieldViewer extends Applet implements Runnable,
     }
 
     public final CameraAttributes getProperties() {
-        if (viewer == null) {
-            return null;
-        }
         return viewer.getProperties();
     }
 
-    public final Viewer getViewer() {
-        return viewer;
+    public final boolean isGravityOn() {
+        return viewer.isGravityOn();
     }
 
+    public final void setGravityOn(boolean on) {
+        viewer.setGravityOn(on);
+    }
+    
+    public final String getMovement() {
+        return viewer.getMovement();
+    }
+
+    public final void setXtheta(final double xtheta) {
+        if (viewer.getPositionCalculator() instanceof ManualMovement) {
+            final ManualMovement mover = (ManualMovement) viewer.getPositionCalculator();
+            mover.setXtheta(xtheta);
+        }
+    }
+    
+    public final void setYtheta(final double ytheta) {
+        if (viewer.getPositionCalculator() instanceof ManualMovement) {
+            final ManualMovement mover = (ManualMovement) viewer.getPositionCalculator();
+            mover.setYtheta(ytheta);
+        }
+    }
 }
 
 

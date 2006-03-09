@@ -1,0 +1,29 @@
+<table border=0 cellspacing=2 cellpadding=4>
+<tr>
+<td valign="top">
+<p>
+<p>
+This is an applet example.
+<p>
+100 stars are distributed in a sphere. The viewpoint circles around the sphere and creates the impression of a rotating sphere. Gravity works on those stars and makes them move. Watch them getting closer and
+<p>
+Activate the star panel by clicking it. Rolling the mouse wheel changes the viewpoint distance. Rolling the mouse wheel while pressing the right mouse button changes the star brightness. <br>
+Dragging the mouse moves the viewpoint. A fast drag  gives the camera an appropriate angular momentum.
+<p>
+You can easily experiment with other parameters by starting the <a href=webstart.html>webstart</a> version or by <a href=download.html>downloading</a> the program and running the common java program.
+</td>
+<td>
+<applet code="com.meyling.mulumis.base.application.StarApplet" archive="lib/mulumis_0.04.44_u.jar" id="StarApplet" width="400" height="400">
+<param name="stars" value="100"/>
+<param name="delta" value="0.01"/>
+<param name="radius" value="9"/>
+<param name="sensitivity" value="10"/>
+<param name="xtheta" value="-0.007"/>
+<param name="movement" value="manualDelay"/>
+<param name="gravity" value="on"/>
+<param name="gamma" value="0.01"/>
+<param name="deltat" value="0.00005"/>
+</applet>
+</td>
+</tr>
+</table>

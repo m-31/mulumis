@@ -74,12 +74,14 @@ public class StarScreen extends Window {
             simulator = new Simulator(properties);
         }
         {
-            visualizer = new FieldViewer();
             final CameraAttributes properties = new CameraAttributes();
             properties.setMovement("manualDelay");
             properties.setZoom(1000);
             properties.setRadius(0.8);
             properties.setSensitivity(4.5);
+
+            visualizer = new FieldViewer(simulator, properties);
+
             visualizer.setSize(getToolkit().getScreenSize());
             visualizer.applyVisualChanges(simulator, properties);
             this.add(visualizer);
@@ -109,9 +111,7 @@ public class StarScreen extends Window {
         });
         this.repaint();
         visualizer.init();
-        final ManualMovement mover = (ManualMovement) visualizer.getViewer().getPositionCalculator();
-        mover.setXtheta(-0.0015);
-        mover.setYtheta(-0.0010);
+        visualizer.setXtheta(-0.0015);
         visualizer.start();
     }
 
@@ -138,7 +138,7 @@ public class StarScreen extends Window {
 //                visualizer = null;
                     synchronized (visualizer) {
                         visualizer.stop();
-                        final CameraAttributes properties = visualizer.getViewer().getProperties();
+                        final CameraAttributes properties = visualizer.getProperties();
                         frame.dispose();
                         StarScreen.this.base.restart(properties);
                         StarScreen.this.base = null;

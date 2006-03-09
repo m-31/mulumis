@@ -58,10 +58,10 @@ public final class Simulator {
     
     
     public Simulator(final int stars, final double gamma, final double deltat) {
-        createField(stars);
         engine = MulumisContext.getAbstractGravityFactory().createGravity();
         engine.setGamma(gamma);
         engine.setDeltat(deltat);
+        createField(stars);
     }
 
     /**
@@ -69,10 +69,12 @@ public final class Simulator {
      * 
      * @param   stars   Number of stars.
      */
-    private void createField(final int stars) {
+    public void createField(final int stars) {
+        field = null;
         field = new StarField(stars);
         final double[] zero = new double[GravityObject.DIMENSION];
         ((StarField) field).fillBall(0.5, zero);
+        engine.init(field);
     }
 
     public Simulator(final SimulatorAttributes properties) {
@@ -95,11 +97,7 @@ public final class Simulator {
     }
     
     public final void applyGravity() {
-        engine.calculate(field);
-    }
-
-    public final boolean hasGravity() {
-        return engine.hasGravity();
+        engine.calculate();
     }
 
     public final Field getField() {
@@ -115,9 +113,6 @@ public final class Simulator {
     }
 
     public final synchronized void start() {
-        if (!hasGravity()) {
-            return;
-        }
         thread = new Thread() {
             public void run() {
                 synchronized (stopped) {

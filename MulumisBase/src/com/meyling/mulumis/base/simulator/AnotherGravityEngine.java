@@ -59,21 +59,29 @@ public final class AnotherGravityEngine implements Gravity {
     /** Total impulse. */
     private double[] impulse;
 
+    private Field field;
+
+    /**
+     * Constructor.
+     */
     public AnotherGravityEngine() {
         impulse = new double[GravityObject.DIMENSION];
     }
 
     /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#init(com.meyling.mulumis.base.stars.Field)
+     */
+    public synchronized final void init(final Field field) {
+        this.field = field;
+    }
+
+    /* (non-Javadoc)
      * @see com.meyling.mulumis.base.simulator.Gravity#calculate(com.meyling.mulumis.base.stars.Field)
      */
-    public synchronized final void calculate(final Field field) {
-        if (!hasGravity()) {
-            return;
-        }
+    public synchronized final void calculate() {
         if (vn == null || field.getNumberOfStars() != vn.length / GravityObject.DIMENSION) {
             vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
         }
-
 
         // for each star calculating the new position
         

@@ -218,7 +218,6 @@ public class PageGenerator {
                 name = csv.getPiece(3).trim();
                 title = csv.getPiece(4).trim();
                 desc = csv.getPiece(5).trim();
-                desc = csv.getPiece(5).trim();
                 menu = !csv.getPiece(6).trim().toLowerCase().equals("n");
                 final int i = csv.getPiece(1).length();
                 if (i > deep + 1) {

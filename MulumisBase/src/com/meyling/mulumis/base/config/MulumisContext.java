@@ -54,7 +54,12 @@ public class MulumisContext {
     }
     
     public static AbstractGravityFactory getAbstractGravityFactory() {
-        final String gravityFactoryClassName = System.getProperty("mulumis.GravityFactory");
+        String gravityFactoryClassName = null;
+        try {
+            gravityFactoryClassName = System.getProperty("mulumis.GravityFactory");
+        } catch (SecurityException e) {
+            // ignore
+        }
         if (gravityFactoryClassName == null) {
             return new GravityEngineFactory();
         }

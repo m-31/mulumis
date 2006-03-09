@@ -63,6 +63,7 @@
     </java>
 
   	<replace dir="${mulumisr.dest}" token="@MULUMIS_VERSION@" value="${mulumis.release.version}"/>
+  	<replace dir="${mulumisr.dest}" token="@MULUMIS_WORKING_VERSION@" value="${mulumis.working.version}"/>
   	<replace dir="${mulumisr.dest}" token="@MULUMIS_TIMESTAMP@" value="${mulumis.timestamp}"/>
 
   </target>  
