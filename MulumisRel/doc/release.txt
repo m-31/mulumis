@@ -4,6 +4,9 @@ different simulations of star movements and their visualizations.
 A huge refactoring phase took place. Now the code is much better
 organized.
 
+The java screen saver was not updated. You have to load the old
+0.00.03 version.
+
 Now a simple gravity engine is included, so you can watch gravity at
 work. Look how the stars are pulled to the center and how some of
 same esacape the herd.
@@ -16,6 +19,3 @@ used by html pages. This release includes sample html pages.
 You can also webstart the signed jar or start it with 
 "java -jar lib/mulumis.jar". Perhaps even a simple double click 
 kicks off the application.
-
-The java screen saver was not updated. You have to load the old
-0.00.03 version.
