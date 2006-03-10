@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0" codebase="http://www.mulumis.meyling.com/" href="mulumis.jnlp" >
+<jnlp spec="1.0" codebase="http://www.mulumis.meyling.com/" href="mulumis_old.jnlp" >
   <information>
      <title>Simulum</title>
      <vendor>Michael Meyling</vendor>
@@ -13,7 +13,7 @@
   </security>
   <resources>
      <j2se version="1.4+" />
-     <jar href="lib/mulumis.jar"/>
+     <jar href="lib/mulumis_0.00.03.jar"/>
   </resources>
-  <application-desc main-class="com.meyling.mulumis.base.application.Simulum" />
+  <application-desc main-class="com.meyling.mulumis.ToInfinityAndBeyond" />
 </jnlp>

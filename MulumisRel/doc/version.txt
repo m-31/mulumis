@@ -1,0 +1,14 @@
++ GUI, also WebStart able
++ maximized GUI view
++ gravity engine implemented
++ manual viewer
++ manual viewer with movement delay
+c applet interface changed, now movement parameters are "linear", 
+  "circular", "circularNormale", "manual" and "manualDelay"
++ Trace included
++ configuration file included
++ GUI resizeable
++ delay (snapshot) parameter for nice effects
++ gravity engine is constructed by configurable +AbstractGravityFactory
++ GUI uses SpringLayout
++ separated "Camera" and "Gravity" panels

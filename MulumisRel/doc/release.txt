@@ -1,0 +1,21 @@
+This is a release of the program suite "Simulum". Simulum deals with
+different simulations of star movements and their visualizations.
+
+A huge refactoring phase took place. Now the code is much better
+organized.
+
+Now a simple gravity engine is included, so you can watch gravity at
+work. Look how the stars are pulled to the center and how some of
+same esacape the herd.
+
+Last but not least it has now a nice GUI. You can browse the 
+simulation as you like it just with your mouse.
+
+The provided unsigned jar includes an applet that can directly be 
+used by html pages. This release includes sample html pages.
+You can also webstart the signed jar or start it with 
+"java -jar lib/mulumis.jar". Perhaps even a simple double click 
+kicks off the application.
+
+The java screen saver was not updated. You have to load the old
+0.00.03 version.

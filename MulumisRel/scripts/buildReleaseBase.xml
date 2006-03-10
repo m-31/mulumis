@@ -108,10 +108,7 @@
     </copy>
 -->
     <copy todir="${mulumis.base.dest}/doc">
-      <fileset dir="${mulumis.web.src}" includes="physics.html"
-      >
-      </fileset>
-      <fileset dir="${mulumis.web.src}" includes="technics.html"
+      <fileset dir="${mulumis.web.src}" includes="physics.html,technics.html,planning.html"
       >
       </fileset>
     </copy>
