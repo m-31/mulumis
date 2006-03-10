@@ -73,8 +73,8 @@ public final class PhotoPlate  {
     }
 
     /**
-     * Set size of photo plate. 
-     * 
+     * Set size of photo plate.
+     *
      * @param   width   Width.
      * @param   height  Height.
      * @param   parent  Needed for creation of image to draw on.
@@ -120,8 +120,7 @@ public final class PhotoPlate  {
         }
     }
 
-    public synchronized final void generateImage(final ViewPoint viewpoint, final Field field) {
-//        Trace.traceBegin(this, "generateImage");    // TODO mime 20060302 remove
+    public final synchronized void generateImage(final ViewPoint viewpoint, final Field field) {
         if (!initialized || field == null) {
             return;
         }
@@ -138,21 +137,24 @@ public final class PhotoPlate  {
             current = 0;
         }
         for (int i = 0; i < field.getNumberOfStars(); i++) {
-            final double d = CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, z);
+            final double d = CalculatorUtility.minusScalar(field.getStar(i).getPosition(),
+                position, z);
             if (d > 0) {
-                double xr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, x) / d + halfWidth;
+                double xr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(),
+                    position, x) / d + halfWidth;
                 if (xr < 0 ||  xr >= width) {
                     continue;
                 }
-                double yr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(), position, y) / d + halfHeight;
+                double yr = zoom * CalculatorUtility.minusScalar(field.getStar(i).getPosition(),
+                    position, y) / d + halfHeight;
                 if (yr < 0 || yr >= height) {
                     continue;
                 }
                 int xir = (int) xr;
                 int yir = (int) yr;
                 double brightness = 255;
-                brightness = sensitivity / CalculatorUtility.distanceSquare(field.getStar(i).getPosition(), position);
-//                Trace.trace(this, "generateImage", "bright=" + bright.length); TODO mime 20060302: remove
+                brightness = sensitivity
+                    / CalculatorUtility.distanceSquare(field.getStar(i).getPosition(), position);
                 bright[width * yir + xir] += brightness;
                 int hell = (int) bright[width * yir + xir];
                 drawBrightness(xir, yir, hell);
@@ -161,7 +163,7 @@ public final class PhotoPlate  {
     }
 
     private final void drawBrightness(final int xir, final int yir, int hell) {
-        if (hell < 0){
+        if (hell < 0) {
             hell = 0;
         }
         if (hell > 255) {
@@ -204,10 +206,11 @@ public final class PhotoPlate  {
                                                             drawPoint(xir + 2, yir, (byte) 255);
                                                             hell -= 256;
                                                             if (hell > 255) {
+                                                                // we cut the light it is too bright
                                                                 drawPoint(xir - 2, yir, (byte) 255);
-//                                                                System.out.println("cut: " + hell);
                                                             } else {
-                                                                drawPoint(xir - 2, yir, (byte) hell);
+                                                                drawPoint(xir - 2, yir,
+                                                                    (byte) hell);
                                                             }
                                                         } else {
                                                             drawPoint(xir + 2, yir, (byte) hell);
@@ -258,10 +261,10 @@ public final class PhotoPlate  {
 
     private final void calculatePaletteTable() {
         paletteTable = new byte[3][256];
-        for(int i=0;i<256;i++) {
-            paletteTable[0][i]=(byte) i;
-            paletteTable[1][i]=(byte) i;
-            paletteTable[2][i]=(byte) i;
+        for (int i = 0; i < 256; i++) {
+            paletteTable[0][i] = (byte) i;
+            paletteTable[1][i] = (byte) i;
+            paletteTable[2][i] = (byte) i;
         }
         icm = new IndexColorModel(8, 256, paletteTable[0], paletteTable[1], paletteTable[2]);
     }

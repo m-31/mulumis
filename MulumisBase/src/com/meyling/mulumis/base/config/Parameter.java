@@ -325,7 +325,8 @@ public final class Parameter {
      *
      * @param   value    String parameter value.
      * @throws  ClassCastException  Type is not {@link String} or {@link List}.
-     * @throws  IllegalArgumentException    Type is {@link List} and <code>value</code> is not in list.
+     * @throws  IllegalArgumentException    Type is {@link List} and <code>value</code> is not in
+     *          list.
      */
     public void setValue(final String value) {
         if (value == null) {
@@ -336,15 +337,15 @@ public final class Parameter {
             if (!list.contains(value)) {
                 final StringBuffer allowed = new StringBuffer();
                 allowed.append("{");
-                for (int i = 0; i <list.size(); i++) {
+                for (int i = 0; i < list.size(); i++) {
                     if (i > 0) {
                         allowed.append(", ");
                     }
                     allowed.append("\"" + list.get(i) + "\"");
                 }
                 allowed.append("}");
-                throw new IllegalArgumentException("argument was not in expected value list: \"" + value
-                    + "\" is not in " + allowed);
+                throw new IllegalArgumentException("argument was not in expected value list: \""
+                        + value + "\" is not in " + allowed);
             }
         } else if (!String.class.equals(type)) {
             throw new ClassCastException("expected argument type was "
@@ -392,7 +393,8 @@ public final class Parameter {
     }
 
     /**
-     * Set value according to type. Uses constructor with <code>String</code> for {@link #getType()}.
+     * Set value according to type. Uses constructor with <code>String</code> for
+     * {@link #getType()}.
      *
      * @param   value
      */
@@ -564,7 +566,8 @@ public final class Parameter {
      *
      * @param   valueCurrent    String parameter value.
      * @throws  ClassCastException  Type is not {@link String} or {@link List}.
-     * @throws  IllegalArgumentException    Type is {@link List} and <code>value</code> is not in list.
+     * @throws  IllegalArgumentException    Type is {@link List} and <code>value</code> is not in
+     *          list.
      */
     public void setCurrentValue(final String valueCurrent) {
         if (valueCurrent == null) {
@@ -575,15 +578,15 @@ public final class Parameter {
             if (!list.contains(valueCurrent)) {
                 final StringBuffer allowed = new StringBuffer();
                 allowed.append("{");
-                for (int i = 0; i <list.size(); i++) {
+                for (int i = 0; i < list.size(); i++) {
                     if (i > 0) {
                         allowed.append(", ");
                     }
                     allowed.append("\"" + list.get(i) + "\"");
                 }
                 allowed.append("}");
-                throw new IllegalArgumentException("argument was not in expected value list: \"" + valueCurrent
-                    + "\" is not in " + allowed);
+                throw new IllegalArgumentException("argument was not in expected value list: \""
+                    + valueCurrent + "\" is not in " + allowed);
             }
         } else if (!String.class.equals(type)) {
             throw new ClassCastException("expected argument type was "

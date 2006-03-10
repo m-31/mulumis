@@ -49,18 +49,18 @@ public final class StarField implements Field  {
 
     /** Total mass of star field. */
     private double mass;
-    
+
     /** Total impulse of star field. */
     private double[] impulse;
-    
-    private static final double[] zero = new double[GravityObject.DIMENSION];
+
+    private static final double[] ZERO = new double[GravityObject.DIMENSION];
 
     /** Last calculated current total impulse. */
     private double[] currentImpulse;
 
     /**
      * Constructor.
-     * 
+     *
      * @param   numberOfStars   Number of stars.
      */
     public StarField(final int numberOfStars) {
@@ -70,17 +70,17 @@ public final class StarField implements Field  {
     }
 
     public void fillBall() {
-        fillBall(0.5, zero);
+        fillBall(0.5, ZERO);
     }
 
     public void fillBall(final double radius) {
-        fillBall(radius, zero);
+        fillBall(radius, ZERO);
     }
 
     public void fillBall(final double radius, double[] zero) {
         final double radiusSquare = radius * radius;
         mass = 0;
-        for (int i = 0; i < star.length; i++){
+        for (int i = 0; i < star.length; i++) {
             final double[] position = new double[GravityObject.DIMENSION];
             do {
                 for (int j = 0; j < GravityObject.DIMENSION; j++) {
@@ -96,16 +96,16 @@ public final class StarField implements Field  {
     }
 
     public void fillSquare(final double radius) {
-        fillSquare(radius, zero);
+        fillSquare(radius, ZERO);
     }
 
     public void fillSquare() {
-        fillSquare(0.5, zero);
+        fillSquare(0.5, ZERO);
     }
 
     public void fillSquare(final double radius, double[] zero) {
         mass = 0;
-        for (int i = 0; i < star.length; i++){
+        for (int i = 0; i < star.length; i++) {
             final double[] position = new double[GravityObject.DIMENSION];
             for (int j = 0; j < GravityObject.DIMENSION; j++) {
                 position[j] = 2.0d * radius * Math.random() - radius + zero[j];
@@ -142,29 +142,29 @@ public final class StarField implements Field  {
     /**
      * Get total impulse of star field. This is the initial value and could be different from
      * an newly calculated value.
-     * 
+     *
      * @return  Total impulse.
      */
     public double[] getInitialImpulse() {
         return impulse;
     }
-    
+
     /**
      * Get total impulse of star field. This is the current value and could be different from
      * the initial value.
-     * 
+     *
      * @return  Total impulse.
      */
     public double[] getCurrentImpulse() {
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
             currentImpulse[k] = 0;
             for (int j = 0; j < getNumberOfStars(); j++) {
-                currentImpulse[k] += getStar(j).getMass() * getStar(j).getVelocity()[k]; 
+                currentImpulse[k] += getStar(j).getMass() * getStar(j).getVelocity()[k];
             }
         }
         return currentImpulse;
     }
-    
+
 }
 
 

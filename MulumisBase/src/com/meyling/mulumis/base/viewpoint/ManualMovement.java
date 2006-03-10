@@ -35,7 +35,7 @@ package com.meyling.mulumis.base.viewpoint;
 
 
 /**
- * Move viewpoint according to two angels.
+ * Move viewpoint according to two angles.
  *
  * @version     $Revision$
  * @author      Michael Meyling
@@ -46,7 +46,7 @@ public class ManualMovement extends AbstractAutomaticMover {
 
     private double ytheta = 0;
 
-    public ManualMovement(final double[] zero){
+    public ManualMovement(final double[] zero) {
         super(zero);
     }
 
@@ -74,7 +74,7 @@ public class ManualMovement extends AbstractAutomaticMover {
         double ct = Math.cos(ztheta);
         double st = Math.sin(ztheta);
 
-        double ny[] = new double[3];
+        double[] ny = new double[3];
         for (int i = 0; i < 3; i++) {
             ny[i] = x[i] * ct + y[i] * st;
         }

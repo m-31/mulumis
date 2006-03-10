@@ -36,8 +36,6 @@ import java.util.List;
 
 import com.meyling.mulumis.base.common.GravityObject;
 
-
-
 /**
  * Cluster of stars with mass, position and velocity.
  *
@@ -66,10 +64,12 @@ public final class Cluster implements GravityObject {
 
     public final void add(final Star star) {
         for (int i = 0; i < GravityObject.DIMENSION; i++) {
-            position[i] = (mass * position[i] + star.getMass() * star.getPosition()[i]) / (mass + star.getMass());
+            position[i] = (mass * position[i] + star.getMass() * star.getPosition()[i])
+                / (mass + star.getMass());
         }
         for (int i = 0; i < GravityObject.DIMENSION; i++) {
-            velocity[i] = (mass * velocity[i] + star.getMass() * star.getVelocity()[i]) / (mass + star.getMass());
+            velocity[i] = (mass * velocity[i] + star.getMass() * star.getVelocity()[i])
+            / (mass + star.getMass());
         }
         this.star.add(star);
         mass += star.getMass();

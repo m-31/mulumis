@@ -52,21 +52,22 @@ import com.meyling.mulumis.base.viewpoint.ViewPoint;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public final class Viewer {
+public final class SimulatorViewer {
 
     private Simulator simulator;
-    
+
     private AbstractAutomaticMover positionCalculator;
 
     private String movement;
 
     private Camera camera;
-    
+
     private boolean gravityOn;
 
     private final List listener = new ArrayList();;
 
-    public Viewer(final Viewer viewer, final int width, final int height, final Component parent) {
+    public SimulatorViewer(final SimulatorViewer viewer, final int width, final int height,
+            final Component parent) {
         this.simulator = viewer.simulator;
         this.movement = viewer.movement;
         this.positionCalculator = viewer.positionCalculator;
@@ -79,9 +80,9 @@ public final class Viewer {
         camera = new Camera(photoPlate, viewPoint);
         this.gravityOn = viewer.gravityOn;
     }
-    
-    public Viewer(final Simulator simulator, final String movement, final double delta, final double sensitivity, 
-            final double radius, final double zoom, final int snapshot,
+
+    public SimulatorViewer(final Simulator simulator, final String movement, final double delta,
+            final double sensitivity, final double radius, final double zoom, final int snapshot,
             final int width, final int height, final Component parent) {
         this.simulator = simulator;
         final double[] zero = new double[GravityObject.DIMENSION];
@@ -96,11 +97,12 @@ public final class Viewer {
             positionCalculator = new LinearMover(zero);
         } else if (movement.equals("circularNormale")) {
             positionCalculator = new CirclularMoverWithChangingViewingDirection(zero);
-        } else if (movement.equals("circular")){
+        } else if (movement.equals("circular")) {
             positionCalculator = new CircularMover(zero);
         } else {
             throw new IllegalArgumentException(
-                "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
+                "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or "
+                + "\"circularNormale\"");
         }
         this.movement = movement;
         positionCalculator.setDelta(delta);
@@ -112,44 +114,45 @@ public final class Viewer {
         camera = new Camera(photoPlate, viewPoint);
     }
 
-    public Viewer(final Simulator simulator, final CameraAttributes properties, final int width, final int height,
-            final Component parent) {
-        this(simulator, properties.getMovement(), properties.getDelta(), properties.getSensitivity(), 
-            properties.getRadius(), properties.getZoom(), properties.getSnapshot(),
-            width, height, parent);
+    public SimulatorViewer(final Simulator simulator, final CameraAttributes properties,
+            final int width, final int height, final Component parent) {
+        this(simulator, properties.getMovement(), properties.getDelta(),
+            properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
+            properties.getSnapshot(), width, height, parent);
     }
 
     public final void resize(final int width, final int height, final Component parent) {
         camera.getPhotoPlate().init(width, height, parent);
     }
-    
+
     public final void addViewChangedListener(final ViewChangedListener list) {
         listener.add(list);
     }
-    
+
     public final void removeViewChangedListener(final ViewChangedListener list) {
         listener.remove(list);
     }
-    
+
     public final void close() {
         listener.clear();
         simulator = null;
         camera = null;
         positionCalculator = null;
     }
-    
+
     public final CameraAttributes getProperties() {
         return new CameraAttributes(movement, positionCalculator.getDelta(),
             camera.getSensitivity(), positionCalculator.getRadius(), camera.getZoom(),
             camera.getSnapshot());
     }
 
-    public final void applyVisualChanges(final Simulator simulator, final CameraAttributes properties) {
+    public final void applyVisualChanges(final Simulator simulator,
+            final CameraAttributes properties) {
         applyVisualChanges(simulator, properties.getMovement(), properties.getDelta(),
         properties.getSensitivity(), properties.getRadius(), properties.getZoom(),
         properties.getSnapshot());
     }
-    
+
     public final void applyVisualChanges(final Simulator simulator, final String movement,
             final double delta, final double sensitivity, final double radius, final double zoom,
             final int snapshot) {
@@ -164,11 +167,12 @@ public final class Viewer {
                 positionCalculator = new LinearMover(zero);
             } else if (movement.equals("circularNormale")) {
                 positionCalculator = new CirclularMoverWithChangingViewingDirection(zero);
-            } else if (movement.equals("circular")){
+            } else if (movement.equals("circular")) {
                 positionCalculator = new CircularMover(zero);
             } else {
                 throw new IllegalArgumentException(
-                    "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or \"circularNormale\"");
+                    "Mover unknown. Allowed: \"manual\", \"linear\", \"circular\" or "
+                    + "\"circularNormale\"");
             }
             this.movement = movement;
         }
@@ -178,7 +182,6 @@ public final class Viewer {
         camera.setZoom(zoom);
         camera.setSnapshot(snapshot);
         this.simulator = simulator;
-// TODO remove?        moveViewPoint();
         takePicture();
     }
 
@@ -219,25 +222,25 @@ public final class Viewer {
     public final void setDelta(final double delta) {
         positionCalculator.setDelta(delta);
     }
-    
+
     public final void setRadius(final double radius) {
         positionCalculator.setRadius(radius);
         for (int i = 0; i < listener.size(); i++) {
             ((ViewChangedListener) listener.get(i)).radiusChanged();
         }
     }
-    
+
     public final double getRadius() {
         return positionCalculator.getRadius();
     }
-    
+
     public final void setSensitivity(final double sensitivity) {
         camera.setSensitivity(sensitivity);
         for (int i = 0; i < listener.size(); i++) {
             ((ViewChangedListener) listener.get(i)).sensitivityChanged();
         }
     }
-    
+
     public final double getSensitivity() {
         return camera.getSensitivity();
     }
@@ -247,12 +250,12 @@ public final class Viewer {
         for (int i = 0; i < listener.size(); i++) {
             ((ViewChangedListener) listener.get(i)).zoomChanged();
         }
-    } 
-   
+    }
+
     public final double getZoom() {
         return camera.getZoom();
     }
-    
+
     public final void setSnapshot(final int snapshot) {
         camera.setSnapshot(snapshot);
         for (int i = 0; i < listener.size(); i++) {
@@ -263,11 +266,11 @@ public final class Viewer {
     public final String getMovement() {
         return movement;
     }
-    
+
     public void removeAllViewChangedListeners() {
         listener.clear();
-        
+
     }
-    
+
 }
 

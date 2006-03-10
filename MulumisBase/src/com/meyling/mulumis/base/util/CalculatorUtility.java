@@ -49,25 +49,25 @@ public final class CalculatorUtility  {
     }
 
     public static final double distanceSquare(double[] a, double[] b) {
-        return (a[0]- b[0])*(a[0]- b[0]) + (a[1]- b[1])*(a[1]- b[1])
-            + (a[2]- b[2])*(a[2]- b[2]);
+        return (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+            + (a[2] - b[2]) * (a[2] - b[2]);
     }
 
     public static final double distance(double[] a, double[] b) {
-        return Math.sqrt((a[0]- b[0])*(a[0]- b[0]) + (a[1]- b[1])*(a[1]- b[1])
-            + (a[2]- b[2])*(a[2]- b[2]));
+        return Math.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+            + (a[2] - b[2]) * (a[2] - b[2]));
     }
 
     public static final double len(double[] a) {
-        return Math.sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+        return Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
     }
 
     public static final double scalar(double[] a, double[] b) {
-        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     }
 
     public static final double minusScalar(double[] a, double[] b, double[] c) {
-        return (a[0]-b[0])*c[0] + (a[1]-b[1])*c[1] + (a[2]-b[2])*c[2];
+        return (a[0] - b[0]) * c[0] + (a[1] - b[1]) * c[1] + (a[2] - b[2]) * c[2];
     }
 
 }

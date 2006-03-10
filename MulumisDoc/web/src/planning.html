@@ -1,5 +1,20 @@
 <!-- $Revision$ -->
 <p>
-First we work on the projection of star light onto a virtual photo plate.
-Currently a big refactoring takes place.
+This application is already fully working. But nevertheless there are many things to improve.
 </p>
+<h3>ToDo's</h3>
+<ul>
+<li>Configure star generation within an extra panel separated from the gravity parameters. Also different distributions should be possible. They should configurable vary in star position (perhaps more stars to the middle, also a square might be funny), velocity or mass. Also random generation must be (optionally) reproducible for comparable reasons.</li>
+<li>Show time, energie, impulse and other informations. This should especially enable to check if the conservation laws hold.</li>
+<li>Enable star clustering. If stars get to close they should build a new star that has added mass and impulse.</li>
+</ul>
+
+<h3>Future Development</h3>
+<ul>
+<li>Smoth star motion. Currently a star makes an impression only at one dot in the photo plate matrix. To smooth the animation one star should lead to a lighting of at least four pixels.</li>
+<li>Save snapshot pictures. Save films.</li>
+<li>Better gravity engines.</li>
+<li>Load and save star fields. With this feature one can start a calculation, interupt it and continue it later on. Also the saved result files can be compared: resulting fields calculated with different delta ts and with different gravity engines. (To accomplish this one must also be able to set a destination time, calculate till this time is hit.)</li>
+<li>Load and save star orbits. If the calculation takes a long time, one might be interested in playing the movement again and watch the orbits from a different viewpoint or just write the orbits (with an snapshot value bigger than 0).</li>
+<li>Perhaps stars should come in colors.</li>
+</ul>

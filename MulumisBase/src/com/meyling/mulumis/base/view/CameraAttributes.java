@@ -46,7 +46,7 @@ public final class CameraAttributes {
     private double zoom;
     private int snapshot;
 
-    public CameraAttributes(final String movement, final double delta, final double sensitivity, 
+    public CameraAttributes(final String movement, final double delta, final double sensitivity,
             final double radius, final double zoom, final int snapshot) {
         setMovement(movement);
         setDelta(delta);
@@ -82,11 +82,12 @@ public final class CameraAttributes {
         } else if (movement.equals("manualDelay")) {
         } else if (movement.equals("linear")) {
         } else if (movement.equals("circularNormale")) {
-        } else if (movement.equals("circular")){
+        } else if (movement.equals("circular")) {
         } else {
             throw new IllegalArgumentException(
                 "Mover \"" + movement
-                + "\" unknown. Allowed: \"manual\", \"manualDelay\", \"linear\", \"circular\" or \"circularNormale\"");
+                + "\" unknown. Allowed: \"manual\", \"manualDelay\", \"linear\", "
+                + "\"circular\" or \"circularNormale\"");
         }
         this.movement = movement;
     }

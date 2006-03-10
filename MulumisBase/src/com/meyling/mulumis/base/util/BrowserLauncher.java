@@ -630,7 +630,7 @@ public class BrowserLauncher {
                 } catch (IOException e) {
                     // continue
                 }
-                    
+
                 // try again with mozilla
                 browser = "mozilla";
                 // First, attempt to open the URL in a currently running session of Netscape

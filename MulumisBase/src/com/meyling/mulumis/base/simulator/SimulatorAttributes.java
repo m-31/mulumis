@@ -43,7 +43,7 @@ public final class SimulatorAttributes {
     private double gamma;
     private double deltat;
 
-    public SimulatorAttributes(final int stars, 
+    public SimulatorAttributes(final int stars,
             final double gamma, final double deltat) {
         setStars(stars);
         setGamma(gamma);

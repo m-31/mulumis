@@ -2,19 +2,21 @@
 <p>
 The whole project stands under the <a href="http://www.gnu.org/licenses/lgpl.html">Lesser GNU General Public Licence (LGPL)</a>. The programming language is Java.
 </p>
+
 <h3>Mouse Actions</h3>
 <p>
 The viewer parameters can be changed by mouse actions:
+</p>
 <ul>
 <li><em>Rolling the mouse wheel</em> changes the distance.</li>
 <li><em>Rolling the mouse wheel</em> while pressing the <em>right mouse button</em> changes the star brightness.</li>
 <li>For the <em>manual</em> movement methods <em>dragging the mouse</em> moves the viewpoint. If the movement method is <em>manualDelay</em> a fast drag  gives the camera an appropriate angular momentum.</li>
 </ul>
-</p>
-<h3>Camera Parameters</h3>
+
+<h3><a name="camera">Camera Parameters</a></h3>
 <table>
 <tr>
-<td valign="top">Sensitivity<td><td>Sensitivity of photo plate. If a star is too far away it's brightness might not be high enough to create a dot on the photo plate. Increasing the sensitivity of the photo plate helps to solve the problem.</td>
+<td valign="top">sensitivity<td><td>Sensitivity of photo plate. If a star is too far away it's brightness might not be high enough to create a dot on the photo plate. Increasing the sensitivity of the photo plate helps to solve the problem.</td>
 </tr>
 <tr>
 <td valign="top">Zoom<td><td>Zoom factor for photo plate. The projection size on the photo plate can be changed with the value of this parameter. The optimal value for this parameter depends on the screen resolution and your distance from the monitor. A projection size of 1 should be seen in an 45 degree angle.
@@ -24,26 +26,26 @@ That means zoom should have a value between 2000 and 3500. Other values are poss
 </td>
 </tr>
 <tr>
-<td valign="top">Radius<td><td>Distance of camera.</td>
+<td valign="top">radius<td><td>Distance of camera.</td>
 </tr>
 <tr>
-<td valign="top">Snapshot<td><td>Number of exposure. Before that number of pictures the photo plate is cleared again. If this parameter has an value greater than zero one can see the orbits. If the movement is slow the <em>sensitivity</em> parameter should be low.</td>
+<td valign="top">snapshot<td><td>Number of exposure. Before that number of pictures the photo plate is cleared again. If this parameter has an value greater than zero one can see the orbits. If the movement is slow the <em>sensitivity</em> parameter should be low.</td>
 </tr>
 <tr>
-<td valign="top">Movement<td><td>Camera movement mode. The first two <em>manual</em> and <em>manualDelay</em> are the major ones. Look above for a description how to interact with this mode. The <em>circular</em> movement circles around the Z-axis and in addition <em>circularNormale</em> changes the viewing direction to the star field center. The <em>linear</em> movement changes the Z coordinate until it reaches the zero point.</td>
+<td valign="top">movement<td><td>Camera movement mode. The first two <em>manual</em> and <em>manualDelay</em> are the major ones. Look above for a description how to interact with this mode. The <em>circular</em> movement circles around the Z-axis and in addition <em>circularNormale</em> changes the viewing direction to the star field center. The <em>linear</em> movement changes the Z coordinate until it reaches the zero point.</td>
 </tr>
 </table>
 
-<h3>Gravity Parameters</h3>
+<h3><a name="gravity">Gravity Parameters</a></h3>
 <table>
 <tr>
-<td valign="top">Number of Stars<td><td>These number of stars are generated. If the number is other than before a new star field is generated. The stars are randomly placed within a sphere of radius <code>0.5</code> by an uniform distribution. Their initial velocity is <code>0</code>, their mass is <code>1</code>. Although you can enter a great number here, the program might not be able to deal with this big number. My computer can deal with <code>1,000,000</code> stars if gravitation is off. Otherwise a number of <code>1,000</code> stars is a maximum for me.</td>
+<td valign="top">stars<td><td>These number of stars are generated. If the number is other than before a new star field is generated. The stars are randomly placed within a sphere of radius <code>0.5</code> by an uniform distribution. Their initial velocity is <code>0</code>, their mass is <code>1</code>. Although you can enter a great number here, the program might not be able to deal with this big number. My computer can deal with <code>1,000,000</code> stars if gravitation is off. Otherwise a number of <code>1,000</code> stars is a maximum for me.</td>
 </tr>
 <tr>
-<td valign="top">Gamma<td><td>The gravity constant.</td>
+<td valign="top">gamma<td><td>The gravity constant.</td>
 </tr>
 <tr>
-<td valign="top">Delta t<td><td>Currently we just use <a href="http://en.wikipedia.org/wiki/Euler_integration">Euler's method</a> to calculate star positions and velocities. The following formulas are used:
+<td valign="top">deltat<td><td>Currently we just use <a href="http://en.wikipedia.org/wiki/Euler_integration">Euler's method</a> to calculate star positions and velocities. The following formulas are used:
 <p>
 <code>star.velocity[i] = star.velocity[i] - deltat * gamma * sum(j, star[j].mass * (star[i].position - star[j].position) / |(star[i].position - star[j].position| ^ 3)</code>
 <p>
@@ -56,3 +58,21 @@ But you could plug in your own better <code>Gravity</code> engine just by settin
 </tr>
 </table>
 
+<h3><a name="applet">Additional Applet Parameters</a></h3>
+<p>
+Additional to the parameters above the following are only visible as applet parameters.
+</p>
+<table>
+<tr>
+<td valign="top">delta<td><td>This parameter is only used for <em>linear</em>, <em>circular</em> or <em>circularNormale</em> movement. It is the increment distance (exact: <code>delta * (radius + 1)</code>) or angle (radian measure) per movment.</td>
+</tr>
+<tr>
+<td valign="top">xtheta<td><td>This parameter is only used for <em>manualDelay</em> movement. It is the initial increment angle (radian measure) rotation around the x-axis per viewpoint movment. This parameter can be interactive modified by mouse dragging.</td>
+</tr>
+<tr>
+<td valign="top">ytheta<td><td>This parameter is only used for <em>manualDelay</em> movement. It is the initial increment angle (radian measure) rotation around the y-axis per viewpoint movment. This parameter can be interactive modified by mouse dragging.</td>
+</tr>
+<tr>
+<td valign="top">gravity<td><td>The values <em>on</em> or <em>off</em> denote the gravity activity. Without gravity much more stars can be animated because the gravity engine costs a lot of processing time.</td>
+</tr>
+</table>

@@ -43,7 +43,6 @@ import java.awt.event.WindowEvent;
 import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.simulator.SimulatorAttributes;
 import com.meyling.mulumis.base.view.CameraAttributes;
-import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 
 
@@ -65,7 +64,7 @@ public class StarScreen extends Window {
         super(frame = new Frame("Mulumis"));
         this.setSize(getToolkit().getScreenSize());
         this.setLayout(null);
-        
+
         {
             final SimulatorAttributes properties = new SimulatorAttributes();
             properties.setStars(10000);
@@ -86,7 +85,7 @@ public class StarScreen extends Window {
             visualizer.applyVisualChanges(simulator, properties);
             this.add(visualizer);
         }
-            
+
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 visualizer.stop();
@@ -115,20 +114,19 @@ public class StarScreen extends Window {
         visualizer.start();
     }
 
-    public StarScreen(final Simulator model, final CameraAttributes view, final MainFrame base, final FieldViewer viewer) {
+    public StarScreen(final Simulator model, final CameraAttributes view, final MainFrame base,
+            final FieldViewer viewer) {
         super(frame = new Frame("mulumis"));
         this.simulator = model;
         this.base = base;
-        visualizer = new FieldViewer(viewer, getToolkit().getScreenSize().width, getToolkit().getScreenSize().height, this);
+        visualizer = new FieldViewer(viewer, getToolkit().getScreenSize().width,
+            getToolkit().getScreenSize().height, this);
         setSize(getToolkit().getScreenSize());
-
         setLayout(null);
-//        addNotify();
-
         visualizer.setSize(getToolkit().getScreenSize());
         visualizer.setBackground(Color.BLACK);
         this.add(visualizer);
-        
+
         this.getParent().addKeyListener(new KeyAdapter() {
             public void keyPressed(final KeyEvent e) {
                 e.consume();
@@ -172,11 +170,11 @@ public class StarScreen extends Window {
     }
 
 
-    public static final void main(final String args[]) {
+    public static final void main(final String[] args) {
         try {
             final StarScreen infinity = new StarScreen();
             infinity.show();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

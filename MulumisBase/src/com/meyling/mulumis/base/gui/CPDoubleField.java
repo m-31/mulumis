@@ -64,12 +64,13 @@ public class CPDoubleField extends CPTextField {
     /**
      * Constructor with initial value.
      *
-     * @param   value    Initial value.
-     * @param    minimum    Minimum value, must be greater or equal to zero.
+     * @param   value   Initial value.
+     * @param   minimum Minimum value, must be greater or equal to zero.
      * @param   maximum Maximum value.
-     * @param    len        Maxium string length.
+     * @param   len     Maxium string length.
      */
-    public CPDoubleField(final Double value, final double minimum, final double maximum, final int len) {
+    public CPDoubleField(final Double value, final double minimum, final double maximum,
+            final int len) {
         super();
         if (minimum < 0) {
             throw new IllegalArgumentException("negative values are not allowed");
@@ -154,7 +155,8 @@ public class CPDoubleField extends CPTextField {
                     setInternValue(null);
                 } else {
                     // TODO mime 20060130: why cut last position???
-                    setInternValue(new Double(getContent().getString(0, getContent().length() - 1)));
+                    setInternValue(new Double(getContent().getString(0,
+                        getContent().length() - 1)));
                 }
             } catch (IllegalArgumentException e) {
                 super.remove(offs, str.length());
@@ -168,5 +170,5 @@ public class CPDoubleField extends CPTextField {
     public int getColumns() {
         return columns;
     }
-    
+
 }

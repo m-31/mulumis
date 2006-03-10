@@ -43,7 +43,7 @@ import com.meyling.mulumis.base.util.BrowserLauncher;
  */
 public class HtmlInfo extends JFrame {
 
-    JEditorPane html;
+    private JEditorPane html;
 
     /**
      * Main method allows us to run as a standalone demo.
@@ -58,7 +58,7 @@ public class HtmlInfo extends JFrame {
      */
     public HtmlInfo() {
         super("Information");
-        final String METHOD = "constructor";
+        final String method = "constructor";
         try {
             URL url = null;
             String path = null;
@@ -66,7 +66,7 @@ public class HtmlInfo extends JFrame {
                 path = "/com/meyling/mulumis/base/help/information.html";
                 url = getClass().getResource(path);
             } catch (Exception e) {
-                Trace.trace(this, METHOD, "Failed to open resource " + path, e);
+                Trace.trace(this, method, "Failed to open resource " + path, e);
                 url = null;
             }
 
@@ -75,16 +75,16 @@ public class HtmlInfo extends JFrame {
                 html.setEditable(false);
                 html.setEnabled(true);
                 html.addHyperlinkListener(createHyperLinkListener());
-        
+
                 JScrollPane scroller = new JScrollPane();
                 JViewport vp = scroller.getViewport();
                 vp.add(html);
                 this.getContentPane().add(scroller, BorderLayout.CENTER);
             }
         } catch (MalformedURLException e) {
-            Trace.trace(this, METHOD, e);
+            Trace.trace(this, method, e);
         } catch (IOException e) {
-            Trace.trace(this, METHOD, e);
+            Trace.trace(this, method, e);
         }
         this.setSize(700, 600);
     }
@@ -95,7 +95,7 @@ public class HtmlInfo extends JFrame {
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     if (e instanceof HTMLFrameHyperlinkEvent) {
                         ((HTMLDocument) html.getDocument()).processHTMLFrameHyperlinkEvent(
-                            (HTMLFrameHyperlinkEvent)e);
+                            (HTMLFrameHyperlinkEvent) e);
                     } else {
                         try {
                             BrowserLauncher.openURL(e.getURL().toString());

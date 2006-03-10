@@ -35,11 +35,11 @@ public interface Gravity {
 
     /**
      * Initialize gravity engine for given field.
-     * 
+     *
      * @param   field   Work on this star field.
      */
     public abstract void init(Field field);
-    
+
     /**
      * Calculate new star positions and velocities according to current gravity constant and
      * delta t. Afterwards the total impulse has a new value.
@@ -48,35 +48,35 @@ public interface Gravity {
 
     /**
      * Get total impulse of last calculated star field.
-     * 
+     *
      * @return  Total impulse.
      */
     public abstract double[] getImpulse();
 
     /**
      * Set gravity constant.
-     * 
+     *
      * @param   gamma   Gravity constant.
      */
     public abstract void setGamma(double gamma);
 
     /**
      * Get gravity constant.
-     * 
+     *
      * @return  Gravity constant.
      */
     public abstract double getGamma();
 
     /**
      * Set delta t. This is a small time unit.
-     * 
+     *
      * @param   deltat  Delta t.
      */
     public abstract void setDeltat(double deltat);
 
     /**
      * Get delta t. This is a small time unit.
-     * 
+     *
      * @return  Delta t.
      */
     public abstract double getDeltat();

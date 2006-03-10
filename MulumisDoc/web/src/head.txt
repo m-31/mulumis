@@ -38,7 +38,7 @@
 <table border=0 cellspacing=2 cellpadding=2>
 <tr>
 <td align="right" valign="top">
-<a href="http://sourceforge.net/projects/mulumis"><img src="http://sourceforge.net/sflogo.php?group_id=113101&type=3" border="0" width="0" height="0" align="left" alt=""><img src="pic/sf.gif" border="0" width="88" height="31" align="right" alt="Simulum at SourceForge"></a>
+<a href="http://sourceforge.net/projects/mulumis"><img src="http://sourceforge.net/sflogo.php?group_id=113101&amp;type=3" border="0" width="0" height="0" align="left" alt=""><img src="pic/sf.gif" border="0" width="88" height="31" align="right" alt="Simulum at SourceForge"></a>
 </td>
 </tr>
 </table>
@@ -51,7 +51,7 @@
 <table cellspacing=2 cellpadding=4 bgcolor="#E6E6E6">
 @select@
 <tr>
-<td><a href="sitemap.html">site map</a></font></td>
+<td><a href="sitemap.html">site map</a></td>
 </tr>
 </table>
 </td>
@@ -63,7 +63,7 @@
 <td width="100%">
 <font color="#7d49d9" size="+2"><b>@title@</b></font>
 </td>
-<td valign="top"><a href="@previous@">&lt;previous&nbsp;</a></td>
-<td valign="top"><a href="@next@">&nbsp;next&gt;</a></td>
+<td align="right" valign="top"><a href="@previous@">&lt;previous&nbsp;</a>&nbsp;</td>
+<td align="right" valign="top">&nbsp;<a href="@next@">&nbsp;next&gt;</a></td>
 </tr>
 </table>

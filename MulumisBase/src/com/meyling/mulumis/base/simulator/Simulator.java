@@ -55,8 +55,8 @@ public final class Simulator {
     private Thread thread;
 
     private Boolean stopped = Boolean.TRUE;
-    
-    
+
+
     public Simulator(final int stars, final double gamma, final double deltat) {
         engine = MulumisContext.getAbstractGravityFactory().createGravity();
         engine.setGamma(gamma);
@@ -66,7 +66,7 @@ public final class Simulator {
 
     /**
      * Create new star field.
-     * 
+     *
      * @param   stars   Number of stars.
      */
     public void createField(final int stars) {
@@ -82,7 +82,7 @@ public final class Simulator {
     }
 
     public final SimulatorAttributes getProperties() {
-        return new SimulatorAttributes(field.getNumberOfStars(), engine.getGamma(), 
+        return new SimulatorAttributes(field.getNumberOfStars(), engine.getGamma(),
             engine.getDeltat());
     }
 
@@ -95,7 +95,7 @@ public final class Simulator {
             engine.setDeltat(properties.getDeltat());
         }
     }
-    
+
     public final void applyGravity() {
         engine.calculate();
     }
@@ -134,7 +134,7 @@ public final class Simulator {
         };
         thread.start();
     }
-    
+
     public final synchronized void stop() {
         synchronized (stopped) {
             thread = null;

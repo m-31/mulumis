@@ -43,7 +43,7 @@ import com.meyling.mulumis.base.util.IoUtility;
 
 
 /**
- * Test application.
+ * Start the main application.
  *
  * @version $Revision$
  * @author    Michael Meyling

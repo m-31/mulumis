@@ -49,15 +49,15 @@ public final class FormatUtility  {
     private FormatUtility() {
         // nothing to do
     }
-    
-    
+
+
     public static final String toString(final Double value) {
         if (value == null) {
             return "";
         }
         return (new BigDecimal(Double.toString(value.doubleValue()))).toString();
     }
-    
+
     public static final String toString(final double value) {
         return (new BigDecimal("" + value)).toString();
     }

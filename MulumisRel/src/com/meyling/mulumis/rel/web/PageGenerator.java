@@ -397,9 +397,8 @@ public class PageGenerator {
             final Entry entry = (Entry) site.get(i);
             if (entry.getDeep() == 0) {
                 tab.append(
-                    "<tr>\n<td><font face=\"Arial,Helvetica\""
-                    + "><a href=\""
-                    + entry.getFile() + "\">" + entry.getName() + "</a></font></td>\n"
+                    "<tr>\n<td><a href=\""
+                    + entry.getFile() + "\">" + entry.getName() + "</a></td>\n"
                     + "</tr>\n");
             }
         }
@@ -407,7 +406,7 @@ public class PageGenerator {
         final StringBuffer data = new StringBuffer();
         data.append("<div style=\"margin-left: 10px;\">\n"
             + "<table cellspacing=2 cellpadding=2"
-            + " width=\"100%\"><tbody><tr><td><div style=\"margin-left: 10px; margin-top: 10px\">\n");
+            + " width=\"100%\">\n"); //<tbody><tr><td><div style=\"margin-left: 10px; margin-top: 10px\">\n");
 
         for (int i = 0; i < fullsite.size(); i++) {
             final Entry current = (Entry) fullsite.get(i);
@@ -417,38 +416,6 @@ public class PageGenerator {
                 data.append(
                     "<tr>\n<td>"
                     + "<div style=\"margin-left: " + (10 + 5*current.getDeep()) + "px;\">"
-                    + "<font face=\"Arial,Helvetica\""
-                    + "><a href=\""
-                    + current.getFile() + "\">"
-                    + current.getName()
-                    + (current.getDescription().length() > 0
-                        ? ": " + current.getDescription()
-                        : "")
-                    + "</a> "
-                    + "</font></div></td>\n"
-                    + "</tr>\n");
-            } else if (current.getDeep() > followingDeep) {
-                data.append(
-                    "<tr>\n<td>"
-                    + "<div style=\"margin-left: " + (10 + 5*current.getDeep()) + "px;\">"
-                    + "<font face=\"Arial,Helvetica\""
-                    + "><a href=\""
-                    + current.getFile() + "\">"
-                    + current.getName()
-                    + (current.getDescription().length() > 0
-                        ? ": " + current.getDescription()
-                        : "")
-                    + "</a> "
-                    + "</div></font></td>\n"
-                    + "</tr>\n");
-                for (int j = current.getDeep() ; followingDeep < j; j--) {
-                    data.append("</table>\n");
-                    data.append("</td>\n</tr>\n");
-                }
-            } else {
-                data.append("<tr>\n<td>\n"
-                    + "<div style=\"margin-left: " + (10 + 5*current.getDeep()) + "px;\">"
-                    + "<font face=\"Arial,Helvetica\">"
                     + "<a href=\""
                     + current.getFile() + "\">"
                     + current.getName()
@@ -456,7 +423,35 @@ public class PageGenerator {
                         ? ": " + current.getDescription()
                         : "")
                     + "</a> "
-                    + "</font>\n"
+                    + "</div></td>\n"
+                    + "</tr>\n");
+            } else if (current.getDeep() > followingDeep) {
+                data.append(
+                    "<tr>\n<td>"
+                    + "<div style=\"margin-left: " + (10 + 5*current.getDeep()) + "px;\">"
+                    + "<a href=\""
+                    + current.getFile() + "\">"
+                    + current.getName()
+                    + (current.getDescription().length() > 0
+                        ? ": " + current.getDescription()
+                        : "")
+                    + "</a> "
+                    + "</div></td>\n"
+                    + "</tr>\n");
+                for (int j = current.getDeep() ; followingDeep < j; j--) {
+                    data.append("</table>\n");
+                    data.append("</div></td>\n</tr>\n");
+                }
+            } else {
+                data.append("<tr>\n<td>\n"
+                    + "<div style=\"margin-left: " + (10 + 5*current.getDeep()) + "px;\">"
+                    + "<a href=\""
+                    + current.getFile() + "\">"
+                    + current.getName()
+                    + (current.getDescription().length() > 0
+                        ? ": " + current.getDescription()
+                        : "")
+                    + "</a>\n"
                     + "<table cellspacing=2 cellpadding=2 bgcolor=\"" + selectionForeground + "\""
                     + " width=\"100%\">\n");
             }
@@ -464,10 +459,9 @@ public class PageGenerator {
         // add sitemap entry itself
         data.append("<tr>\n<td>"
             + "<div style=\"margin-left: " + (10) + "px;\">"
-            + "<font face=\"Arial,Helvetica\""
-            + "><a href=\"sitemap.html\">"
+            + "<a href=\"sitemap.html\">"
             + "Sitemap"
-            + "</a></div></font></td>\n"
+            + "</a></div></td>\n"
             + "</tr>\n");
 
         data.append("</table></div>");
@@ -509,11 +503,11 @@ public class PageGenerator {
         if (file != null) {
             result = replace(result, "@width@", " width=\"100%\"");
             date2 = file != null ? replace(formatter
-// TODO                .format(new Date(file.lastModified())), "T", " ")
-                .format(new Date()), "T", " ")
+                .format(new Date(file.lastModified())), "T", " ")
+//                .format(new Date()), "T", " ")
                 : replace(date1, "T", " ");
         } else {
-            result = replace(result, "@width@", "");
+            result = replace(result, "@width@", " width=\"100%\"");
             date2 = replace(date1, "T", " ");
         }
         result = result + data + replace(tail, "@date@", date2);

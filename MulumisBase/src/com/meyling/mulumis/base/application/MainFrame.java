@@ -63,7 +63,6 @@ import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.simulator.SimulatorAttributes;
 import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.view.ViewChangedListener;
-import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
 /**
  * Show and edit preferences of this application. Start simulation.
@@ -81,7 +80,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /** X margin. */
     private static final int MARGIN_Y = 17;
-    
+
     /** All saved properties. */
     private SimulumProperties simulumProperties;
 
@@ -90,7 +89,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private CameraAttributes cameraProperties;
 
     private FieldViewer viewer;
-    
+
     private Simulator simulator;
 
     private CPIntegerField stars;
@@ -110,11 +109,11 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private CPDoubleField deltat;
 
     private JLabel impulseCurrent;
-    
+
     private boolean editCameraFields;
 
     private boolean editGravityFields;
-    
+
     /** Are we in maximized mode? */
     private boolean maximized;
 
@@ -127,11 +126,11 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
     private JPanel appletPanel;
 
     private JButton maximize;
-    
+
     private JButton editGravity;
 
     private JLabel helpLabel;
-    
+
     private JButton help;
 
     /** First time start of application before the animation starts? */
@@ -148,15 +147,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         final String method = "StarterDialog(String)";
         try {
             Trace.traceBegin(this, method);
-            simulatorAttributes = new SimulatorAttributes(); 
+            simulatorAttributes = new SimulatorAttributes();
             cameraProperties = new CameraAttributes();
             simulator = new Simulator(simulatorAttributes);
             loadParameters();
             viewer = new FieldViewer(simulator, cameraProperties);
-            viewer.init();        
+            viewer.init();
             setBounds(getToolkit().getScreenSize().width * 1 / 8,
-                getToolkit().getScreenSize().height * 1 / 16, 
-                getToolkit().getScreenSize().width * 3 / 4, 
+                getToolkit().getScreenSize().height * 1 / 16,
+                getToolkit().getScreenSize().width * 3 / 4,
                 getToolkit().getScreenSize().height * 6 / 7);
             setupView();
             copyProperties();
@@ -178,7 +177,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         editGravityFields();
         repaint();
     }
-    
+
     /**
      * Assembles the GUI components of the panel.
      */
@@ -192,7 +191,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                 shutdown();
             }
         });
-        
+
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 Trace.traceParam(this, "componentResized", "e", e.paramString());
@@ -204,7 +203,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                     setupSize();
                 }
             }
-            
+
             public void componentShown(ComponentEvent e) {
                 setupSize();
             }
@@ -219,7 +218,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         appletPanel.setLayout(null);
         appletPanel.add(viewer);
         fillProperties();
-        
+
         help = new JButton("Help");
         help.setToolTipText("Some more information.");
         help.addActionListener(new ActionListener() {
@@ -234,17 +233,17 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         });
         contents.add(help);
         contents.add(helpLabel = new JLabel("drag mouse fast, roll wheel"));
-        
+
         impulseCurrent = new JLabel();  // TODO mime 20060306: fill impulse information
         contents.add(impulseCurrent);
-        
+
         setupSize();
     }
 
     /**
      * Restart viewer. Called by maximized window to restore the previous stage.
-     * 
-     * @param   properties  Probably changed values.    // TODO mime 20060306: missing: thetax, thetay
+     *
+     * @param   properties  Probably changed values.
      */
     public synchronized void restart(CameraAttributes properties) {
         cameraProperties = properties;
@@ -258,15 +257,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         editCameraFields();
         editCameraFields();
     }
-    
+
     /**
      * Recalculate the size of the sub components.
      */
     private void setupSize() {
-        final int width = getContentPane().getWidth() - getContentPane().getInsets().left 
+        final int width = getContentPane().getWidth() - getContentPane().getInsets().left
             - getContentPane().getInsets().right;
         Trace.traceParam(this, "setupSize", "width", width);
-        final int height = getContentPane().getHeight() - getContentPane().getInsets().top 
+        final int height = getContentPane().getHeight() - getContentPane().getInsets().top
             - getContentPane().getInsets().bottom;
         Trace.traceParam(this, "setupSize", "height", height);
         visual.setBounds(MARGIN_X, MARGIN_Y, 0, 0);
@@ -277,7 +276,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                 6, 3);       //xPad, yPad
         Dimension size = visual.getPreferredSize();
         visual.setSize(size);
-        
+
         simulation.setBounds(MARGIN_X, visual.getHeight() + visual.getY()
                 + MARGIN_Y, 0, 0);
         SpringUtility.makeCompactGrid(simulation,
@@ -287,27 +286,28 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                 6, 3);       //xPad, yPad
         size = simulation.getPreferredSize();
         simulation.setSize(size);
-        
+
         help.setLocation(MARGIN_X, simulation.getY() + simulation.getHeight() + MARGIN_Y);
         help.setSize(help.getPreferredSize());
 
         helpLabel.setLocation(MARGIN_X, help.getY() + help.getHeight() + MARGIN_Y);
         helpLabel.setSize(helpLabel.getPreferredSize());
-        
-        appletPanel.setBounds(2 * MARGIN_X + visual.getSize().width, MARGIN_Y, 
+
+        appletPanel.setBounds(2 * MARGIN_X + visual.getSize().width, MARGIN_Y,
                 width - 3 * MARGIN_X - visual.getSize().width, height - 2 * MARGIN_Y);
 
-        viewer.setBounds(appletPanel.getInsets().left, appletPanel.getInsets().top, 
-                appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
-                appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
-// TODO mime 20060223: the following line is neccessary, so something must be wrong with the viewer        
-        viewer.setSize(appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left, 
-                appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
+        viewer.setBounds(appletPanel.getInsets().left, appletPanel.getInsets().top,
+            appletPanel.getWidth() - appletPanel.getInsets().right - appletPanel.getInsets().left,
+            appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
+// TODO mime 20060223: the following line is neccessary, so something must be wrong with the viewer
+        viewer.setSize(appletPanel.getWidth() - appletPanel.getInsets().right
+            - appletPanel.getInsets().left,
+            appletPanel.getHeight() - appletPanel.getInsets().top - appletPanel.getInsets().bottom);
 //        viewer.applyVisualChanges(simulator, viewerProperties);
         viewer.setBackground(Color.BLACK);
-        
+
     }
-    
+
     /**
      * Setup gravity parameter panel.
      */
@@ -333,22 +333,19 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         simulation.add(gravity);
 
         stars = createIntegerField(simulation, simulumProperties.get("stars"), 0, 99999999);
-        simulation.add(stars);
 
-        gamma = createDoubleField(simulation, simulumProperties.get("gamma"), 0, 1000000000, 
+        gamma = createDoubleField(simulation, simulumProperties.get("gamma"), 0, 1000000000,
             DOUBLE_LENGTH);
-        simulation.add(gamma);
 
         deltat = createDoubleField(simulation, simulumProperties.get("deltat"), 0, 1000000000,
             DOUBLE_LENGTH);
-        simulation.add(deltat);
-        
+
         editGravity = new JButton("Edit");
             contents.add(editGravity);
             editGravity.setToolTipText("Edit or apply gravity parameters.");
             editGravity.addActionListener(new  ActionListener() {
                 public void actionPerformed(final ActionEvent actionEvent) {
-                    final String method ="actionPerformed";
+                    final String method = "actionPerformed";
                     try {
                         editGravityFields();
                     } catch (final Exception e) {
@@ -393,7 +390,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                 stopViewer();
                 refreshProperties();
                 copyProperties();
-                StarScreen screen = new StarScreen(simulator, cameraProperties, 
+                StarScreen screen = new StarScreen(simulator, cameraProperties,
                     MainFrame.this, viewer);
                 screen.show();
                 screen = null;
@@ -401,30 +398,25 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         });
         visual.add(maximize);
 
-        sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"), 
+        sensitivity = createDoubleField(visual, simulumProperties.get("sensitivity"),
             0, 1000000000d, DOUBLE_LENGTH);
-        visual.add(sensitivity);
 
-        zoom = createDoubleField(visual, simulumProperties.get("zoom"), 
+        zoom = createDoubleField(visual, simulumProperties.get("zoom"),
             0, 1000000000d, DOUBLE_LENGTH);
-        visual.add(zoom);
 
-        radius = createDoubleField(visual, simulumProperties.get("radius"), 
+        radius = createDoubleField(visual, simulumProperties.get("radius"),
             0, 100000000000d, DOUBLE_LENGTH);
-        visual.add(radius);
 
-        snapshot = createIntegerField(visual, simulumProperties.get("snapshot"), 
+        snapshot = createIntegerField(visual, simulumProperties.get("snapshot"),
             0, 99999999);
-        visual.add(snapshot);
 
         movement = createListField(visual, simulumProperties.get("movement"));
-        visual.add(movement);
 
         start = new JButton("Edit");
         start.setToolTipText("Edit or apply camera parameters.");
         start.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
-                final String method ="actionPerformed";
+                final String method = "actionPerformed";
                 try {
                     editCameraFields();
                 } catch (final Exception e) {
@@ -445,12 +437,12 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
         visual.add(new JLabel(""));
     }
-        
+
     /**
      * Display an error message.
-     * 
+     *
      * @param   e   Error.
-     */    
+     */
     private void displayErrorMessage(final Throwable e) {
         Trace.trace(this, "displayErrorMessage", e);
         JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -458,8 +450,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     /**
      * Add combo box field for list parameter.
-     * 
-     * @param   contentPane TODO
+     *
+     * @param   contentPane Create field here.
      * @param   parameter   Add combo box for this parameter.
      */
     private JComboBox createListField(final Container contentPane, final Parameter parameter) {
@@ -470,34 +462,35 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         if (parameter.getStringValue() != null) {
             comboBox.setSelectedItem(parameter.getStringValue());
         }
-        contentPane.add(comboBox);
         comboBox.setToolTipText(parameter.getComment());
         label.setLabelFor(comboBox);
+        contentPane.add(comboBox);
         return comboBox;
     }
 
     /**
      * Add integer field for string parameter.
-     * 
+     *
      * @param   contentPane Put new field here.
      * @param   parameter   Add text field selector for this parameter.
      */
-    private CPIntegerField createIntegerField(final Container contentPane, final Parameter parameter, 
-            final int minimum, final int maximum) {
+    private CPIntegerField createIntegerField(final Container contentPane,
+            final Parameter parameter, final int minimum, final int maximum) {
         final JLabel label = new JLabel(parameter.getLabel());
         contentPane.add(label);
-        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(), 
+        final CPIntegerField integerField = new CPIntegerField(parameter.getIntegerValue(),
             minimum, maximum);
         integerField.setValue(parameter.getIntegerValue());
         integerField.setToolTipText(parameter.getComment());
         integerField.setColumns(integerField.getColumns());
         label.setLabelFor(integerField);
+        contentPane.add(integerField);
         return integerField;
     }
 
     /**
      * Add double field for double parameter.
-     * 
+     *
      * @param   contentPane Put new field here.
      * @param   parameter   Add text field selector for this parameter.
      */
@@ -511,6 +504,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         doubleField.setToolTipText(parameter.getComment());
         doubleField.setColumns(length / 3 + 2); // don't show all columns
         label.setLabelFor(doubleField);
+        contentPane.add(doubleField);
         return doubleField;
     }
 
@@ -536,8 +530,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             startViewer();
             // if it is a manual mover we animate also in the beginning, if it is the first time
             if (firstTimeStart) {
-                // TODO mime 20060306: move constant declaration
-                if (!"manual".equals(viewer.getMovement())) {
+                if (!FieldViewer.MANUAL.equals(viewer.getMovement())) {
                     viewer.setXtheta(-0.007);
                 }
                 firstTimeStart = false;
@@ -558,7 +551,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         start.setText(editCameraFields ? "Apply" : "Edit");
         editCameraFields = !editCameraFields;
     }
-    
+
     private void editGravityFields() {
         fillProperties();
         simulator.applyChanges(simulatorAttributes);
@@ -571,7 +564,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         editGravity.setText((editGravityFields ? "Apply" : "Edit"));
         editGravityFields = !editGravityFields;
     }
-    
+
     private synchronized void startViewer() {
         stopViewer();
 //        simulator.start();
@@ -580,7 +573,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         viewer.addViewChangedListener(this);
         viewer.start();
     }
-    
+
     private synchronized void stopViewer() {
         if (simulator != null) {
             simulator.stop();
@@ -634,14 +627,22 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
      */
     private void loadParameters() {
         simulumProperties = new SimulumProperties();
-        cameraProperties.setMovement(simulumProperties.get("movement").getStringValue());
-        cameraProperties.setSensitivity(simulumProperties.get("sensitivity").getDoubleValue().doubleValue());
-        cameraProperties.setRadius(simulumProperties.get("radius").getDoubleValue().doubleValue());
-        cameraProperties.setZoom(simulumProperties.get("zoom").getDoubleValue().doubleValue());
-        cameraProperties.setSnapshot(simulumProperties.get("snapshot").getIntegerValue().intValue());
-        simulatorAttributes.setStars(simulumProperties.get("stars").getIntegerValue().intValue());
-        simulatorAttributes.setGamma(simulumProperties.get("gamma").getDoubleValue().doubleValue());
-        simulatorAttributes.setDeltat(simulumProperties.get("deltat").getDoubleValue().doubleValue());
+        cameraProperties.setMovement(simulumProperties.get("movement")
+            .getStringValue());
+        cameraProperties.setSensitivity(simulumProperties.get("sensitivity").getDoubleValue()
+            .doubleValue());
+        cameraProperties.setRadius(simulumProperties.get("radius").getDoubleValue()
+            .doubleValue());
+        cameraProperties.setZoom(simulumProperties.get("zoom").getDoubleValue()
+            .doubleValue());
+        cameraProperties.setSnapshot(simulumProperties.get("snapshot").getIntegerValue()
+            .intValue());
+        simulatorAttributes.setStars(simulumProperties.get("stars").getIntegerValue()
+            .intValue());
+        simulatorAttributes.setGamma(simulumProperties.get("gamma").getDoubleValue()
+            .doubleValue());
+        simulatorAttributes.setDeltat(simulumProperties.get("deltat").getDoubleValue()
+            .doubleValue());
     }
 
     /**
@@ -700,7 +701,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         started = true;
         start.setText(started ? "Stop" : "Start");
     }
-    
+
     private void stopSimulator() {
         started = false;
         if (viewer != null) {
@@ -711,7 +712,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         start.setText(started ? "Stop" : "Start");
     }
 */
-    
+
     /**
      * Copy current view and model properties into editable text fields.
      */
@@ -742,7 +743,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             Trace.traceEnd(this, "copyProperties");
         }
     }
-    
+
     /**
      * Get current view properties and fill them in properties.
      */
@@ -766,13 +767,14 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         }
     }
 
+/*  // TODO mime 20060310: just a reminder
     private void maximizeNotWorking() {
         System.out.println("nothing");
-/*                
+
 //                final Window screen = new Window(MainFrame.this);
             final JFrame maxi = new JFrame();
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            // used for full-screen exclusive mode  
+            // used for full-screen exclusive mode
             GraphicsDevice gd;
             Graphics gScr;
             BufferStrategy bufferStrategy;
@@ -786,13 +788,13 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
               System.out.println("Full-screen exclusive mode not supported");
               System.exit(0);
             }
-            
+
             final boolean run = viewer.isRunning();
             if (run) {
                 viewer.stop();
             }
 //                appletPanel.remove(viewer);
-            
+
             final Window screen = new Window(maxi);
 //                gd.setFullScreenWindow(screen); // switch on full-screen exclusive mode
 
@@ -801,9 +803,9 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             screen.setLayout(null);
             screen.addNotify();
 
-            viewer.setSize(getToolkit().getScreenSize().width, 
+            viewer.setSize(getToolkit().getScreenSize().width,
                     getToolkit().getScreenSize().height);
-            
+
 //                MainFrame.this.hide();
 //                MainFrame.this.setState(Frame.ICONIFIED);
             screen.add(viewer);
@@ -827,20 +829,20 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 //                screen.requestFocusInWindow();
             viewer.requestFocus();
 //                viewer.requestFocusInWindow();
-            
+
             } catch (Exception  e) {
                 e.printStackTrace();
             }
-             
+
             }
         });
 
-/*                
+/*
             viewer.resize(getToolkit().getScreenSize().width,
                 getToolkit().getScreenSize().height);
             maxi.requestFocus();
             maxi.setFocusableWindowState(true);
-            
+
             viewer.getParent().addKeyListener(new KeyAdapter() {
                 public void keyPressed(final KeyEvent e) {
                     System.out.println("helleo2");
@@ -853,7 +855,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
                     System.exit(0);
                 }
             });
-/*                
+/*
             screen.addKeyListener(new KeyAdapter() {
                 public void keyPressed(final KeyEvent e) {
                     System.exit(0);
@@ -881,19 +883,18 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
                 public void eventDispatched(AWTEvent event) {
                     System.out.println(event);
-                    
+
                 }}, AWTEvent.KEY_EVENT_MASK);
 //                getToolkit().getSystemEventQueue();
 
-            
+
 
             stopViewer();
             StarScreen screen = new StarScreen(simulator, viewer.getProperties());
             screen.show();
             screen = null;
-*/
     }
+*/
 
-    
-    
+
 }

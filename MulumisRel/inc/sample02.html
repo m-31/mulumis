@@ -1,0 +1,27 @@
+<!-- $Revision$ -->
+<table border=0 cellspacing=2 cellpadding=4>
+<tr>
+<td valign="top">
+<br>
+This is an applet example.
+<p>
+100,000 stars are distributed in a sphere. The viewpoint moves to the center of the sphere.
+<p>
+Activate the star panel by clicking it. Rolling the mouse wheel changes the viewpoint distance. Rolling the mouse wheel while pressing the right mouse button changes the star brightness. <br>
+</td>
+<td>
+<applet code="com.meyling.mulumis.base.application.StarApplet" archive="../lib/mulumis_u.jar" id="StarApplet" width="400" height="400">
+<param name="stars" value="100000"/>
+<param name="delta" value="0.01"/>
+<param name="radius" value="20"/>
+<param name="sensitivity" value="6.5"/>
+<param name="xtheta" value="-0.009"/>
+<param name="ytheta" value="-0.001"/>
+<param name="movement" value="linear"/>
+<param name="gravity" value="off"/>
+<param name="gamma" value="0.01"/>
+<param name="deltat" value="0.00005"/>
+</applet>
+</td>
+</tr>
+</table>

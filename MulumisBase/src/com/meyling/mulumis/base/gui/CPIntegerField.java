@@ -58,7 +58,7 @@ public class CPIntegerField extends CPTextField {
 
     /**
      * Constructor.
-     * 
+     *
      * @param   value   Initial value.
      * @param   minimum Minimum value.
      * @param   maximum Maximum value.
@@ -129,7 +129,8 @@ public class CPIntegerField extends CPTextField {
                     setInternValue(null);
                 } else {
                     // TODO mime 20060130: why cut last position???
-                    setInternValue(new Integer(getContent().getString(0, getContent().length() - 1)));
+                    setInternValue(new Integer(getContent().getString(0,
+                        getContent().length() - 1)));
                 }
             } catch (IllegalArgumentException e) {
                 super.remove(offs, str.length());
@@ -149,7 +150,7 @@ public class CPIntegerField extends CPTextField {
             }
         }
     }
-    
+
     public int getColumns() {
         return columns;
     }

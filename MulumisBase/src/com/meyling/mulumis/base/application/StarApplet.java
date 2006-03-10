@@ -45,7 +45,7 @@ import com.meyling.mulumis.base.view.CameraAttributes;
  * @author  Michael Meyling
  */
 public final class StarApplet extends FieldViewer {
-    
+
     public StarApplet() {
         super();
     }
@@ -59,48 +59,47 @@ public final class StarApplet extends FieldViewer {
                 simulatorProperties .setStars(Integer.parseInt(getParameter("stars")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        };
-
+        }
         try {
-            if (getParameter("movement") != null ) {
+            if (getParameter("movement") != null) {
                 viewerProperties.setMovement(getParameter("movement"));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        };
+        }
         try {
             if (getParameter("delta") != null) {
                 viewerProperties.setDelta(IoUtility.parseDouble(getParameter("delta")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        };
+        }
         try {
             if (getParameter("sensitivity") != null) {
                 viewerProperties.setSensitivity(IoUtility.parseDouble(getParameter("sensitivity")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        };
+        }
         try {
             if (getParameter("radius") != null) {
                 viewerProperties.setRadius(IoUtility.parseDouble(getParameter("radius")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        };
+        }
         try {
             if (getParameter("zoom") != null) {
                 viewerProperties.setZoom(IoUtility.parseDouble(getParameter("zoom")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
@@ -108,7 +107,7 @@ public final class StarApplet extends FieldViewer {
                 simulatorProperties.setGamma(IoUtility.parseDouble(getParameter("gamma")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
@@ -116,7 +115,7 @@ public final class StarApplet extends FieldViewer {
                 simulatorProperties.setDeltat(IoUtility.parseDouble(getParameter("deltat")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         boolean gravityOn = false;
@@ -126,7 +125,7 @@ public final class StarApplet extends FieldViewer {
                     || "on".equals(getParameter("gravity").toString().toLowerCase());
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Trace.traceParam(this, "init", "gravityOn", gravityOn);
@@ -138,7 +137,7 @@ public final class StarApplet extends FieldViewer {
                 setXtheta(IoUtility.parseDouble(getParameter("xtheta")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
@@ -146,7 +145,7 @@ public final class StarApplet extends FieldViewer {
                 setYtheta(IoUtility.parseDouble(getParameter("ytheta")));
             }
         } catch (NullPointerException e) {
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
      }

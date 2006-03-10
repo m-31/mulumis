@@ -41,7 +41,7 @@ import com.meyling.mulumis.base.common.GravityObject;
  */
 public final class ViewPoint  {
 
-    private final double position[];
+    private final double[] position;
 
     private final double[] x;
     private final double[] y;
@@ -61,7 +61,8 @@ public final class ViewPoint  {
         z[2] = 1;
     }
 
-    public ViewPoint(final double[] position, final double x[], final double[] y, final double[] z) {
+    public ViewPoint(final double[] position, final double[] x, final double[] y,
+            final double[] z) {
         this.position = position;
         this.x = x;
         this.y = y;

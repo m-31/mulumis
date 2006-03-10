@@ -511,7 +511,8 @@ public final class IoUtility {
                 isDecimal = true;
                 break;
             default:
-                throw new NumberFormatException("unexpected character: " + v.charAt(position) + " in " + v);
+                throw new NumberFormatException("unexpected character: " + v.charAt(position)
+                    + " in " + v);
             }
             position++;
         }

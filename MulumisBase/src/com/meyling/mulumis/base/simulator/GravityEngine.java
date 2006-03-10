@@ -49,7 +49,7 @@ public final class GravityEngine implements Gravity {
 
     /* Gravity constant. */
     private double gamma;
-    
+
     /* Delta t, small time interval. */
     private double deltat;
 
@@ -76,15 +76,15 @@ public final class GravityEngine implements Gravity {
     /* (non-Javadoc)
      * @see com.meyling.mulumis.base.simulator.Gravity#calculate()
      */
-    public synchronized final void calculate() {
+    public final synchronized void calculate() {
         if (vn == null || field.getNumberOfStars() != vn.length / GravityObject.DIMENSION) {
             vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
         }
 
 
         // for each star calculating the new position
-        
-        // set total impulse to zero 
+
+        // set total impulse to zero
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
             impulse[k] = 0;
             for (int i = 0; i < field.getNumberOfStars(); i++) {
@@ -100,13 +100,15 @@ public final class GravityEngine implements Gravity {
                         // TODO mime 20060209: build cluster from both stars
 //                        System.out.println("Contact");
                     } else if (r < 0.0003) {
-                        // TODO mime 20060209: the stars are so close together, that dt must be smaller to reduce the calculation error
+                        // TODO mime 20060209: the stars are so close together, that dt must
+                        //      be smaller to reduce the calculation error
 //                        System.out.println("Close together");
                     }
-                    final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma 
-                        * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k]) / r / r / r;
+                    final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma
+                        * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
+                        / r / r / r;
                     vn[i][k] -= a * field.getStar(j).getMass();
-                    vn[j][k] += a * field.getStar(i).getMass();;
+                    vn[j][k] += a * field.getStar(i).getMass();
                 }
                 impulse[k] += field.getStar(i).getMass() * vn[i][k];
                 if (Double.isNaN(impulse[k])) {
@@ -116,12 +118,13 @@ public final class GravityEngine implements Gravity {
             }
         }
 /*
-// TODO not working        
-        // Doing some kind of renormation to correct calculation errors. 
+// TODO mime 20060202: not working
+        // Doing some kind of renormation to correct calculation errors.
         // As example a primitive impulse renormation if the complete impuls was initially  = 0:
         for (int k = 0; k < 3; k++) {
             for (int i = 0; i < field.getNumberOfStars(); i++) {
-//                double v = impulse[k] / field.getMass() / field.getMass() * field.getStar(i).getMass();
+//                double v = impulse[k] / field.getMass() / field.getMass()
+//                    * field.getStar(i).getMass();
 //                double v = impulse[k] / field.getMass();
                 double v = 0;
                 if (Double.isNaN(v)) {

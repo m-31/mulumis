@@ -47,12 +47,12 @@ import com.meyling.mulumis.base.simulator.GravityEngineFactory;
  */
 public class MulumisContext {
 
-    static Map engines = new HashMap();
-    
+    private static Map engines = new HashMap();
+
     private MulumisContext() {
         // nothing to do
     }
-    
+
     public static AbstractGravityFactory getAbstractGravityFactory() {
         String gravityFactoryClassName = null;
         try {
@@ -72,7 +72,7 @@ public class MulumisContext {
             gravityFactoryClass = Class.forName(gravityFactoryClassName);
         } catch (ClassNotFoundException e) {
             Trace.trace(MulumisContext.class, method, e);
-            throw new RuntimeException("AbstractGravityFactory class \"" 
+            throw new RuntimeException("AbstractGravityFactory class \""
                 + gravityFactoryClassName + "\" not found.", e);
         }
         final Constructor constructor;
@@ -88,11 +88,11 @@ public class MulumisContext {
             gravityFactory =  constructor.newInstance(new Object[0]);
         } catch (Exception e) {
             Trace.trace(MulumisContext.class, method, e);
-            throw new RuntimeException("Couldn't create AbstractGravityFactory class \"" 
+            throw new RuntimeException("Couldn't create AbstractGravityFactory class \""
                     + gravityFactoryClassName + "\".", e);
         }
         engines.put(gravityFactoryClassName, gravityFactory);
         return (AbstractGravityFactory) gravityFactory;
     }
-    
+
  }

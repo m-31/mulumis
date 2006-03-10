@@ -82,7 +82,7 @@
             <link href="http://java.sun.com/xml/jaxp-docs-1.0.1/docs/api/"/>
             <link href="http://jakarta.apache.org/log4j/docs/api/"/>
             <link href="http://java.sun.com/products/jdbc/jdbc20.stdext.javadoc/"/>
-            <header><![CDATA[<b>Simulum - JAVA-Packages</b>]]></header>
+            <header><![CDATA[Simulum - JAVA-Packages]]></header>
             <footer><![CDATA[<i>Simulum - JAVA-Packages</i>]]></footer>
             <bottom><![CDATA[<table><td style="font-size:8pt"><a href="http://www.gnu.org/copyleft/gpl.html">&copy;left GNU General Public Licence</a><br> All Rights Reserved.</td></table>]]></bottom>
     </javadoc>
@@ -100,14 +100,18 @@
     </copy>
 
     <mkdir dir="${mulumis.base.dest}/doc"/>
+<!--
     <copy todir="${mulumis.base.dest}/doc">
       <fileset dir="${mulumis.base.doc}" 
       >
       </fileset>
     </copy>
-
+-->
     <copy todir="${mulumis.base.dest}/doc">
       <fileset dir="${mulumis.web.src}" includes="physics.html"
+      >
+      </fileset>
+      <fileset dir="${mulumis.web.src}" includes="technics.html"
       >
       </fileset>
     </copy>
@@ -126,6 +130,11 @@
       </filterset>
     </copy>
     
+    <mkdir dir="${mulumis.base.dest}/sample"/>
+    <copy todir="${mulumis.base.dest}/sample">
+      <fileset dir="${mulumis.base.inc}" includes="sample*.html"/>
+    </copy>
+
     <copy todir="${mulumis.base.dest}">
       <fileset dir="${mulumis.base.inc}" includes="simulum,simulum.bat"/>
       <filterset begintoken="@" endtoken="@">

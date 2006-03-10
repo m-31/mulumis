@@ -3,7 +3,7 @@ Simulum, Version @MULUMIS_VERSION@
 This is a release of the program suite "Simulum". Simulum deals with
 different simulations of star movements and their visualizations.
 
-Copyright (C) 2004 by Michael Meyling
+Copyright (C) 2004-2006 by Michael Meyling
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -33,17 +33,18 @@ The hompage of the simulum project is:
 
 Technical Details
 =================
-To start this program you need a java runtime version 1.4.2 or higher.
 The directory structure is as follows:
-doc           documentation
+doc           some documentation
 javadoc       javadoc for this program
-lib           includes the java library "mulumis.jar"
+lib           includes the java library "mulumis.jar" and the unsigned
+               version "mulumis_u.jar"
+sample        some applet examples               
 src           source files
 
-Now you could start the main program by calling
+Now you could start the main program by calling (or maybe just clicking)
 java -jar lib/mulumis.jar
 
 
 Author
 ======
-Michael Meyling <michael@at@mulmis.meyling.com>
+Michael Meyling <michael@mulmis.meyling.com>

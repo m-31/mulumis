@@ -58,9 +58,9 @@ public final class CirclularMoverWithChangingViewingDirection extends CircularMo
         y[2] = 1;
         // cross product
         final double[] x = viewPoint.getX();
-        x[0] =   z[1]*y[2] - z[2]*y[1];
-        x[1] = -(z[0]*y[2] - z[2]*y[0]);
-        x[2] =   z[0]*y[1] - z[1]*y[0];
+        x[0] =   z[1] * y[2] - z[2] * y[1];
+        x[1] = -(z[0] * y[2] - z[2] * y[0]);
+        x[2] =   z[0] * y[1] - z[1] * y[0];
     }
 
 }

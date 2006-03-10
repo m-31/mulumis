@@ -46,7 +46,7 @@ import com.meyling.mulumis.base.simulator.Simulator;
 import com.meyling.mulumis.base.simulator.SimulatorAttributes;
 import com.meyling.mulumis.base.view.CameraAttributes;
 import com.meyling.mulumis.base.view.ViewChangedListener;
-import com.meyling.mulumis.base.view.Viewer;
+import com.meyling.mulumis.base.view.SimulatorViewer;
 import com.meyling.mulumis.base.viewpoint.AbstractAutomaticMover;
 import com.meyling.mulumis.base.viewpoint.ManualMovement;
 
@@ -57,31 +57,37 @@ import com.meyling.mulumis.base.viewpoint.ManualMovement;
  * @version $Revision$
  * @author  Michael Meyling
  */
-public class FieldViewer extends Applet implements Runnable, 
+public class FieldViewer extends Applet implements Runnable,
         MouseListener, MouseMotionListener, MouseWheelListener {
+
+    /** Manual movement without delay. */
+    public static final String MANUAL = "manual";
+
     private Thread runThread;
-    private int prevx, prevy;
+    private int prevx;
+    private int prevy;
     private double ytheta;
     private double xtheta;
 
-    private final Viewer viewer;
+    private final SimulatorViewer viewer;
     private boolean threadSuspended;
 
 
     public FieldViewer(final Simulator simulator, final CameraAttributes properties) {
-        viewer = new Viewer(simulator, properties, getWidth(), getHeight(), this);
+        viewer = new SimulatorViewer(simulator, properties, getWidth(), getHeight(), this);
     }
-    
-    public FieldViewer(final FieldViewer v, final int width, final int height, final Component parent) {
-        this.viewer = new Viewer(v.viewer, width, height, parent);
+
+    public FieldViewer(final FieldViewer v, final int width, final int height,
+            final Component parent) {
+        this.viewer = new SimulatorViewer(v.viewer, width, height, parent);
         this.prevx = v.prevx;
         this.prevy = v.prevy;
         super.resize(width, height);
     }
 
     public FieldViewer() {
-        viewer = new Viewer(new Simulator(new SimulatorAttributes()), new CameraAttributes(), 
-            getWidth(), getHeight(), this);
+        viewer = new SimulatorViewer(new Simulator(new SimulatorAttributes()),
+            new CameraAttributes(), getWidth(), getHeight(), this);
     }
 
     public void init() {
@@ -92,7 +98,7 @@ public class FieldViewer extends Applet implements Runnable,
         addMouseWheelListener(this);
         threadSuspended = false;
     }
-    
+
     public final void destroy() {
         super.destroy();
         removeMouseListener(this);
@@ -107,7 +113,8 @@ public class FieldViewer extends Applet implements Runnable,
         }
     }
 
-    public final void applyVisualChanges(final Simulator simulator, final CameraAttributes properties) {
+    public final void applyVisualChanges(final Simulator simulator,
+            final CameraAttributes properties) {
         viewer.applyVisualChanges(simulator, properties);
         paint(getGraphics());
     }
@@ -115,15 +122,15 @@ public class FieldViewer extends Applet implements Runnable,
     public final void addViewChangedListener(final ViewChangedListener list) {
         viewer.addViewChangedListener(list);
     }
-    
+
     public final void removeViewChangedListener(final ViewChangedListener list) {
         viewer.removeViewChangedListener(list);
     }
-    
+
     public final void removeAllViewChangedListeners() {
         viewer.removeAllViewChangedListeners();
     }
-    
+
     public final void paint(Graphics g) {
         if (viewer != null) {
             viewer.paintPicture(g);
@@ -138,37 +145,37 @@ public class FieldViewer extends Applet implements Runnable,
         Trace.trace(this, "start", "Thread started");
     }
 
-    public synchronized final void stop(){
+    public final synchronized void stop() {
         runThread = null;
         if (threadSuspended) {
             threadSuspended = false;
             notify();
-        }         
+        }
         Trace.trace(this, "stop", "Thread stopped");
     }
 
-    public final boolean isRunning(){
+    public final boolean isRunning() {
         return runThread != null;
     }
 
     public final void run() {
         try {
-            while (null != runThread) { 
+            while (null != runThread) {
                 viewer.move();
                 viewer.takePicture();
                 paint(getGraphics());
                 try {
                     Thread.sleep(30);
-                    synchronized(this) {
+                    synchronized (this) {
                         while (threadSuspended) {
                             wait();
                         }
                     }
                 } catch (InterruptedException e) {
                 }
-                
+
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Trace.trace(this, "run", e);
             e.printStackTrace();
         }
@@ -193,7 +200,7 @@ public class FieldViewer extends Applet implements Runnable,
         prevy = e.getY();
         e.consume();
     }
-    
+
     public final void mouseReleased(MouseEvent e) {
         e.consume();
     }
@@ -217,20 +224,21 @@ public class FieldViewer extends Applet implements Runnable,
         final ManualMovement positionCalculator = (ManualMovement) viewer.getPositionCalculator();
         int x = e.getX();
         int y = e.getY();
-        final double pi_fraction;
-        if ("manual".equals(viewer.getMovement())) {    // TODO mime 20060306: move constant declaration
-            pi_fraction = Math.PI / 2;
+        final double piFraction;
+        if (MANUAL.equals(viewer.getMovement())) {
+            piFraction = Math.PI / 2;
         } else {
-            pi_fraction = Math.PI / 10;
+            piFraction = Math.PI / 10;
         }
-        final double max = Math.max(getToolkit().getScreenSize().width, getToolkit().getScreenSize().height);
-        ytheta = (prevy - y) * (pi_fraction / max);
-        xtheta = (prevx - x) * (pi_fraction / max);
+        final double max = Math.max(getToolkit().getScreenSize().width,
+            getToolkit().getScreenSize().height);
+        ytheta = (prevy - y) * (piFraction / max);
+        xtheta = (prevx - x) * (piFraction / max);
         positionCalculator.setXtheta(xtheta);
         positionCalculator.setYtheta(ytheta);
         viewer.move();
         viewer.takePicture();
-        if ("manual".equals(viewer.getMovement())) {    // TODO mime 20060306: move constant declaration
+        if (MANUAL.equals(viewer.getMovement())) {
             positionCalculator.setXtheta(0);
             positionCalculator.setYtheta(0);
         }
@@ -245,7 +253,8 @@ public class FieldViewer extends Applet implements Runnable,
     public final void mouseWheelMoved(MouseWheelEvent e) {
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             AbstractAutomaticMover r = viewer.getPositionCalculator();
-            if (InputEvent.BUTTON3_DOWN_MASK != (e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK)) {
+            if (InputEvent.BUTTON3_DOWN_MASK != (e.getModifiersEx()
+                    & InputEvent.BUTTON3_DOWN_MASK)) {
                 if (e.getUnitsToScroll() < 0) {
                     viewer.setRadius(r.getRadius() * 1.05);
                 } else {
@@ -279,7 +288,7 @@ public class FieldViewer extends Applet implements Runnable,
     public final void setGravityOn(boolean on) {
         viewer.setGravityOn(on);
     }
-    
+
     public final String getMovement() {
         return viewer.getMovement();
     }
@@ -290,7 +299,7 @@ public class FieldViewer extends Applet implements Runnable,
             mover.setXtheta(xtheta);
         }
     }
-    
+
     public final void setYtheta(final double ytheta) {
         if (viewer.getPositionCalculator() instanceof ManualMovement) {
             final ManualMovement mover = (ManualMovement) viewer.getPositionCalculator();

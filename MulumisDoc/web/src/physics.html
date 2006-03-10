@@ -19,11 +19,11 @@ To get an visual impression we must choose a viewpoint. We also have to decide a
 <h2>Brightness</h2>
 <p>
 The brightness of the star makes an little spot on our virtual photo plate. The brightness of the spot depends only from the distance between star and viewpoint. The photo plate is a pixel matrix, that has some implications:
+</p>
 <ul>
 <li>one pixel could only have a small range of brightness (e.g. between 0 and 255)</li>
 <li>different stars could be mapped onto the same pixel</li>
 </ul>
-</p>
 
 <h2>Movement of viewpoint</h2>
 <p>
@@ -32,5 +32,17 @@ Currently the viewpoint simply circles around the middle of the sphere.
 
 <h2>Movement of stars</h2>
 <p>
-Not yet implemented. The stars will have to move according to Newton's gravitional law. Because there is no analytical solution for the differential calculus problem, we have to use approximations. With a small time unit we calculate the star movements. We have to be carefull, that the stars don't get to close to each other. If this happens the calculation error has a great impact on our dynamical system. To renormalize the system we use the conservational laws of energy and impulse.
+The stars will have to move according to Newton's gravitional law. Because there is no analytical solution for the differential calculus problem, we have to use approximations. With a small time unit we calculate the star movements. We have to be carefull, that the stars don't get to close to each other. If this happens the calculation error has a great impact on our dynamical system. To renormalize the system we use the conservational laws of energy and impulse.
+</p>
+<p>
+Currently we are not carefull. We just use <a href="http://en.wikipedia.org/wiki/Euler_integration">Euler's method</a> to calculate star positions and velocities. The following formulas are used:
+</p>
+<p>
+<code>star.velocity[i] = star.velocity[i] - deltat * gamma * sum(j, star[j].mass * (star[i].position - star[j].position) / |(star[i].position - star[j].position| ^ 3)</code>
+</p>
+<p>
+<code>star[i].position = star[i].position[k] + deltat * star.velocity[i]</code>
+</p>
+<p>
+This is a very simple single step method. Some more information about better approximation methods to solve the <a href="http://en.wikipedia.org/wiki/N-body_problem">N-body problem</a> can be found at <a href="http://burtleburtle.net/bob/math/multistep.html">Bob Jenkins' web site</a> and <a href="http://www.cs.cmu.edu/~scandal/alg/nbody.html">parallel N-body simulations</a>.
 </p>
