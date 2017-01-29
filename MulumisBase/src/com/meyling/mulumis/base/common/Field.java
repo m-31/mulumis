@@ -55,4 +55,14 @@ public interface Field {
      */
     public abstract GravityObject getStar(int i);
 
+
+    /**
+     * Creates a new star from existing ones, removes the old stars from field.
+     *
+     * @param   i   First star.
+     * @param   j   Second star.
+     * @return  A new star that has the combined properties.
+     */
+    public abstract GravityObject joinStars(int i, int j);
+
 }

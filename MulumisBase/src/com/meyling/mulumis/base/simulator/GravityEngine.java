@@ -77,78 +77,86 @@ public final class GravityEngine implements Gravity {
      * @see com.meyling.mulumis.base.simulator.Gravity#calculate()
      */
     public final synchronized void calculate() {
-        if (vn == null || field.getNumberOfStars() != vn.length / GravityObject.DIMENSION) {
-            vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
-        }
 
-
-        // for each star calculating the new position
-
-        // set total impulse to zero
-        for (int k = 0; k < GravityObject.DIMENSION; k++) {
-            impulse[k] = 0;
-            for (int i = 0; i < field.getNumberOfStars(); i++) {
-                vn[i][k] = field.getStar(i).getVelocity()[k];
+        boolean closeup = false;
+main_do: do {
+            closeup = false;
+            if (vn == null || field.getNumberOfStars() * GravityObject.DIMENSION != vn.length) {
+                vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
             }
-        }
-        for (int i = 0; i < field.getNumberOfStars(); i++) {
+
+
+            // set temporary velocity to current star velocity
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                for (int j = 0; j < i; j++) {
-                    final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
-                        field.getStar(j).getPosition());
-                    if (r < 0.0001) {
-                        // TODO mime 20060209: build cluster from both stars
-                        System.out.println("Contact");
-                    } else if (r < 0.0003) {
-                        // TODO mime 20060209: the stars are so close together, that dt must
-                        //      be smaller to reduce the calculation error
-                        System.out.println("Close together");
+                for (int i = 0; i < field.getNumberOfStars(); i++) {
+                    vn[i][k] = field.getStar(i).getVelocity()[k];
+                }
+            }
+            // for each star calculate the new velocity
+            for (int i = 0; i < field.getNumberOfStars(); i++) {
+                for (int k = 0; k < GravityObject.DIMENSION; k++) {
+                    for (int j = 0; j < i; j++) {
+                        final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
+                                field.getStar(j).getPosition());
+                        if (r < 0.01) {
+                            field.joinStars(i, j);
+                            closeup = true;
+                            // TODO mime 20060209: build cluster from both stars
+                            System.out.println("Contact");
+                            continue main_do;
+
+                        } else if (r < 0.0003) {
+                            // TODO mime 20060209: the stars are so close together, that dt must
+                            //      be smaller to reduce the calculation error
+                            System.out.println("Close together");
+                        }
+                        final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma
+                                * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
+                                / r / r / r;
+                        vn[i][k] -= a * field.getStar(j).getMass();
+                        vn[j][k] += a * field.getStar(i).getMass();
                     }
-                    final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma
-                        * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
-                        / r / r / r;
-                    vn[i][k] -= a * field.getStar(j).getMass();
-                    vn[j][k] += a * field.getStar(i).getMass();
-                }
-                impulse[k] += field.getStar(i).getMass() * vn[i][k];
-                if (Double.isNaN(impulse[k])) {
-                    // TODO mime 20060209: what to do?
-                    Trace.traceParam(this, "calculate", "vn[i][k]", vn[i][k]);
                 }
             }
-        }
-/*
-// TODO mime 20060202: not working
-        // Doing some kind of renormation to correct calculation errors.
-        // As example a primitive impulse renormation if the complete impuls was initially  = 0:
-        for (int k = 0; k < 3; k++) {
-            for (int i = 0; i < field.getNumberOfStars(); i++) {
-//                double v = impulse[k] / field.getMass() / field.getMass()
-//                    * field.getStar(i).getMass();
-//                double v = impulse[k] / field.getMass();
-                double v = 0;
-                if (Double.isNaN(v)) {
-                    Trace.traceParam(this, "calculate", "impulse[k]", impulse[k]);
-                    Trace.traceParam(this, "calculate", "field.getMass()", field.getMass());
-                    Trace.trace(this, "calculate", "NaN");
+    /*
+    // TODO mime 20060202: not working
+            // Doing some kind of renormation to correct calculation errors.
+            // As example a primitive impulse renormation if the complete impuls was initially  = 0:
+            for (int k = 0; k < 3; k++) {
+                for (int i = 0; i < field.getNumberOfStars(); i++) {
+    //                double v = impulse[k] / field.getMass() / field.getMass()
+    //                    * field.getStar(i).getMass();
+    //                double v = impulse[k] / field.getMass();
+                    double v = 0;
+                    if (Double.isNaN(v)) {
+                        Trace.traceParam(this, "calculate", "impulse[k]", impulse[k]);
+                        Trace.traceParam(this, "calculate", "field.getMass()", field.getMass());
+                        Trace.trace(this, "calculate", "NaN");
+                    }
+                    vn[i][k] -= v;
                 }
-                vn[i][k] -= v;
             }
-        }
-*/
-        // for each star calculating the new position
-        for (int k = 0; k < GravityObject.DIMENSION; k++) {
-            impulse[k] = 0;
-        }
-        for (int i = 0; i < field.getNumberOfStars(); i++) {
+    */
+            // reset the overall impulse to zero
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                field.getStar(i).getVelocity()[k] = vn[i][k];
-                impulse[k] += field.getStar(i).getMass() * vn[i][k];
-                field.getStar(i).getPosition()[k] = field.getStar(i).getPosition()[k]
-                    + deltat * vn[i][k];
+                impulse[k] = 0;
             }
-        }
-
+            // for each star calculate the new position plus overall impulse
+            for (int i = 0; i < field.getNumberOfStars(); i++) {
+                for (int k = 0; k < GravityObject.DIMENSION; k++) {
+                    field.getStar(i).getVelocity()[k] = vn[i][k];
+                    impulse[k] += field.getStar(i).getMass() * vn[i][k];
+                    field.getStar(i).getPosition()[k] = field.getStar(i).getPosition()[k]
+                            + deltat * vn[i][k];
+                    if (Double.isNaN(impulse[k])) {
+                        // TODO mime 20060209: what to do?
+                        Trace.traceParam(this, "calculate", "vn[i][k]", vn[i][k]);
+                    }
+                }
+            }
+        } while (closeup);
+        // System.out.println("calculation done");
+        System.out.println(field);
     }
 
     /* (non-Javadoc)

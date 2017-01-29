@@ -1,7 +1,7 @@
 // $Id$
 //
 // This file is part of the program suite "Simulum". Simulum deals with
-// different simulations of star movements and their visualizations.
+// different simulations of stars movements and their visualizations.
 //
 // Copyright (C) 2006 by Michael Meyling
 //
@@ -45,12 +45,12 @@ import com.meyling.mulumis.base.util.CalculatorUtility;
  */
 public final class StarField implements Field  {
 
-    private final Star[] star;
+    private GravityObject[] stars;
 
-    /** Total mass of star field. */
+    /** Total mass of stars field. */
     private double mass;
 
-    /** Total impulse of star field. */
+    /** Total impulse of stars field. */
     private double[] impulse;
 
     private static final double[] ZERO = new double[GravityObject.DIMENSION];
@@ -64,7 +64,7 @@ public final class StarField implements Field  {
      * @param   numberOfStars   Number of stars.
      */
     public StarField(final int numberOfStars) {
-        star = new Star[numberOfStars];
+        stars = new Star[numberOfStars];
         impulse = new double[GravityObject.DIMENSION];
         currentImpulse = new double[GravityObject.DIMENSION];
     }
@@ -80,14 +80,14 @@ public final class StarField implements Field  {
     public void fillBall(final double radius, double[] zero) {
         final double radiusSquare = radius * radius;
         mass = 0;
-        for (int i = 0; i < star.length; i++) {
+        for (int i = 0; i < stars.length; i++) {
             final double[] position = new double[GravityObject.DIMENSION];
             do {
                 for (int j = 0; j < GravityObject.DIMENSION; j++) {
                     position[j] = 2.0d * radius * Math.random() - radius + zero[j];
                 }
             } while (CalculatorUtility.distanceSquare(position, zero) > radiusSquare);
-            star[i] = new Star(1, position);
+            stars[i] = new Star(1, position);
             mass += 1;
         }
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
@@ -105,12 +105,12 @@ public final class StarField implements Field  {
 
     public void fillSquare(final double radius, double[] zero) {
         mass = 0;
-        for (int i = 0; i < star.length; i++) {
+        for (int i = 0; i < stars.length; i++) {
             final double[] position = new double[GravityObject.DIMENSION];
             for (int j = 0; j < GravityObject.DIMENSION; j++) {
                 position[j] = 2.0d * radius * Math.random() - radius + zero[j];
             }
-            star[i] = new Star(1, position);
+            stars[i] = new Star(1, position);
             mass += 1;
         }
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
@@ -122,7 +122,7 @@ public final class StarField implements Field  {
      * @see com.meyling.mulumis.base.stars.Field#getNumberOfStars()
      */
     public final int getNumberOfStars() {
-        return star.length;
+        return stars.length;
     }
 
     /* (non-Javadoc)
@@ -136,11 +136,11 @@ public final class StarField implements Field  {
      * @see com.meyling.mulumis.base.stars.Field#getStar(int)
      */
     public final GravityObject getStar(int i) {
-        return star[i];
+        return stars[i];
     }
 
     /**
-     * Get total impulse of star field. This is the initial value and could be different from
+     * Get total impulse of stars field. This is the initial value and could be different from
      * an newly calculated value.
      *
      * @return  Total impulse.
@@ -150,7 +150,7 @@ public final class StarField implements Field  {
     }
 
     /**
-     * Get total impulse of star field. This is the current value and could be different from
+     * Get total impulse of stars field. This is the current value and could be different from
      * the initial value.
      *
      * @return  Total impulse.
@@ -164,6 +164,55 @@ public final class StarField implements Field  {
         }
         return currentImpulse;
     }
+
+    public void addStar(GravityObject star) {
+        final GravityObject[] newStars = new Star[getNumberOfStars() + 1];
+        System.arraycopy(stars, 0, newStars, 0, getNumberOfStars());
+        newStars[getNumberOfStars()] = star;
+        stars = newStars;
+    }
+
+    public void removeStar(int i) {
+        final GravityObject[] newStars = new Star[getNumberOfStars() - 1];
+        if (i > 0) {
+            System.arraycopy(stars, 0, newStars, 0, i - 1);
+        }
+        if (i < getNumberOfStars() - 1) {
+            System.arraycopy(stars, i, newStars, i - 1, getNumberOfStars() - i + 1);
+        }
+        stars = newStars;
+    }
+
+    public GravityObject joinStars(int i, int j) {
+        GravityObject s1 = stars[i];
+        GravityObject s2 = stars[j];
+        double mass = s1.getMass() + s2.getMass();
+        double[] position = new double[GravityObject.DIMENSION];
+        double[] velocity = new double[GravityObject.DIMENSION];
+        for (int k = 0; k < GravityObject.DIMENSION; k++) {
+            position[k] = (s1.getPosition()[k] + s2.getPosition()[k]) / 2;
+            velocity[k] = (s1.getVelocity()[k] + s2.getVelocity()[k]) / 2;
+        }
+        if (i > j) {
+            removeStar(i);
+            removeStar(j);
+        } else {
+            removeStar(j);
+            removeStar(i);
+        }
+        final Star result = new Star(mass, position, velocity);
+        addStar(result);
+        return result;
+    }
+
+    public final String toString() {
+        String result = "";
+        for (int i = 0; i < getNumberOfStars(); i++) {
+            result += getStar(i).toString() + "\n";
+        }
+        return result;
+    }
+
 
 }
 

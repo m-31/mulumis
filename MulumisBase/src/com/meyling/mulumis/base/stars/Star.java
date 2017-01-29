@@ -101,6 +101,12 @@ public final class Star implements GravityObject  {
         return velocity;
     }
 
+
+    public final String toString() {
+        return String.format("%g (%g, %g, %g) (%g, %g, %g)", getMass(), getPosition()[0], getPosition()[1],
+                getPosition()[2], getVelocity()[0], getVelocity()[1], getVelocity()[2]);
+    }
+
 }
 
 
