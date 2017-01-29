@@ -108,6 +108,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     private CPDoubleField deltat;
 
+    private CPDoubleField impulse;
+
     private JLabel impulseCurrent;
 
     private boolean editCameraFields;
@@ -123,11 +125,15 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     private JPanel simulation;
 
+    private JPanel parameter;
+
     private JPanel appletPanel;
 
     private JButton maximize;
 
     private JButton editGravity;
+
+    private JButton update;
 
     private JLabel helpLabel;
 
@@ -211,6 +217,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
         setupCamera();
         setupGravity();
+        setupStars();
+
 
         appletPanel = new JPanel();
         appletPanel.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -268,6 +276,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         final int height = getContentPane().getHeight() - getContentPane().getInsets().top
             - getContentPane().getInsets().bottom;
         Trace.traceParam(this, "setupSize", "height", height);
+
         visual.setBounds(MARGIN_X, MARGIN_Y, 0, 0);
         SpringUtility.makeCompactGrid(visual,
 //                visual.getComponentCount() / 2, 2,      //rows, cols
@@ -280,14 +289,24 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         simulation.setBounds(MARGIN_X, visual.getHeight() + visual.getY()
                 + MARGIN_Y, 0, 0);
         SpringUtility.makeCompactGrid(simulation,
-//                simulation.getComponentCount() / 2, 2,  //rows, cols
+//                parameter.getComponentCount() / 2, 2,  //rows, cols
                 simulation.getComponentCount() / 1, 1,  //rows, cols
                 6, 6,        //initX, initY
                 6, 3);       //xPad, yPad
         size = simulation.getPreferredSize();
         simulation.setSize(size);
 
-        help.setLocation(MARGIN_X, simulation.getY() + simulation.getHeight() + MARGIN_Y);
+        parameter.setBounds(MARGIN_X, simulation.getHeight() + simulation.getY()
+                + MARGIN_Y, 0, 0);
+        SpringUtility.makeCompactGrid(parameter,
+//                parameter.getComponentCount() / 2, 2,  //rows, cols
+                parameter.getComponentCount() / 1, 1,  //rows, cols
+                6, 6,        //initX, initY
+                6, 3);       //xPad, yPad
+        size = parameter.getPreferredSize();
+        parameter.setSize(size);
+
+        help.setLocation(MARGIN_X, parameter.getY() + parameter.getHeight() + MARGIN_Y);
         help.setSize(help.getPreferredSize());
 
         helpLabel.setLocation(MARGIN_X, help.getY() + help.getHeight() + MARGIN_Y);
@@ -436,6 +455,34 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         visual.add(start);
 
         visual.add(new JLabel(""));
+    }
+
+    /**
+     * Setup stars parameter panel.
+     */
+    private void setupStars() {
+        final Container contents = getContentPane();
+
+        parameter = new JPanel(new SpringLayout());
+        parameter.setBorder(BorderFactory.createRaisedBevelBorder());
+        contents.add(parameter);
+
+        JLabel panelDescriptionStars = new JLabel("Stars");
+        panelDescriptionStars.setForeground(Color.BLUE);
+        parameter.add(panelDescriptionStars);
+
+        final Parameter impulseParameter = new Parameter("impulse", "impulse", Double.class, "overall impulse", "0");
+        impulse = createDoubleField(parameter, impulseParameter, 0, 0000000000d, DOUBLE_LENGTH);
+
+        update = new JButton("Update");
+        update.setToolTipText("Get current parameters.");
+        update.addActionListener(new  ActionListener() {
+            public void actionPerformed(final ActionEvent actionEvent) {
+                impulse.setValue(simulator.getImpulse());
+            }
+        });
+        parameter.add(update);
+        parameter.add(new JLabel(""));
     }
 
     /**

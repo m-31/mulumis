@@ -98,11 +98,11 @@ public final class GravityEngine implements Gravity {
                         field.getStar(j).getPosition());
                     if (r < 0.0001) {
                         // TODO mime 20060209: build cluster from both stars
-//                        System.out.println("Contact");
+                        System.out.println("Contact");
                     } else if (r < 0.0003) {
                         // TODO mime 20060209: the stars are so close together, that dt must
                         //      be smaller to reduce the calculation error
-//                        System.out.println("Close together");
+                        System.out.println("Close together");
                     }
                     final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma
                         * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
