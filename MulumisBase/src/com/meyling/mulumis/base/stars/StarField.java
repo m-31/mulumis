@@ -170,17 +170,19 @@ public final class StarField implements Field  {
         System.arraycopy(stars, 0, newStars, 0, getNumberOfStars());
         newStars[getNumberOfStars()] = star;
         stars = newStars;
+        System.out.println("Stars: add, now we have " + getNumberOfStars());
     }
 
     public void removeStar(int i) {
         final GravityObject[] newStars = new Star[getNumberOfStars() - 1];
         if (i > 0) {
-            System.arraycopy(stars, 0, newStars, 0, i - 1);
+            System.arraycopy(stars, 0, newStars, 0, i);
         }
         if (i < getNumberOfStars() - 1) {
-            System.arraycopy(stars, i, newStars, i - 1, getNumberOfStars() - i + 1);
+            System.arraycopy(stars, i, newStars, i, getNumberOfStars() - i - 1);
         }
         stars = newStars;
+        System.out.println("Stars: remove " + i + ", now we have " + getNumberOfStars());
     }
 
     public GravityObject joinStars(int i, int j) {
@@ -191,7 +193,7 @@ public final class StarField implements Field  {
         double[] velocity = new double[GravityObject.DIMENSION];
         for (int k = 0; k < GravityObject.DIMENSION; k++) {
             position[k] = (s1.getPosition()[k] + s2.getPosition()[k]) / 2;
-            velocity[k] = (s1.getVelocity()[k] + s2.getVelocity()[k]) / 2;
+            velocity[k] = (s1.getMass() * s1.getVelocity()[k] + s2.getMass() *  s2.getVelocity()[k]) / mass;
         }
         if (i > j) {
             removeStar(i);

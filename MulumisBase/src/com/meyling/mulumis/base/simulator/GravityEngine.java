@@ -102,8 +102,9 @@ main_do: do {
                             field.joinStars(i, j);
                             closeup = true;
                             // TODO mime 20060209: build cluster from both stars
-                            System.out.println("Contact");
-                            continue main_do;
+                            System.out.println("Contact: " + i + " " + j);
+                            return;
+                            // continue main_do;
 
                         } else if (r < 0.0003) {
                             // TODO mime 20060209: the stars are so close together, that dt must
@@ -156,7 +157,7 @@ main_do: do {
             }
         } while (closeup);
         // System.out.println("calculation done");
-        System.out.println(field);
+        // System.out.println(field);
     }
 
     /* (non-Javadoc)
