@@ -179,7 +179,7 @@ public final class StarField implements Field  {
             System.arraycopy(stars, 0, newStars, 0, i);
         }
         if (i < getNumberOfStars() - 1) {
-            System.arraycopy(stars, i, newStars, i, getNumberOfStars() - i - 1);
+            System.arraycopy(stars, i + 1, newStars, i, getNumberOfStars() - i - 1);
         }
         stars = newStars;
         System.out.println("Stars: remove " + i + ", now we have " + getNumberOfStars());

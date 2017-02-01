@@ -157,7 +157,7 @@ main_do: do {
             }
         } while (closeup);
         // System.out.println("calculation done");
-        // System.out.println(field);
+        System.out.println(field);
     }
 
     /* (non-Javadoc)
