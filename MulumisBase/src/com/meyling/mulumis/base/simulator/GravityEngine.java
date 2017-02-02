@@ -59,6 +59,12 @@ public final class GravityEngine implements Gravity {
     /** Total impulse. */
     private double[] impulse;
 
+    /** Total cinetic energy. */
+    private double cinetic_energy;
+
+    /** Total potential energy. */
+    private double potential_energy;
+
     /** Star field to work on. */
     private Field field;
 
@@ -80,11 +86,11 @@ public final class GravityEngine implements Gravity {
 
         boolean closeup = false;
 main_do: do {
+
             closeup = false;
             if (vn == null || field.getNumberOfStars() * GravityObject.DIMENSION != vn.length) {
                 vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
             }
-
 
             // set temporary velocity to current star velocity
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
@@ -94,28 +100,35 @@ main_do: do {
             }
             // for each star calculate the new velocity
             for (int i = 0; i < field.getNumberOfStars(); i++) {
-                for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                    for (int j = 0; j < i; j++) {
-                        final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
-                                field.getStar(j).getPosition());
-                        if (r < 0.01) {
-                            field.joinStars(i, j);
-                            closeup = true;
-                            // TODO mime 20060209: build cluster from both stars
-                            System.out.println("Contact: " + i + " " + j);
-                            return;
-                            // continue main_do;
+                for (int j = 0; j < i; j++) {
+                    final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
+                        field.getStar(j).getPosition());
+                    if (r < 0.01) {
+                        System.out.println("Contact: " + i + " " + j);
 
-                        } else if (r < 0.0003) {
-                            // TODO mime 20060209: the stars are so close together, that dt must
-                            //      be smaller to reduce the calculation error
-                            System.out.println("Close together");
-                        }
-                        final double a = deltat * gamma // TODO mime 20060307: extract deltat * gamma
+                        System.out.println("---------------------------------------------------------------------------------------------");
+                        System.out.println(field);
+                        System.out.println("cinetic energy:   " + getCineticEnergy());
+                        System.out.println("potential energy: " + getPotentialEnergy());
+                        System.out.println("overall energy:   " + (getCineticEnergy() + getPotentialEnergy()));
+
+                        field.joinStars(i, j);
+                        closeup = true;
+
+                        return;
+                        // continue main_do;
+
+                    } else if (r < 0.0003) {
+                        // TODO mime 20060209: the stars are so close together, that dt must
+                        //      be smaller to reduce the calculation error
+                        System.out.println("Close together");
+                    }
+                    for (int k = 0; k < GravityObject.DIMENSION; k++) {
+                        final double a = gamma // TODO mime 20060307: extract deltat * gamma
                                 * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
                                 / r / r / r;
-                        vn[i][k] -= a * field.getStar(j).getMass();
-                        vn[j][k] += a * field.getStar(i).getMass();
+                        vn[i][k] -= a * deltat * field.getStar(j).getMass();
+                        vn[j][k] += a * deltat * field.getStar(i).getMass();
                     }
                 }
             }
@@ -138,26 +151,44 @@ main_do: do {
                 }
             }
     */
-            // reset the overall impulse to zero
+
+            double[] imp = new double[GravityObject.DIMENSION];
+            // set the overall impulse to zero
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                impulse[k] = 0;
+                imp[k] = 0;
             }
+            double cinetic = 0;
+            double potential = 0;
+
             // for each star calculate the new position plus overall impulse
             for (int i = 0; i < field.getNumberOfStars(); i++) {
+                GravityObject star = field.getStar(i);
                 for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                    field.getStar(i).getVelocity()[k] = vn[i][k];
-                    impulse[k] += field.getStar(i).getMass() * vn[i][k];
-                    field.getStar(i).getPosition()[k] = field.getStar(i).getPosition()[k]
-                            + deltat * vn[i][k];
+                    impulse[k] += star.getMass() * vn[i][k];
+                    star.getPosition()[k] += deltat * (vn[i][k] + star.getVelocity()[k]);
+                    star.getVelocity()[k] = vn[i][k];
                     if (Double.isNaN(impulse[k])) {
                         // TODO mime 20060209: what to do?
                         Trace.traceParam(this, "calculate", "vn[i][k]", vn[i][k]);
                     }
                 }
+                cinetic += star.getMass() * CalculatorUtility.len2(star.getVelocity()) / 2;
+                for (int j = 0; j < i; j++) {
+                    final double r = CalculatorUtility.distance(field.getStar(i).getPosition(),
+                            field.getStar(j).getPosition());
+                    potential -= (field.getStar(i).getMass() * field.getStar(j).getMass()) * gamma  * 2 / r;
+                }
             }
-        } while (closeup);
+            // set the overall impulse
+            for (int k = 0; k < GravityObject.DIMENSION; k++) {
+                impulse[k] = imp[k];
+            }
+            cinetic_energy = cinetic;
+            potential_energy = potential;
+
+         } while (closeup);
         // System.out.println("calculation done");
-        System.out.println(field);
+        // System.out.println(field);
     }
 
     /* (non-Javadoc)
@@ -195,6 +226,20 @@ main_do: do {
         return impulse;
     }
 
+
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getCineticEnergy()
+     */
+    public synchronized double getCineticEnergy() {
+        return cinetic_energy;
+    }
+
+    /* (non-Javadoc)
+     * @see com.meyling.mulumis.base.simulator.Gravity#getPotentialEnergy()
+     */
+    public synchronized double getPotentialEnergy() {
+        return potential_energy;
+    }
 
 }
 

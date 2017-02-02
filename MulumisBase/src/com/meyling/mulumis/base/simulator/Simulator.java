@@ -112,6 +112,14 @@ public final class Simulator {
         return CalculatorUtility.len(engine.getImpulse());
     }
 
+    public final double getCineticEnergy() {
+        return engine.getCineticEnergy();
+    }
+
+    public final double getPotentialEnergy() {
+        return engine.getPotentialEnergy();
+    }
+
     public final synchronized void start() {
         thread = new Thread() {
             public void run() {

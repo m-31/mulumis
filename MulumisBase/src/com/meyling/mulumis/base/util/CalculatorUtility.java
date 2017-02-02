@@ -62,6 +62,10 @@ public final class CalculatorUtility  {
         return Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
     }
 
+    public static final double len2(double[] a) {
+        return a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
+    }
+
     public static final double scalar(double[] a, double[] b) {
         return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     }

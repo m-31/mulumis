@@ -110,6 +110,10 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 
     private CPDoubleField impulse;
 
+    private CPDoubleField cineticEnergy;
+
+    private CPDoubleField potentialEnergy;
+
     private JLabel impulseCurrent;
 
     private boolean editCameraFields;
@@ -263,7 +267,7 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
 //        startViewer();
         maximized = false;
         editCameraFields();
-        editCameraFields();
+        editGravityFields();
     }
 
     /**
@@ -472,13 +476,22 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
         parameter.add(panelDescriptionStars);
 
         final Parameter impulseParameter = new Parameter("impulse", "impulse", Double.class, "overall impulse", "0");
-        impulse = createDoubleField(parameter, impulseParameter, 0, 0000000000d, DOUBLE_LENGTH);
+        impulse = createDoubleField(parameter, impulseParameter, 0, Double.MAX_VALUE, DOUBLE_LENGTH);
+
+        final Parameter cineticEnergyParameter = new Parameter("cinetic_energy", "cinetic energy", Double.class, "overall cinetic energy", "0");
+        cineticEnergy = createDoubleField(parameter, cineticEnergyParameter, 0, Double.MAX_VALUE, DOUBLE_LENGTH);
+
+
+        final Parameter potentialEnergyParameter = new Parameter("potential_energy", "potential energy", Double.class, "overall potential energy", "0");
+        potentialEnergy = createDoubleField(parameter, cineticEnergyParameter, 0, Double.MAX_VALUE, DOUBLE_LENGTH);
 
         update = new JButton("Update");
         update.setToolTipText("Get current parameters.");
         update.addActionListener(new  ActionListener() {
             public void actionPerformed(final ActionEvent actionEvent) {
                 impulse.setValue(simulator.getImpulse());
+                cineticEnergy.setValue(simulator.getCineticEnergy());
+                potentialEnergy.setValue(simulator.getPotentialEnergy());
             }
         });
         parameter.add(update);
@@ -549,7 +562,8 @@ public final class MainFrame extends JFrame implements ViewChangedListener {
             minimum, maximum, length);
         doubleField.setValue(parameter.getDoubleValue());
         doubleField.setToolTipText(parameter.getComment());
-        doubleField.setColumns(length / 3 + 2); // don't show all columns
+//        doubleField.setColumns(length / 3 + 2); // don't show all columns
+        doubleField.setColumns(length / 2 + 2);
         label.setLabelFor(doubleField);
         contentPane.add(doubleField);
         return doubleField;

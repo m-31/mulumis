@@ -53,6 +53,18 @@ public interface Gravity {
      */
     public abstract double[] getImpulse();
 
+
+    /**
+     * Get total cinetic energy of star field.
+     */
+    public abstract double getCineticEnergy();
+
+    /**
+     * Get total potential energy of star field.
+     */
+    public abstract double getPotentialEnergy();
+
+
     /**
      * Set gravity constant.
      *
