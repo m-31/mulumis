@@ -53,8 +53,8 @@ public final class GravityEngine implements Gravity {
     /* Delta t, small time interval. */
     private double deltat;
 
-    /** Temporary variable to save velocities. */
-    private double[][] vn;
+    /** Temporary variable to save acelleration. */
+    private double[][] an;
 
     /** Total impulse. */
     private double[] impulse;
@@ -88,14 +88,14 @@ public final class GravityEngine implements Gravity {
 main_do: do {
 
             closeup = false;
-            if (vn == null || field.getNumberOfStars() * GravityObject.DIMENSION != vn.length) {
-                vn = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
+            if (an == null || field.getNumberOfStars() * GravityObject.DIMENSION != an.length) {
+                an = new double[field.getNumberOfStars()][GravityObject.DIMENSION];
             }
 
             // set temporary velocity to current star velocity
             for (int k = 0; k < GravityObject.DIMENSION; k++) {
                 for (int i = 0; i < field.getNumberOfStars(); i++) {
-                    vn[i][k] = field.getStar(i).getVelocity()[k];
+                    an[i][k] = 0;
                 }
             }
             // for each star calculate the new velocity
@@ -127,8 +127,8 @@ main_do: do {
                         final double a = gamma // TODO mime 20060307: extract deltat * gamma
                                 * (field.getStar(i).getPosition()[k] - field.getStar(j).getPosition()[k])
                                 / r / r / r;
-                        vn[i][k] -= a * deltat * field.getStar(j).getMass();
-                        vn[j][k] += a * deltat * field.getStar(i).getMass();
+                        an[i][k] -= a * deltat * field.getStar(j).getMass();
+                        an[j][k] += a * deltat * field.getStar(i).getMass();
                     }
                 }
             }
@@ -164,13 +164,9 @@ main_do: do {
             for (int i = 0; i < field.getNumberOfStars(); i++) {
                 GravityObject star = field.getStar(i);
                 for (int k = 0; k < GravityObject.DIMENSION; k++) {
-                    impulse[k] += star.getMass() * vn[i][k];
-                    star.getPosition()[k] += deltat * (vn[i][k] + star.getVelocity()[k]);
-                    star.getVelocity()[k] = vn[i][k];
-                    if (Double.isNaN(impulse[k])) {
-                        // TODO mime 20060209: what to do?
-                        Trace.traceParam(this, "calculate", "vn[i][k]", vn[i][k]);
-                    }
+                    star.getPosition()[k] += deltat * (an[i][k] / 2 + deltat * star.getVelocity()[k]);
+                    star.getVelocity()[k] += deltat * an[i][k];
+                    imp[k] += star.getMass() * star.getVelocity()[k];
                 }
                 cinetic += star.getMass() * CalculatorUtility.len2(star.getVelocity()) / 2;
                 for (int j = 0; j < i; j++) {
